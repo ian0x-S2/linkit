@@ -14,24 +14,33 @@
 		SidebarFooter
 	} from '$lib/components/ui/sidebar';
 	import { Button } from '$lib/components/ui/button';
-	import {
-		Home,
-		Hash,
-		Sparkles,
-		Settings,
-		Search,
-		Moon,
-		Sun,
-		Link as LinkIcon
-	} from '@lucide/svelte';
+	import { Home, Hash, Sparkles, Settings, Moon, Sun, Link as LinkIcon } from '@lucide/svelte';
 	import { toggleMode } from 'mode-watcher';
 	import { page } from '$app/state';
+	import RightSidebar from '$lib/components/RightSidebar.svelte';
 
 	interface Props {
 		children?: import('svelte').Snippet;
 	}
 
 	let { children }: Props = $props();
+
+	let open = $state(true);
+
+	// Smart Sidebar state management
+	$effect(() => {
+		const handleResize = () => {
+			if (window.innerWidth < 1024) {
+				open = false; // Collapse on tablets/small screens
+			} else {
+				open = true; // Open on large desktops
+			}
+		};
+
+		handleResize(); // Initial check
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	});
 
 	const navigation = [
 		{
@@ -42,7 +51,7 @@
 		{
 			label: 'Discovery',
 			href: '/discovery',
-			icon: Search,
+			icon: Sparkles,
 			disabled: true
 		},
 		{
@@ -59,11 +68,11 @@
 </script>
 
 <ModeWatcher />
-<SidebarProvider class="min-h-screen bg-background">
+<SidebarProvider bind:open class="min-h-screen bg-background">
 	<div class="flex w-full justify-center">
-		<!-- Left Column: Sidebar Wrapper (Balanced) -->
-		<div class="relative hidden flex-1 justify-end sm:flex">
-			<Sidebar collapsible="icon" class="sticky top-0 h-screen shrink-0 border-l bg-background">
+		<!-- Left Sidebar Column -->
+		<div class="hidden flex-1 justify-end sm:flex">
+			<Sidebar collapsible="icon" class="sticky top-0 h-screen   border-l bg-background">
 				<SidebarContent class="bg-background">
 					<SidebarGroup class="p-0">
 						<div class="flex h-14 items-center justify-between overflow-hidden border-b px-2 py-3">
@@ -107,82 +116,52 @@
 					</SidebarGroup>
 				</SidebarContent>
 
-				                <SidebarFooter
-									class="flex flex-row items-center justify-between border-t bg-background p-2 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-1"
-								>
-									<Button
-										variant="ghost"
-										size="sm"
-										class="h-9 justify-start gap-2 px-2 hover:bg-accent group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center"
-										onclick={toggleMode}
-										title="Toggle Theme"
-									>
-										<div class="flex shrink-0 items-center justify-center">
-											<Moon class="h-4 w-4 dark:hidden" />
-											<Sun class="hidden h-4 w-4 dark:block" />
-										</div>
-										<span
-											class="text-[10px] font-bold uppercase tracking-wider group-data-[collapsible=icon]:hidden"
-											>Theme</span
-										>
-									</Button>
-				
-									<Button
-										variant="ghost"
-										size="icon"
-										href="/settings"
-										class="h-9 w-9 shrink-0 {page.url.pathname === '/settings'
-											? 'bg-accent text-accent-foreground'
-											: ''}"
-										title="Settings"
-									>
-										<Settings class="h-4 w-4" />
-									</Button>
-								</SidebarFooter>			</Sidebar>
+				<SidebarFooter
+					class="flex flex-row items-center justify-between border-t bg-background p-2 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-1"
+				>
+					<Button
+						variant="ghost"
+						size="sm"
+						class="h-9 justify-start gap-2 px-2 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 hover:bg-accent"
+						onclick={toggleMode}
+						title="Toggle Theme"
+					>
+						<div class="flex shrink-0 items-center justify-center">
+							<Moon class="h-4 w-4 dark:hidden" />
+							<Sun class="hidden h-4 w-4 dark:block" />
+						</div>
+						<span
+							class="text-[10px] font-bold tracking-wider uppercase group-data-[collapsible=icon]:hidden"
+							>Theme</span
+						>
+					</Button>
+
+					<Button
+						variant="ghost"
+						size="icon"
+						href="/settings"
+						class="h-9 w-9 shrink-0 {page.url.pathname === '/settings'
+							? 'bg-accent text-accent-foreground'
+							: ''}"
+						title="Settings"
+					>
+						<Settings class="h-4 w-4" />
+					</Button>
+				</SidebarFooter>
+			</Sidebar>
 		</div>
 
 		<!-- Center Column: Main Feed -->
-		<main class="relative min-h-screen w-full max-w-2xl border-r bg-background shadow-sm">
+		<main class="min-h-screen w-full max-w-2xl border-r bg-background shadow-sm">
 			{@render children?.()}
 		</main>
 
-		<!-- Right Column: Trends/Discovery Wrapper (Balanced) -->
-		<div class="hidden flex-1 justify-start lg:flex">
-			<aside class="sticky top-0 h-screen w-[350px] overflow-y-auto py-6 pr-4 pl-10">
-				<div class="space-y-4 rounded-2xl border bg-background p-5 shadow-sm">
-					<h2 class="px-2 text-lg font-bold tracking-tight">What's happening</h2>
-					<div class="space-y-5">
-						<div
-							class="group cursor-pointer rounded-lg px-2 py-1 transition-colors hover:bg-muted/50"
-						>
-							<p class="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
-								Trending in Tech
-							</p>
-							<p class="text-[15px] font-bold transition-colors group-hover:text-primary">
-								#Svelte5
-							</p>
-							<p class="text-[11px] text-muted-foreground">1,234 links</p>
-						</div>
-						<div
-							class="group cursor-pointer rounded-lg px-2 py-1 transition-colors hover:bg-muted/50"
-						>
-							<p class="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
-								Local-first Apps
-							</p>
-							<p class="text-[15px] font-bold transition-colors group-hover:text-primary">
-								#BunRuntime
-							</p>
-							<p class="text-[11px] text-muted-foreground">856 links</p>
-						</div>
-					</div>
-					<Button variant="link" class="h-auto p-2 text-sm font-medium text-primary"
-						>Show more</Button
-					>
-				</div>
-			</aside>
+		<!-- Right Column: Trends/Discovery Wrapper -->
+		<div class="hidden flex-1 justify-start xl:flex">
+			<RightSidebar />
 		</div>
 
-		<!-- Ghost Spacer: Keeps the feed centered when the right column is hidden (md to lg) -->
-		<div class="hidden flex-1 sm:flex lg:hidden"></div>
+		<!-- Spacer for tablet to keep feed centered when RightSidebar is hidden -->
+		<div class="hidden flex-1 sm:flex xl:hidden"></div>
 	</div>
 </SidebarProvider>
