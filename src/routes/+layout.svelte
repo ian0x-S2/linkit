@@ -6,17 +6,17 @@
 		SidebarContent,
 		SidebarGroup,
 		SidebarGroupContent,
-		SidebarGroupLabel,
 		SidebarMenu,
 		SidebarMenuButton,
 		SidebarMenuItem,
-		SidebarInset,
 		SidebarProvider,
-		SidebarTrigger
+		SidebarTrigger,
+		SidebarFooter
 	} from '$lib/components/ui/sidebar';
 	import { Button } from '$lib/components/ui/button';
-	import { Tag, Sparkles, Moon, Sun } from '@lucide/svelte';
+	import { Home, Hash, Sparkles, Settings, Search, Moon, Sun, Link as LinkIcon } from '@lucide/svelte';
 	import { toggleMode } from 'mode-watcher';
+	import { page } from '$app/state';
 
 	interface Props {
 		children?: import('svelte').Snippet;
@@ -26,14 +26,20 @@
 
 	const navigation = [
 		{
-			label: 'Links',
+			label: 'Home',
 			href: '/',
-			icon: Tag
+			icon: Home
+		},
+		{
+			label: 'Discovery',
+			href: '/discovery',
+			icon: Search,
+			disabled: true
 		},
 		{
 			label: 'Tags',
 			href: '/tags',
-			icon: Tag
+			icon: Hash
 		},
 		{
 			label: 'Suggestions',
@@ -43,13 +49,7 @@
 		{
 			label: 'Settings',
 			href: '/settings',
-			icon: Sparkles
-		},
-		{
-			label: 'Discovery',
-			href: '/discovery',
-			icon: Sparkles,
-			disabled: true
+			icon: Settings
 		}
 	];
 </script>
@@ -57,17 +57,40 @@
 <ModeWatcher />
 <div class="flex min-h-screen w-full bg-background">
 	<SidebarProvider>
-		<Sidebar>
-			<SidebarContent>
+		<Sidebar collapsible="icon" class="border-r bg-background">
+			<SidebarContent class="bg-background">
 				<SidebarGroup>
-					<SidebarGroupLabel>Menu</SidebarGroupLabel>
+					<div class="px-2 py-3 flex items-center justify-between overflow-hidden h-14">
+						<div class="flex items-center gap-2 px-2 min-w-0 group-data-[collapsible=icon]:hidden">
+							<a href="/" class="flex items-center gap-2">
+								<div
+									class="h-7 w-7 rounded-md bg-primary flex items-center justify-center text-primary-foreground shrink-0"
+								>
+									<LinkIcon class="h-4 w-4" />
+								</div>
+								<span class="font-bold text-base tracking-tight truncate">MyLinks</span>
+							</a>
+						</div>
+						<div
+							class="group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center"
+						>
+							<SidebarTrigger />
+						</div>
+					</div>
+
 					<SidebarGroupContent>
 						<SidebarMenu>
 							{#each navigation as item (item.href)}
 								<SidebarMenuItem>
-									<SidebarMenuButton href={item.href} disabled={item.disabled}>
-										<item.icon class="h-4 w-4" />
-										<span>{item.label}</span>
+									<SidebarMenuButton
+										href={item.href}
+										disabled={item.disabled}
+										isActive={page.url.pathname === item.href}
+										tooltip={item.label}
+										class="py-5"
+									>
+										<item.icon class="h-5 w-5" />
+										<span class="text-base">{item.label}</span>
 									</SidebarMenuButton>
 								</SidebarMenuItem>
 							{/each}
@@ -75,17 +98,45 @@
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>
-		</Sidebar>
-		<SidebarInset class="flex-1">
-			<header class="flex h-16 items-center justify-between border-b px-4">
-				<SidebarTrigger />
-				<Button variant="outline" size="icon" onclick={toggleMode}>
-					<Moon class="h-4 w-4" />
+
+			<SidebarFooter class="p-2 gap-1 bg-background border-t">
+				<Button
+					variant="ghost"
+					size="icon"
+					class="w-full justify-start gap-2 px-2 h-9 group-data-[collapsible=icon]:justify-center"
+					onclick={toggleMode}
+				>
+					<Moon class="h-4 w-4 dark:hidden" />
+					<Sun class="h-4 w-4 hidden dark:block" />
+					<span class="group-data-[collapsible=icon]:hidden text-xs font-medium">Theme</span>
 				</Button>
-			</header>
-			<main class="p-4 md:p-8">
+			</SidebarFooter>
+		</Sidebar>
+
+		<div class="flex-1 flex justify-center bg-muted/5">
+			<main class="w-full max-w-2xl min-h-screen bg-background border-x relative">
 				{@render children?.()}
 			</main>
-		</SidebarInset>
+
+			<!-- Right Column (Trends/Discovery) - Hidden on smaller screens -->
+			<aside class="hidden lg:block w-[320px] px-6 py-6 sticky top-0 h-screen overflow-y-auto">
+				<div class="bg-muted/30 rounded-2xl p-4 border space-y-4">
+					<h2 class="font-bold px-2">What's happening</h2>
+					<div class="space-y-4">
+						<div class="px-2 py-1 hover:bg-muted/50 rounded-lg transition-colors cursor-pointer group">
+							<p class="text-[11px] text-muted-foreground">Trending in Tech</p>
+							<p class="font-bold text-sm group-hover:text-primary transition-colors">#Svelte5</p>
+							<p class="text-[11px] text-muted-foreground">1,234 links</p>
+						</div>
+						<div class="px-2 py-1 hover:bg-muted/50 rounded-lg transition-colors cursor-pointer group">
+							<p class="text-[11px] text-muted-foreground">Local-first Apps</p>
+							<p class="font-bold text-sm group-hover:text-primary transition-colors">#BunRuntime</p>
+							<p class="text-[11px] text-muted-foreground">856 links</p>
+						</div>
+					</div>
+					<Button variant="link" class="text-xs text-primary p-2 h-auto">Show more</Button>
+				</div>
+			</aside>
+		</div>
 	</SidebarProvider>
 </div>
