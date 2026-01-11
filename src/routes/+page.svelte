@@ -69,9 +69,10 @@
 
 	// URL detection and metadata fetch
 	$effect(() => {
-		const urlPattern = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+		const urlPattern =
+			/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 		const match = newLinkUrl.match(urlPattern);
-		
+
 		if (match && match[0] && (!ogPreview || ogPreview.url !== match[0])) {
 			handleUrlPaste(match[0]);
 		}
@@ -92,8 +93,8 @@
 					title: data.title || '',
 					description: data.description || '',
 					image: data.image || '',
-				tags: [],
-				createdAt: Date.now()
+					tags: [],
+					createdAt: Date.now()
 				};
 			}
 		} catch (err) {
@@ -125,9 +126,7 @@
 	}
 
 	// Computed suggestions for tags
-	let tagSuggestions = $derived(
-		getAllTags().filter((t) => !ogPreview?.tags?.includes(t))
-	);
+	let tagSuggestions = $derived(getAllTags().filter((t) => !ogPreview?.tags?.includes(t)));
 
 	function handleEdit(link: Link) {
 		editingLink = link;
@@ -196,181 +195,181 @@
 </script>
 
 <div>
-	<div class="mx-auto max-w-2xl border-x min-h-screen bg-background">
+	<div class="mx-auto min-h-screen max-w-2xl border-x bg-background">
 		<!-- Sticky Header -->
-		<header class="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b">
-			<div class="px-4 py-3 flex items-center justify-between">
+		<header class="sticky top-0 z-10 border-b bg-background/80 backdrop-blur-md">
+			<div class="flex items-center justify-between px-4 py-3">
 				<h1 class="text-xl font-bold tracking-tight">Home</h1>
 				<div class="flex gap-2">
-					<Button variant="ghost" size="icon" onclick={() => (showExportDialog = true)} title="Export">
+					<Button
+						variant="ghost"
+						size="icon"
+						onclick={() => (showExportDialog = true)}
+						title="Export"
+					>
 						<FileJson class="h-5 w-5" />
 					</Button>
 				</div>
 			</div>
-			
+
 			<!-- Search & Filters in Header Area -->
-			<div class="px-4 pb-3 space-y-3">
+			<div class="space-y-3 px-4 pb-3">
 				<div class="relative">
 					<Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 					<Input
 						bind:value={searchInput}
 						placeholder="Search links..."
-						class="pl-9 bg-muted/50 border-none rounded-full h-10 focus-visible:ring-primary"
+						class="h-10 rounded-md border-none bg-muted/50 pl-9 focus-visible:ring-primary"
 					/>
 				</div>
 
 				{#if getAllTags().length > 0}
-					<div class="flex flex-wrap gap-2 overflow-x-auto no-scrollbar pb-1">
+					<div class="no-scrollbar flex flex-wrap gap-2 overflow-x-auto pb-1">
 						{#each getAllTags() as tag}
 							<Badge
 								variant={selectedTags.includes(tag) ? 'default' : 'secondary'}
-								class="cursor-pointer rounded-full px-3 py-1 text-xs border-none"
+								class="cursor-pointer rounded-md border-none px-3 py-1 text-xs"
 								onclick={() => toggleTag(tag)}
 							>
 								#{tag}
 							</Badge>
 						{/each}
 						{#if selectedTags.length > 0}
-							<Button variant="ghost" size="sm" class="h-7 text-xs rounded-full" onclick={clearSelectedTags}>Clear</Button>
+							<Button
+								variant="ghost"
+								size="sm"
+								class="h-7 rounded-md text-xs"
+								onclick={clearSelectedTags}>Clear</Button
+							>
 						{/if}
 					</div>
 				{/if}
 			</div>
 		</header>
 
-		<!-- "What's happening?" Style Input Area -->
-		<div class="border-b p-4 pb-3">
-			<div class="flex gap-3">
-				<div
-					class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10"
-				>
-					<Plus class="h-6 w-6 text-primary" />
-				</div>
-				<div class="flex-1 space-y-3">
+		<!-- Link Creation Area -->
+		<div class="border-b p-4 pb-4">
+			<div class="flex items-center gap-2">
+				<div class="flex-1">
 					<Input
 						bind:value={newLinkUrl}
 						placeholder="Paste a link here..."
-						class="border-none bg-transparent px-0 py-2 text-xl shadow-none focus-visible:ring-0"
+						class="h-11 rounded-md border-none bg-muted/50 px-4 py-2 text-lg shadow-none focus-visible:ring-0"
 					/>
+				</div>
+				<Button
+					onclick={handleQuickPost}
+					disabled={!ogPreview}
+					class="h-10 w-24 rounded-md px-2 font-bold"
+				>
+					Post
+				</Button>
+			</div>
 
-					{#if isFetchingOg}
-						<div class="flex items-center gap-2 py-4 text-sm text-muted-foreground">
-							<Loader2 class="h-4 w-4 animate-spin" />
-							<span>Fetching link metadata...</span>
+			{#if isFetchingOg}
+				<div class="flex items-center gap-2 px-1 py-4 text-sm text-muted-foreground">
+					<Loader2 class="h-4 w-4 animate-spin" />
+					<span>Fetching link metadata...</span>
+				</div>
+			{:else if ogPreview}
+				<div class="group relative mt-4">
+					<button
+						onclick={clearPreview}
+						class="absolute -top-2 -right-2 z-10 rounded-full border bg-background p-1 shadow-sm transition-colors hover:bg-muted"
+					>
+						<X class="h-4 w-4" />
+					</button>
+					<div class="relative rounded-xl border bg-card shadow-sm">
+						<div class="flex h-32 overflow-hidden rounded-t-xl">
+							{#if ogPreview.image}
+								<img
+									src={ogPreview.image}
+									alt={ogPreview.title}
+									class="h-full w-40 border-r object-cover"
+								/>
+							{/if}
+							<div class="flex flex-1 flex-col justify-center p-4">
+								<h3 class="line-clamp-2 text-base leading-tight font-bold">{ogPreview.title}</h3>
+								<p class="mt-1 line-clamp-2 text-sm text-muted-foreground">
+									{ogPreview.description}
+								</p>
+								<p class="mt-2 truncate text-xs text-primary/60">{ogPreview.url}</p>
+							</div>
 						</div>
-					{:else if ogPreview}
-						<div class="group relative mt-2">
-							<button
-								onclick={clearPreview}
-								class="absolute -right-2 -top-2 z-10 rounded-full border bg-background p-1 shadow-sm transition-colors hover:bg-muted"
-							>
-								<X class="h-4 w-4" />
-							</button>
-							<div class="rounded-xl border bg-card shadow-sm relative">
-								<div class="flex h-32 overflow-hidden rounded-t-xl">
-									{#if ogPreview.image}
-										<img
-											src={ogPreview.image}
-											alt={ogPreview.title}
-											class="h-full w-40 object-cover border-r"
-										/>
-									{/if}
-									<div class="flex flex-1 flex-col justify-center p-4">
-										<h3 class="line-clamp-2 text-base font-bold leading-tight">{ogPreview.title}</h3>
-										<p class="mt-1 line-clamp-2 text-sm text-muted-foreground">
-											{ogPreview.description}
-										</p>
-										<p class="mt-2 truncate text-xs text-primary/60">{ogPreview.url}</p>
-									</div>
-								</div>
-								
-								<!-- Tags Section in Preview -->
-								<div class="border-t bg-muted/20 p-3 rounded-b-xl overflow-visible">
-									<div class="flex flex-wrap gap-2 items-center">
-										{#each ogPreview.tags || [] as tag}
-											<Badge variant="secondary" class="h-6 px-2 text-xs gap-1 rounded-md">
-												#{tag}
-												<button onclick={() => removeTagFromPreview(tag)} class="hover:text-destructive">
-													<X class="h-3 w-3" />
-												</button>
-											</Badge>
-										{/each}
-										
-										<Popover.Root bind:open={tagPopoverOpen}>
-											<Popover.Trigger>
-												{#snippet child({ props })}
-													<Button
-														{...props}
-													variant="outline"
-													size="sm"
-													class="h-6 px-2 text-[10px] gap-1 border-dashed border-muted-foreground/30 hover:border-primary/50"
-												>
-													<Plus class="h-3 w-3" />
-													Tag
-												</Button>
-											{/snippet}
-											</Popover.Trigger>
-											<Popover.Content class="w-[200px] p-0" align="start" side="bottom">
-												<Command.Root>
-													<Command.Input 
-														placeholder="Search tags..." 
-														bind:value={tagInput}
-													onkeydown={(e) => {
-																if (e.key === 'Enter' && tagInput.trim()) {
-																e.preventDefault();
-																	addTagToPreview(tagInput);
-															}
+
+						<!-- Tags Section in Preview -->
+						<div class="overflow-visible rounded-b-xl border-t bg-muted/20 p-3">
+							<div class="flex flex-wrap items-center gap-2">
+								{#each ogPreview.tags || [] as tag}
+									<Badge variant="secondary" class="h-6 gap-1 rounded-md px-2 text-xs">
+										#{tag}
+										<button
+											onclick={() => removeTagFromPreview(tag)}
+											class="hover:text-destructive"
+										>
+											<X class="h-3 w-3" />
+										</button>
+									</Badge>
+								{/each}
+
+								<Popover.Root bind:open={tagPopoverOpen}>
+									<Popover.Trigger>
+										{#snippet child({ props })}
+											<Button
+												{...props}
+												variant="outline"
+												size="sm"
+												class="h-6 gap-1 border-dashed border-muted-foreground/30 px-2 text-[10px] hover:border-primary/50"
+											>
+												<Plus class="h-3 w-3" />
+												Tag
+											</Button>
+										{/snippet}
+									</Popover.Trigger>
+									<Popover.Content class="w-[200px] p-0" align="start" side="bottom">
+										<Command.Root>
+											<Command.Input
+												placeholder="Search tags..."
+												bind:value={tagInput}
+												onkeydown={(e) => {
+													if (e.key === 'Enter' && tagInput.trim()) {
+														e.preventDefault();
+														addTagToPreview(tagInput);
+													}
 												}}
-												
-													/>
-													<Command.List>
-														<Command.Empty class="p-0">
-															<Button 
-																variant="ghost" 
-															class="w-full justify-start text-[11px] h-8 gap-2 px-2 rounded-none hover:bg-accent"
+											/>
+											<Command.List>
+												<Command.Empty class="p-0">
+													<Button
+														variant="ghost"
+														class="h-8 w-full justify-start gap-2 rounded-none px-2 text-[11px] hover:bg-accent"
 														onclick={() => addTagToPreview(tagInput)}
 													>
 														<Plus class="size-3 text-primary" />
 														<span>Create <span class="font-bold">"{tagInput}"</span></span>
 													</Button>
 												</Command.Empty>
-													<Command.Group>
-														{#each tagSuggestions as tag}
-															<Command.Item
-																value={tag}
-														onSelect={() => addTagToPreview(tag)}
+												<Command.Group>
+													{#each tagSuggestions as tag}
+														<Command.Item
+															value={tag}
+															onSelect={() => addTagToPreview(tag)}
 															class="text-xs"
-													>
-															<Hash class="size-3 mr-2 opacity-50" />
+														>
+															<Hash class="mr-2 size-3 opacity-50" />
 															{tag}
-													</Command.Item>
-												{/each}
-													</Command.Group>
-												</Command.List>
-												</Command.Root>
-											</Popover.Content>
-										</Popover.Root>
-									</div>
-								</div>
+														</Command.Item>
+													{/each}
+												</Command.Group>
+											</Command.List>
+										</Command.Root>
+									</Popover.Content>
+								</Popover.Root>
 							</div>
 						</div>
-					{/if}
+					</div>
 				</div>
-			</div>
-
-			<!-- Separator that spans full width (-mx-4 compensation for parent p-4) -->
-			<div class="mt-3 flex items-center justify-between border-t pt-3 -mx-4 px-4">
-				<div class="flex gap-1 text-primary">
-					<!-- Toolbar space -->
-				</div>
-				<Button 
-					onclick={handleQuickPost} 
-					disabled={!ogPreview}
-					class="rounded-full px-6 font-bold"
-				>
-					Post Link
-				</Button>
-			</div>
+			{/if}
 		</div>
 
 		<LinkForm link={editingLink ?? undefined} bind:open={showForm} onclose={handleClose} />
@@ -397,15 +396,9 @@
 
 		<div class="divide-y">
 			{#each filteredLinksList as link (link.id)}
-				<LinkCard
-					{link}
-					onedit={handleEdit}
-					ondelete={deleteLink}
-				/>
+				<LinkCard {link} onedit={handleEdit} ondelete={deleteLink} />
 			{:else}
-				<div
-					class="flex flex-col items-center justify-center p-12 text-center"
-				>
+				<div class="flex flex-col items-center justify-center p-12 text-center">
 					<Search class="mb-4 h-12 w-12 text-muted-foreground" />
 					<h3 class="text-lg font-semibold">No links found</h3>
 					<p class="text-muted-foreground">
