@@ -10,12 +10,6 @@
 		toggleSelectedTag,
 		clearSelectedTags
 	} from '$lib/store.svelte';
-
-	let searchInput = $state('');
-
-	$effect(() => {
-		search.query = searchInput;
-	});
 </script>
 
 <aside class="sticky top-0 h-screen w-full max-w-[350px] overflow-y-auto py-4 pr-4 pl-10 space-y-6">
@@ -24,7 +18,7 @@
 		<div class="relative">
 			<Search class="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 			<Input
-				bind:value={searchInput}
+				bind:value={search.query}
 				placeholder="Search links..."
 				class="h-11 rounded-full border-none bg-muted/50 pl-11 focus-visible:ring-primary"
 			/>
