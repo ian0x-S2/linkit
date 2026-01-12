@@ -13,21 +13,9 @@
 </script>
 
 <aside class="sticky top-0 h-screen w-full max-w-[350px] overflow-y-auto py-4 pr-4 pl-10 space-y-6">
-	<!-- Search Box -->
-	<div class="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-2 pt-2">
-		<div class="relative">
-			<Search class="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-			<Input
-				bind:value={search.query}
-				placeholder="Search links..."
-				class="h-11 rounded-full border-none bg-muted/50 pl-11 focus-visible:ring-primary"
-			/>
-		</div>
-	</div>
-
 	<!-- Tags / Filtering -->
 	{#if getAllTags().length > 0}
-		<div class="rounded-2xl border bg-card p-4 shadow-sm">
+		<div class="rounded-2xl border bg-background p-4 shadow-sm">
 			<div class="flex items-center justify-between mb-4 px-1">
 				<h2 class="text-lg font-bold tracking-tight">Filter by Tags</h2>
 				{#if selectedTags.length > 0}
@@ -56,7 +44,7 @@
 	{/if}
 
 	<!-- Trends Section -->
-	<div class="rounded-2xl border bg-card p-4 shadow-sm">
+	<div class="rounded-2xl border bg-background p-4 shadow-sm">
 		<h2 class="mb-4 px-1 text-lg font-bold tracking-tight">What's happening</h2>
 		<div class="space-y-4">
 			<div class="group cursor-pointer px-1 py-1 transition-colors">

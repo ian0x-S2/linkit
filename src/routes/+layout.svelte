@@ -104,7 +104,7 @@
 											disabled={item.disabled}
 											isActive={page.url.pathname === item.href}
 											tooltip={item.label}
-											class="py-5"
+											class="py-5 transition-none data-[active=true]:bg-transparent data-[active=true]:font-bold data-[active=true]:text-foreground"
 										>
 											<item.icon class="h-5 w-5" />
 											<span class="text-base">{item.label}</span>
