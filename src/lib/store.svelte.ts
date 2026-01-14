@@ -78,7 +78,7 @@ export function getFilteredLinks(): Link[] {
 		result = result.filter((link) => selectedTags.every((tag) => link.tags.includes(tag)));
 	}
 
-	return result.sort((a, b) => b.createdAt - a.createdAt);
+	return [...result].sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export function addLink(link: Omit<Link, 'id' | 'createdAt' | 'updatedAt'>) {

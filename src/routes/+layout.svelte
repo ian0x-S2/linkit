@@ -11,13 +11,26 @@
 		SidebarMenuItem,
 		SidebarProvider,
 		SidebarTrigger,
-		SidebarFooter
+		SidebarFooter,
+		SidebarGroupLabel,
+		SidebarSeparator
 	} from '$lib/components/ui/sidebar';
 	import { Button } from '$lib/components/ui/button';
-	import { Home, Hash, Sparkles, Settings, Moon, Sun, Link as LinkIcon } from '@lucide/svelte';
+	import { 
+		Inbox, 
+		Library, 
+		Hash, 
+		Sparkles, 
+		Settings, 
+		Moon, 
+		Sun, 
+		Link as LinkIcon,
+		Archive,
+		Star
+	} from '@lucide/svelte';
 	import { toggleMode } from 'mode-watcher';
 	import { page } from '$app/state';
-	import RightSidebar from '$lib/components/RightSidebar.svelte';
+	import { getAllTags, selectedTags, toggleSelectedTag } from '$lib/store.svelte';
 
 	interface Props {
 		children?: import('svelte').Snippet;
@@ -27,40 +40,32 @@
 
 	let open = $state(true);
 
-	// Smart Sidebar state management
-	$effect(() => {
-		const handleResize = () => {
-			if (window.innerWidth < 1024) {
-				open = false; // Collapse on tablets/small screens
-			} else {
-				open = true; // Open on large desktops
-			}
-		};
-
-		handleResize(); // Initial check
-		window.addEventListener('resize', handleResize);
-		return () => window.removeEventListener('resize', handleResize);
-	});
-
 	const navigation = [
 		{
-			label: 'Home',
+			label: 'Inbox',
 			href: '/',
-			icon: Home
+			icon: Inbox
 		},
 		{
-			label: 'Discovery',
-			href: '/discovery',
-			icon: Sparkles,
-			disabled: true
+			label: 'All Links',
+			href: '/library',
+			icon: Library
 		},
 		{
-			label: 'Tags',
-			href: '/tags',
-			icon: Hash
+			label: 'Favorites',
+			href: '/favorites',
+			icon: Star
 		},
 		{
-			label: 'Suggestions',
+			label: 'Archive',
+			href: '/archive',
+			icon: Archive
+		}
+	];
+
+	const secondaryNav = [
+		{
+			label: 'AI Suggestions',
 			href: '/suggestions',
 			icon: Sparkles
 		}
@@ -69,99 +74,112 @@
 
 <ModeWatcher />
 <SidebarProvider bind:open class="min-h-screen bg-background">
-	<div class="flex w-full justify-center">
-		<!-- Left Sidebar Column -->
-		<div class="hidden flex-1 justify-end sm:flex">
-			<Sidebar collapsible="icon" class="sticky top-0 h-screen   border-l bg-background">
-				<SidebarContent class="bg-background">
-					<SidebarGroup class="p-0">
-						<div class="flex h-14 items-center justify-between overflow-hidden border-b px-2 py-3">
-							<div
-								class="flex min-w-0 items-center gap-2 px-2 group-data-[collapsible=icon]:hidden"
-							>
-								<a href="/" class="flex items-center gap-2">
-									<div
-										class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground"
-									>
-										<LinkIcon class="h-4 w-4" />
-									</div>
-									<span class="truncate text-base font-bold tracking-tight">MyLinks</span>
-								</a>
-							</div>
-							<div
-								class="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:justify-center"
-							>
-								<SidebarTrigger />
-							</div>
+	<div class="flex w-full overflow-hidden">
+		<!-- Main Navigation Sidebar -->
+		<Sidebar collapsible="none" class="w-64 border-r bg-muted/10">
+			<SidebarContent>
+				<SidebarGroup>
+					<div class="flex h-14 items-center gap-3 px-3">
+						<div
+							class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+						>
+							<LinkIcon class="h-5 w-5" />
 						</div>
+						<span class="text-sm font-semibold tracking-tight">My Library</span>
+					</div>
 
-						<SidebarGroupContent class="p-2">
-							<SidebarMenu>
-								{#each navigation as item (item.href)}
-									<SidebarMenuItem>
-										<SidebarMenuButton
-											href={item.href}
-											disabled={item.disabled}
-											isActive={page.url.pathname === item.href}
-											tooltip={item.label}
-											class="py-5 transition-none data-[active=true]:bg-transparent data-[active=true]:font-bold data-[active=true]:text-foreground"
-										>
-											<item.icon class="h-5 w-5" />
-											<span class="text-base">{item.label}</span>
-										</SidebarMenuButton>
-									</SidebarMenuItem>
-								{/each}
-							</SidebarMenu>
-						</SidebarGroupContent>
-					</SidebarGroup>
-				</SidebarContent>
+					<SidebarGroupContent class="px-2">
+						<SidebarMenu>
+							{#each navigation as item (item.href)}
+								<SidebarMenuItem>
+									<SidebarMenuButton
+										href={item.href}
+										isActive={page.url.pathname === item.href}
+										tooltip={item.label}
+										class="rounded-md transition-all hover:bg-accent data-[active=true]:bg-accent data-[active=true]:font-medium"
+									>
+										<item.icon class="h-4 w-4" />
+										<span>{item.label}</span>
+									</SidebarMenuButton>
+								</SidebarMenuItem>
+							{/each}
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
 
-				<SidebarFooter
-					class="flex flex-row items-center justify-between border-t bg-background p-2 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-1"
-				>
+				<SidebarSeparator />
+
+				<SidebarGroup>
+					<SidebarGroupLabel>Organization</SidebarGroupLabel>
+					<SidebarGroupContent class="px-2">
+						<SidebarMenu>
+							{#each secondaryNav as item (item.href)}
+								<SidebarMenuItem>
+									<SidebarMenuButton
+										href={item.href}
+										isActive={page.url.pathname === item.href}
+										class="rounded-md transition-all hover:bg-accent"
+									>
+										<item.icon class="h-4 w-4" />
+										<span>{item.label}</span>
+									</SidebarMenuButton>
+								</SidebarMenuItem>
+							{/each}
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
+
+				<SidebarGroup class="mt-auto">
+					<SidebarGroupLabel>Tags</SidebarGroupLabel>
+					<SidebarGroupContent class="px-2">
+						<div class="flex flex-wrap gap-1 px-2 py-1">
+							{#each getAllTags().slice(0, 12) as tag (tag)}
+								<button
+									onclick={() => toggleSelectedTag(tag)}
+									class="flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors {selectedTags.includes(
+										tag
+									)
+										? 'bg-primary text-primary-foreground'
+										: 'bg-muted/50 text-muted-foreground hover:bg-muted'}"
+								>
+									<Hash class="h-3 w-3" />
+									{tag}
+								</button>
+							{/each}
+						</div>
+					</SidebarGroupContent>
+				</SidebarGroup>
+			</SidebarContent>
+
+			<SidebarFooter class="border-t bg-muted/5 p-4">
+				<div class="flex items-center justify-between">
 					<Button
 						variant="ghost"
-						size="sm"
-						class="h-9 justify-start gap-2 px-2 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 hover:bg-accent"
+						size="icon"
+						class="h-8 w-8 text-muted-foreground hover:text-foreground"
 						onclick={toggleMode}
-						title="Toggle Theme"
 					>
-						<div class="flex shrink-0 items-center justify-center">
-							<Moon class="h-4 w-4 dark:hidden" />
-							<Sun class="hidden h-4 w-4 dark:block" />
-						</div>
-						<span
-							class="text-[10px] font-bold tracking-wider uppercase group-data-[collapsible=icon]:hidden"
-							>Theme</span
-						>
+						<Moon class="h-4 w-4 dark:hidden" />
+						<Sun class="hidden h-4 w-4 dark:block" />
 					</Button>
-
 					<Button
 						variant="ghost"
 						size="icon"
 						href="/settings"
-						class="h-9 w-9 shrink-0 {page.url.pathname === '/settings'
-							? 'bg-accent text-accent-foreground'
-							: ''}"
-						title="Settings"
+						class="h-8 w-8 text-muted-foreground hover:text-foreground {page.url.pathname === '/settings' ? 'bg-accent' : ''}"
 					>
 						<Settings class="h-4 w-4" />
 					</Button>
-				</SidebarFooter>
-			</Sidebar>
-		</div>
+				</div>
+			</SidebarFooter>
+		</Sidebar>
 
-		<!-- Center Column: Main Feed -->
-		<main class="min-h-screen w-full max-w-2xl border-r bg-background shadow-sm">
-			{@render children?.()}
+		<!-- Main Workspace Area -->
+		<main class="flex-1 overflow-y-auto bg-background">
+			<div class="flex h-full flex-col">
+				{@render children?.()}
+			</div>
 		</main>
-
-		<!-- Right Column: Trends/Discovery Wrapper -->
-		<div class="hidden flex-1 justify-start xl:flex">
-			<RightSidebar />
-		</div>
-
-		<!-- Spacer for tablet to keep feed centered when RightSidebar is hidden -->
-		<div class="hidden flex-1 sm:flex xl:hidden"></div>
 	</div>
 </SidebarProvider>
+
