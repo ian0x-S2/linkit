@@ -22,7 +22,8 @@
 
 	const showCreateOption = $derived(
 		value.trim() !== '' &&
-			!allTags.all.some((t: string) => t.toLowerCase() === value.trim().toLowerCase())
+			!allTags.all.some((t: string) => t.toLowerCase() === value.trim().toLowerCase()) &&
+			!selected.some((t: string) => t.toLowerCase() === value.trim().toLowerCase())
 	);
 
 	function addTag(tag: string) {
@@ -103,8 +104,12 @@
 				/>
 				<Command.Separator class="my-1 bg-muted-foreground/5" />
 				<Command.List class="max-h-[220px] overflow-y-auto">
-					<Command.Empty>
-						{#if value.trim()}
+					{#if value.trim() && !allTags.all.some((t: string) => t.toLowerCase() === value
+									.trim()
+									.toLowerCase()) && !selected.some((t: string) => t.toLowerCase() === value
+									.trim()
+									.toLowerCase())}
+						<Command.Empty>
 							<button
 								class="group flex w-full items-center gap-2 rounded-[4px] px-2 py-1.5 text-left text-[13px] transition-colors hover:bg-primary/10 hover:text-primary"
 								onclick={() => {
@@ -115,12 +120,20 @@
 								<Plus class="h-3.5 w-3.5 opacity-50 group-hover:opacity-100" />
 								<span>Create "<span class="font-medium">{value}</span>"</span>
 							</button>
-						{:else}
+						</Command.Empty>
+					{:else}
+						<Command.Empty>
 							<p class="py-6 text-center text-[12px] text-muted-foreground/60">
-								Type to search or create a tag
+								{#if value.trim() && selected.some((t: string) => t.toLowerCase() === value
+												.trim()
+												.toLowerCase())}
+									Tag already selected
+								{:else}
+									No results found
+								{/if}
 							</p>
-						{/if}
-					</Command.Empty>
+						</Command.Empty>
+					{/if}
 
 					{#if showCreateOption}
 						<Command.Group
