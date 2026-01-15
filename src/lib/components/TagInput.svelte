@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { Badge } from '$lib/components/ui/badge';
-	import { X, Plus, Tag as TagIcon, Check } from '@lucide/svelte';
+	import { X, Plus, Tag as TagIcon, Check, ChevronUp, ChevronDown } from '@lucide/svelte';
 	import { allTags } from '$lib/store.svelte';
-	import * as Command from '$lib/components/ui/command';
 	import * as Popover from '$lib/components/ui/popover';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
 	import { tick } from 'svelte';
+	import { Combobox } from 'bits-ui';
 
 	interface Props {
 		selected: string[];
@@ -15,10 +15,42 @@
 
 	let { selected = [], onchange }: Props = $props();
 	let open = $state(false);
-	let value = $state(''); // Used for the search input in Command
+	let value = $state(''); // Used for the search input
 	let triggerRef = $state<HTMLButtonElement>(null!);
+	let selectedValue = $state<string | undefined>(undefined);
 
-	const availableTags = $derived(allTags.all.filter((t: string) => !selected.includes(t)));
+	// Reset search value when popover closes
+	$effect(() => {
+		if (!open) {
+			value = '';
+		}
+	});
+
+	// Watch for selection changes
+	$effect(() => {
+		if (selectedValue) {
+			// Só adiciona se não estiver já selecionada
+			if (!selected.includes(selectedValue)) {
+				addTag(selectedValue);
+			}
+			selectedValue = undefined;
+			value = ''; // Limpa a busca após selecionar
+		}
+	});
+
+	const availableTags = $derived.by(() => {
+		const filtered = allTags.all.filter((t: string) => !selected.includes(t));
+		if (!value.trim()) return filtered;
+		return filtered.filter((t: string) => t.toLowerCase().includes(value.toLowerCase()));
+	});
+
+	const hasReachedLimit = $derived(selected.length >= 10);
+
+	// Verifica se a busca atual corresponde a uma tag já selecionada
+	const isSearchingSelectedTag = $derived(
+		value.trim() !== '' &&
+			selected.some((t: string) => t.toLowerCase() === value.trim().toLowerCase())
+	);
 
 	const showCreateOption = $derived(
 		value.trim() !== '' &&
@@ -28,21 +60,24 @@
 
 	function addTag(tag: string) {
 		const trimmed = tag.trim();
-		if (trimmed && !selected.includes(trimmed)) {
-			onchange([...selected, trimmed]);
+		if (!trimmed) return;
+
+		// Validação: não adiciona duplicatas
+		if (selected.includes(trimmed)) {
+			return;
 		}
+
+		// Validação: limita a 10 tags (ajuste conforme necessário)
+		if (selected.length >= 10) {
+			return;
+		}
+
+		onchange([...selected, trimmed]);
 		value = '';
 	}
 
 	function removeTag(tag: string) {
 		onchange(selected.filter((t) => t !== tag));
-	}
-
-	function closeAndFocusTrigger() {
-		open = false;
-		tick().then(() => {
-			triggerRef?.focus();
-		});
 	}
 </script>
 
@@ -53,7 +88,7 @@
 			{#each selected as tag (tag)}
 				<Badge
 					variant="secondary"
-					class="h-6 gap-1 rounded-[4px] border-primary/20 bg-primary/10 px-1.5 py-0 text-[11px] text-primary transition-colors hover:bg-primary/20"
+					class="h-6 gap-1 rounded-lg border-primary/20 bg-primary/10 px-1.5 py-0 text-[11px] text-primary transition-colors duration-200 animate-in fade-in slide-in-from-left-2 hover:bg-primary/20"
 				>
 					{tag}
 					<button
@@ -92,99 +127,96 @@
 		</Popover.Trigger>
 
 		<Popover.Content
-			class="w-[var(--bits-popover-anchor-width)] rounded-md border-muted-foreground/10 bg-popover p-1 shadow-xl"
+			class="w-(--bits-popover-anchor-width) overflow-hidden rounded-md border border-muted-foreground/10 bg-popover p-0 shadow-xl"
 			align="start"
 			sideOffset={6}
 		>
-			<Command.Root>
-				<Command.Input
-					placeholder="Search or create tags..."
-					bind:value
-					class="h-8 border-none text-[13px] focus:ring-0"
-				/>
-				<Command.Separator class="my-1 bg-muted-foreground/5" />
-				<Command.List class="max-h-[220px] overflow-y-auto">
-					{#if value.trim() && !allTags.all.some((t: string) => t.toLowerCase() === value
-									.trim()
-									.toLowerCase()) && !selected.some((t: string) => t.toLowerCase() === value
-									.trim()
-									.toLowerCase())}
-						<Command.Empty>
-							<button
-								class="group flex w-full items-center gap-2 rounded-[4px] px-2 py-1.5 text-left text-[13px] transition-colors hover:bg-primary/10 hover:text-primary"
-								onclick={() => {
+			<Combobox.Root
+				type="single"
+				bind:value={selectedValue}
+				items={allTags.all.map((t: any) => ({ value: t, label: t }))}
+				bind:open
+			>
+				<div class="flex items-center border-b border-muted-foreground/5 px-3">
+					<Combobox.Input
+						placeholder={hasReachedLimit ? 'Maximum 10 tags reached' : 'Search or create tags...'}
+						disabled={hasReachedLimit}
+						class="h-10 w-full bg-transparent text-[13px] outline-none placeholder:text-muted-foreground/50 disabled:cursor-not-allowed disabled:opacity-50"
+						oninput={(e) => (value = e.currentTarget.value)}
+						onkeydown={(e) => {
+							if (e.key === 'Enter') {
+								e.preventDefault();
+								// Se houver um valor válido para criar, cria a tag
+								if (showCreateOption) {
 									addTag(value);
-									closeAndFocusTrigger();
-								}}
-							>
-								<Plus class="h-3.5 w-3.5 opacity-50 group-hover:opacity-100" />
-								<span>Create "<span class="font-medium">{value}</span>"</span>
-							</button>
-						</Command.Empty>
-					{:else}
-						<Command.Empty>
-							<p class="py-6 text-center text-[12px] text-muted-foreground/60">
-								{#if value.trim() && selected.some((t: string) => t.toLowerCase() === value
-												.trim()
-												.toLowerCase())}
-									Tag already selected
-								{:else}
-									No results found
-								{/if}
-							</p>
-						</Command.Empty>
-					{/if}
+								}
+							}
+						}}
+					/>
+				</div>
 
-					{#if showCreateOption}
-						<Command.Group
-							heading="Actions"
-							class="px-1.5 py-1 text-[11px] font-bold tracking-wider text-muted-foreground/50 uppercase"
-						>
-							<Command.Item
-								{value}
-								onSelect={() => {
-									addTag(value);
-									closeAndFocusTrigger();
-								}}
-								class="group cursor-pointer rounded-[4px] px-2 py-1.5 text-[13px] text-primary hover:bg-primary/5"
+				<Combobox.ContentStatic class="relative flex w-full flex-col bg-popover">
+					<Combobox.ScrollUpButton
+						class="absolute top-0 right-0 left-0 z-20 flex w-full items-center justify-center bg-linear-to-b from-popover via-popover/90 to-transparent py-2 text-muted-foreground/60 transition-colors hover:text-primary"
+					>
+						<ChevronUp class="size-3" />
+					</Combobox.ScrollUpButton>
+
+					<Combobox.Viewport
+						class="max-h-50 w-full overflow-y-auto p-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+					>
+						{#if showCreateOption}
+							<div class="mb-1 border-b border-muted-foreground/5 px-1 pb-1">
+								<button
+									class="group flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[13px] font-medium text-primary transition-colors hover:bg-primary/10 hover:text-primary"
+									onclick={() => {
+										addTag(value);
+										value = '';
+									}}
+								>
+									<Plus class="h-3.5 w-3.5" />
+									<span>Create "{value}"</span>
+								</button>
+							</div>
+						{/if}
+
+						{#if isSearchingSelectedTag}
+							<div
+								class="flex items-center gap-2 rounded-lg bg-muted/30 px-3 py-3 text-[12px] text-muted-foreground"
+							>
+								<Check class="h-3.5 w-3.5 text-primary" />
+								<span>Tag "{value}" is already selected</span>
+							</div>
+						{/if}
+
+						{#each availableTags as tag (tag)}
+							<Combobox.Item
+								value={tag}
+								label={tag}
+								class="flex cursor-pointer items-center justify-between rounded-lg
+								px-2 py-1.5 text-[13px] transition-colors outline-none data-highlighted:bg-muted/50"
 							>
 								<div class="flex items-center gap-2">
-									<Plus class="h-3.5 w-3.5 opacity-50 group-hover:opacity-100" />
-									<span>Create "<span class="font-medium">{value}</span>"</span>
+									<TagIcon class="h-3.5 w-3.5 opacity-40" />
+									{tag}
 								</div>
-							</Command.Item>
-						</Command.Group>
-					{/if}
+							</Combobox.Item>
+						{:else}
+							{#if !showCreateOption && !isSearchingSelectedTag}
+								<div class="py-6 text-center text-[12px] text-muted-foreground/60">
+									No results found
+								</div>
+							{/if}
+						{/each}
+					</Combobox.Viewport>
 
-					{#if availableTags.length > 0}
-						<Command.Group
-							heading="Existing tags"
-							class="px-1.5 py-1 text-[11px] font-bold tracking-wider text-muted-foreground/50 uppercase"
-						>
-							{#each availableTags as tag (tag)}
-								<Command.Item
-									value={tag}
-									onSelect={() => {
-										addTag(tag);
-										closeAndFocusTrigger();
-									}}
-									class="cursor-pointer rounded-[4px] px-2 py-1.5 text-[13px] transition-colors hover:bg-muted/50"
-								>
-									<div class="flex w-full items-center justify-between">
-										<div class="flex items-center gap-2">
-											<TagIcon class="h-3.5 w-3.5 opacity-40" />
-											{tag}
-										</div>
-										{#if selected.includes(tag)}
-											<Check class="h-3.5 w-3.5 text-primary" />
-										{/if}
-									</div>
-								</Command.Item>
-							{/each}
-						</Command.Group>
-					{/if}
-				</Command.List>
-			</Command.Root>
+					<Combobox.ScrollDownButton
+						class="absolute right-0 bottom-0 left-0 z-20 flex w-full items-center justify-center bg-linear-to-t from-popover via-popover/90 to-transparent py-2 text-muted-foreground/60 transition-colors hover:text-primary"
+					>
+						<ChevronDown class="size-3" />
+					</Combobox.ScrollDownButton>
+				</Combobox.ContentStatic>
+			</Combobox.Root>
 		</Popover.Content>
 	</Popover.Root>
 </div>
