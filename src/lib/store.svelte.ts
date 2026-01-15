@@ -172,6 +172,12 @@ export const selectedTags = {
 	includes: (tag: string) => linkStore.selectedTags.includes(tag)
 };
 
+export const allTags = {
+	get all() {
+		return linkStore.allTags;
+	}
+};
+
 export const addLink = (link: any) => linkStore.add(link);
 export const updateLink = (id: string, updates: any) => linkStore.update(id, updates);
 export const deleteLink = (id: string) => linkStore.remove(id);

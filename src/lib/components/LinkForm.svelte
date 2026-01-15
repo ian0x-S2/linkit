@@ -5,6 +5,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import TagInput from '$lib/components/TagInput.svelte';
 	import { Save, Loader2, X, Globe, Tag, Type, AlignLeft } from '@lucide/svelte';
 	import { browser } from '$app/environment';
 
@@ -19,7 +20,7 @@
 	let url = $state('');
 	let title = $state('');
 	let description = $state('');
-	let tags = $state('');
+	let tags = $state<string[]>([]);
 	let image = $state('');
 	let isSaving = $state(false);
 	let isLoadingPreview = $state(false);
@@ -29,13 +30,13 @@
 			url = link.url || '';
 			title = link.title || '';
 			description = link.description || '';
-			tags = link.tags.join(', ') || '';
+			tags = [...link.tags];
 			image = link.image || '';
 		} else {
 			url = '';
 			title = '';
 			description = '';
-			tags = '';
+			tags = [];
 			image = '';
 		}
 	});
@@ -67,17 +68,12 @@
 		if (!url.trim()) return;
 		isSaving = true;
 		try {
-			const tagList = tags
-				.split(',')
-				.map((t) => t.trim())
-				.filter(Boolean);
-
 			const linkData = {
 				url: url.trim(),
 				title: title.trim() || null,
 				description: description.trim() || null,
 				image: image.trim() || null,
-				tags: tagList
+				tags: tags
 			};
 
 			if (link?.id) {
@@ -135,34 +131,27 @@
 			</div>
 		</div>
 
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-			<!-- Title Field -->
-			<div class="space-y-2.5">
-				<div class="flex items-center gap-2">
-					<Type class="h-3.5 w-3.5 text-muted-foreground/60" />
-					<Label for="title" class="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/80">Title</Label>
-				</div>
-				<Input
-					id="title"
-					bind:value={title}
-					placeholder="Enter a descriptive title"
-					class="h-10 bg-muted/20 border-muted-foreground/10 focus-visible:ring-1 focus-visible:ring-primary/40 rounded-md"
-				/>
+		<!-- Title Field -->
+		<div class="space-y-2.5">
+			<div class="flex items-center gap-2">
+				<Type class="h-3.5 w-3.5 text-muted-foreground/60" />
+				<Label for="title" class="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/80">Title</Label>
 			</div>
+			<Input
+				id="title"
+				bind:value={title}
+				placeholder="Enter a descriptive title"
+				class="h-10 bg-muted/20 border-muted-foreground/10 focus-visible:ring-1 focus-visible:ring-primary/40 rounded-md"
+			/>
+		</div>
 
-			<!-- Tags Field -->
-			<div class="space-y-2.5">
-				<div class="flex items-center gap-2">
-					<Tag class="h-3.5 w-3.5 text-muted-foreground/60" />
-					<Label for="tags" class="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/80">Tags</Label>
-				</div>
-				<Input
-					id="tags"
-					bind:value={tags}
-					placeholder="comma, separated, tags"
-					class="h-10 bg-muted/20 border-muted-foreground/10 focus-visible:ring-1 focus-visible:ring-primary/40 rounded-md"
-				/>
+		<!-- Tags Field -->
+		<div class="space-y-2.5">
+			<div class="flex items-center gap-2">
+				<Tag class="h-3.5 w-3.5 text-muted-foreground/60" />
+				<Label for="tags" class="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/80">Tags</Label>
 			</div>
+			<TagInput selected={tags} onchange={(newTags) => (tags = newTags)} />
 		</div>
 
 		<!-- Description -->
