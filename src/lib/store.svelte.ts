@@ -1,5 +1,6 @@
 import type { Link, AIConfig } from './types';
 import { browser } from '$app/environment';
+import { SvelteSet } from 'svelte/reactivity';
 
 const LINKS_STORAGE_KEY = 'links_data';
 const AI_CONFIG_STORAGE_KEY = 'ai_config';
@@ -68,7 +69,7 @@ class LinkStore {
 	});
 
 	allTags = $derived.by(() => {
-		const tagSet = new Set<string>();
+		const tagSet = new SvelteSet<string>();
 		this.links.forEach((link) => {
 			link.tags.forEach((tag) => tagSet.add(tag));
 		});
