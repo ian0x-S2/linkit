@@ -41,7 +41,7 @@
 </script>
 
 <Sidebar.Root collapsible="icon" class="border-r">
-	<Sidebar.Header class="flex h-12 flex-row items-center justify-start border-b p-0 px-2">
+	<Sidebar.Header class="flex h-12 flex-col justify-center border-b p-0 px-2">
 		<DropdownMenu.Root>
 			<DropdownMenu.Trigger asChild>
 				{#snippet children(props: any)}
@@ -68,9 +68,11 @@
 					</button>
 				{/snippet}
 			</DropdownMenu.Trigger>
-			<DropdownMenu.Content align="start" class="w-56 rounded-md border p-1 shadow-lg">
+			<DropdownMenu.Content
+				class="w-[var(--radix-dropdown-menu-trigger-width)] min-w-56 rounded-md border p-1 shadow-lg"
+			>
 				<DropdownMenu.Label
-					class="px-2 py-1.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
+					class="w-full px-2 py-1.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
 				>
 					Workspaces
 				</DropdownMenu.Label>
