@@ -44,22 +44,65 @@
 	}
 </script>
 
-{#if open}
-	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-		<div class="w-full max-w-md space-y-4 rounded-lg bg-background p-6 shadow-lg">
-			<h2 class="text-xl font-semibold">Export Links</h2>
-			<p class="text-sm text-muted-foreground">Export your links as JSON or Markdown</p>
-			<div class="grid gap-2">
-				<Button variant="outline" onclick={exportToJSON}>
-					<FileJson class="mr-2 h-4 w-4" />
-					Export as JSON
-				</Button>
-				<Button variant="outline" onclick={exportToMarkdown}>
-					<FileText class="mr-2 h-4 w-4" />
-					Export as Markdown
-				</Button>
-			</div>
-			<Button variant="ghost" onclick={() => (open = false)}>Cancel</Button>
-		</div>
+<div class="flex flex-col gap-6 p-1">
+	<div class="space-y-1.5">
+		<h2 class="text-[14px] font-semibold tracking-tight">Export Workspace</h2>
+		<p class="text-[12.5px] leading-relaxed text-muted-foreground/70">
+			Download your collection as a portable file. Your data stays private and local.
+		</p>
 	</div>
-{/if}
+
+	<div class="grid gap-3">
+		<button
+			class="group flex items-center justify-between rounded-md border bg-muted/20 p-3 transition-all hover:border-primary/20 hover:bg-muted/40"
+			onclick={exportToJSON}
+		>
+			<div class="flex items-center gap-3">
+				<div
+					class="flex h-8 w-8 items-center justify-center rounded-md border bg-background shadow-sm transition-colors group-hover:border-primary/20"
+				>
+					<FileJson
+						class="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary"
+					/>
+				</div>
+				<div class="text-left">
+					<p class="text-[13px] leading-none font-medium">JSON Data</p>
+					<p class="mt-1 text-[11px] text-muted-foreground/60">
+						Best for backups and machine reading.
+					</p>
+				</div>
+			</div>
+		</button>
+
+		<button
+			class="group flex items-center justify-between rounded-md border bg-muted/20 p-3 transition-all hover:border-primary/20 hover:bg-muted/40"
+			onclick={exportToMarkdown}
+		>
+			<div class="flex items-center gap-3">
+				<div
+					class="flex h-8 w-8 items-center justify-center rounded-md border bg-background shadow-sm transition-colors group-hover:border-primary/20"
+				>
+					<FileText
+						class="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary"
+					/>
+				</div>
+				<div class="text-left">
+					<p class="text-[13px] leading-none font-medium">Markdown Document</p>
+					<p class="mt-1 text-[11px] text-muted-foreground/60">
+						Best for reading and documentation.
+					</p>
+				</div>
+			</div>
+		</button>
+	</div>
+
+	<div class="flex justify-end gap-2 pt-2">
+		<Button
+			variant="ghost"
+			class="h-8 rounded-md px-4 text-[12.5px]"
+			onclick={() => (open = false)}
+		>
+			Cancel
+		</Button>
+	</div>
+</div>
