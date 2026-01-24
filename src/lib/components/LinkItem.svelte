@@ -5,7 +5,8 @@
 	import { Edit2, Trash2, MoreHorizontal, FileText, Star, Archive, RotateCcw } from '@lucide/svelte';
 	import { formatDistanceToNow } from 'date-fns';
 	import * as Popover from '$lib/components/ui/popover';
-	import { toggleFavorite, toggleArchived, toggleDeleted } from '$lib/store.svelte';
+	import { getContext } from 'svelte';
+	import type { LinkStore } from '$lib/store.svelte';
 
 	interface Props {
 		link: Link;
@@ -14,6 +15,7 @@
 	}
 
 	let { link, onedit, ondelete }: Props = $props();
+	const store = getContext<LinkStore>('store');
 
 	let imageError = $state(false);
 	let actionsOpen = $state(false);
@@ -97,7 +99,7 @@
 			<div class="flex shrink-0 items-center gap-1">
 				<Popover.Root bind:open={actionsOpen}>
 					<Popover.Trigger asChild>
-						{#snippet children(props)}
+						{#snippet child(props)}
 							<Button
 								variant="ghost"
 								size="icon"
@@ -131,7 +133,7 @@
 										? 'text-yellow-500'
 										: ''}"
 									onclick={() => {
-										toggleFavorite(link.id);
+										store.toggleFavorite(link.id);
 										actionsOpen = false;
 									}}
 								>
@@ -144,7 +146,7 @@
 									size="sm"
 									class="h-8 justify-start rounded-md px-2 text-[12px] font-medium"
 									onclick={() => {
-										toggleArchived(link.id);
+										store.toggleArchived(link.id);
 										actionsOpen = false;
 									}}
 								>
@@ -159,7 +161,7 @@
 									size="sm"
 									class="h-8 justify-start rounded-md px-2 text-[12px] font-medium"
 									onclick={() => {
-										toggleDeleted(link.id);
+										store.toggleDeleted(link.id);
 										actionsOpen = false;
 									}}
 								>
@@ -178,7 +180,7 @@
 									if (link.isDeleted) {
 										ondelete(link.id); // Permanent delete
 									} else {
-										toggleDeleted(link.id); // Move to trash
+										store.toggleDeleted(link.id); // Move to trash
 									}
 									actionsOpen = false;
 								}}

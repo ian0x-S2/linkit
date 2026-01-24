@@ -8,10 +8,11 @@ import type { RequestHandler } from './$types';
 export const GET: RequestHandler = async ({ url }) => {
 	const workspaceId = url.searchParams.get('workspaceId');
 	const category = url.searchParams.get('category') || 'inbox';
+	const fetchAll = url.searchParams.get('all') === 'true';
 
 	if (!workspaceId) return json({ error: 'workspaceId required' }, { status: 400 });
 
-	const cacheKey = `ws:${workspaceId}:cat:${category}`;
+	const cacheKey = fetchAll ? `ws:${workspaceId}:all` : `ws:${workspaceId}:cat:${category}`;
 	const cachedIds = cacheManager.getCollection(cacheKey);
 
 	if (cachedIds) {
@@ -23,37 +24,39 @@ export const GET: RequestHandler = async ({ url }) => {
 
 	let query = db.select().from(links).where(eq(links.workspaceId, workspaceId));
 
-	if (category === 'inbox') {
-		query = db.select().from(links).where(
-			and(
-				eq(links.workspaceId, workspaceId),
-				eq(links.isArchived, false),
-				eq(links.isDeleted, false)
-			)
-		);
-	} else if (category === 'favorites') {
-		query = db.select().from(links).where(
-			and(
-				eq(links.workspaceId, workspaceId),
-				eq(links.isFavorite, true),
-				eq(links.isDeleted, false)
-			)
-		);
-	} else if (category === 'archive') {
-		query = db.select().from(links).where(
-			and(
-				eq(links.workspaceId, workspaceId),
-				eq(links.isArchived, true),
-				eq(links.isDeleted, false)
-			)
-		);
-	} else if (category === 'trash') {
-		query = db.select().from(links).where(
-			and(
-				eq(links.workspaceId, workspaceId),
-				eq(links.isDeleted, true)
-			)
-		);
+	if (!fetchAll) {
+		if (category === 'inbox') {
+			query = db.select().from(links).where(
+				and(
+					eq(links.workspaceId, workspaceId),
+					eq(links.isArchived, false),
+					eq(links.isDeleted, false)
+				)
+			);
+		} else if (category === 'favorites') {
+			query = db.select().from(links).where(
+				and(
+					eq(links.workspaceId, workspaceId),
+					eq(links.isFavorite, true),
+					eq(links.isDeleted, false)
+				)
+			);
+		} else if (category === 'archive') {
+			query = db.select().from(links).where(
+				and(
+					eq(links.workspaceId, workspaceId),
+					eq(links.isArchived, true),
+					eq(links.isDeleted, false)
+				)
+			);
+		} else if (category === 'trash') {
+			query = db.select().from(links).where(
+				and(
+					eq(links.workspaceId, workspaceId),
+					eq(links.isDeleted, true)
+				)
+			);
+		}
 	}
 
 	const dbLinks = await query.orderBy(desc(links.createdAt));
@@ -109,7 +112,6 @@ export const POST: RequestHandler = async ({ request }) => {
 				logo: newLink.logo,
 				createdAt: newLink.createdAt,
 				updatedAt: newLink.updatedAt,
-				aiSummary: newLink.aiSummary,
 				isFavorite: newLink.isFavorite,
 				isArchived: newLink.isArchived,
 				isDeleted: newLink.isDeleted

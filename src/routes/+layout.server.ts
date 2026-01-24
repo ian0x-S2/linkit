@@ -13,7 +13,7 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 			id: 'default',
 			name: 'My Workspace',
 			slug: 'my-workspace',
-			createdAt: Date.now()
+			createdAt: 1700000000000 // Fixed timestamp for hydration consistency
 		};
 		db.insert(workspaces).values(newWs).run();
 		allWorkspaces.push(newWs);
@@ -21,13 +21,9 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 
 	const activeWorkspaceId = cookies.get('active_workspace_id') || allWorkspaces[0].id;
 
-	// 2. Get initial links for the active workspace (Inbox)
+	// 2. Get ALL links for the active workspace (to allow SPA-like instant filtering)
 	const dbLinks = db.select().from(links).where(
-		and(
-			eq(links.workspaceId, activeWorkspaceId),
-			eq(links.isArchived, false),
-			eq(links.isDeleted, false)
-		)
+		eq(links.workspaceId, activeWorkspaceId)
 	).orderBy(desc(links.createdAt)).all();
 
 	// 3. Get tags for these links

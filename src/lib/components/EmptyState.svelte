@@ -1,11 +1,15 @@
 <script lang="ts">
 	import { Search, Star, Archive, Trash2, Inbox } from '@lucide/svelte';
-	import { search, selectedTags, links } from '$lib/store.svelte';
+	import { getContext } from 'svelte';
+	import { fade } from 'svelte/transition';
+	import type { LinkStore } from '$lib/store.svelte';
 
 	let { onAdd }: { onAdd: () => void } = $props();
 
+	const store = getContext<LinkStore>('store');
+
 	const config = $derived.by(() => {
-		const isFiltering = search?.query || selectedTags?.length > 0;
+		const isFiltering = store.searchQuery || store.selectedTags.length > 0;
 		
 		if (isFiltering) {
 			return {
@@ -16,7 +20,7 @@
 			};
 		}
 
-		switch (links.activeCategory) {
+		switch (store.activeCategory) {
 			case 'favorites':
 				return {
 					title: 'No favorites yet',
@@ -49,7 +53,7 @@
 	});
 </script>
 
-<div class="flex flex-col items-center justify-center p-12 text-center animate-in fade-in duration-500">
+<div in:fade={{ duration: 300 }} class="flex flex-col items-center justify-center p-12 text-center">
 	<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/30">
 		<config.icon class="h-8 w-8 text-muted-foreground/40" />
 	</div>

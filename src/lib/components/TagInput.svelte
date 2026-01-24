@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { Badge } from '$lib/components/ui/badge';
 	import { X, Plus, Tag as TagIcon, Check, ChevronUp, ChevronDown } from '@lucide/svelte';
-	import { allTags } from '$lib/store.svelte';
+	import { getContext } from 'svelte';
+	import type { LinkStore } from '$lib/store.svelte';
 	import * as Popover from '$lib/components/ui/popover';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
@@ -14,6 +15,8 @@
 	}
 
 	let { selected = [], onchange }: Props = $props();
+	const store = getContext<LinkStore>('store');
+
 	let open = $state(false);
 	let value = $state(''); // Used for the search input
 	let triggerRef = $state<HTMLButtonElement>(null!);
@@ -42,7 +45,7 @@
 	});
 
 	const availableTags = $derived.by(() => {
-		const filtered = allTags.all.filter((t: string) => !selected.includes(t));
+		const filtered = store.allTags.filter((t: string) => !selected.includes(t));
 		if (!value.trim()) return filtered;
 		return filtered.filter((t: string) => t.toLowerCase().includes(value.toLowerCase()));
 	});
@@ -57,7 +60,7 @@
 
 	const showCreateOption = $derived(
 		value.trim() !== '' &&
-			!allTags.all.some((t: string) => t.toLowerCase() === value.trim().toLowerCase()) &&
+			!store.allTags.some((t: string) => t.toLowerCase() === value.trim().toLowerCase()) &&
 			!selected.some((t: string) => t.toLowerCase() === value.trim().toLowerCase())
 	);
 
@@ -138,7 +141,7 @@
 			<Combobox.Root
 				type="single"
 				bind:value={selectedValue}
-				items={allTags.all.map((t: any) => ({ value: t, label: t }))}
+				items={store.allTags.map((t: any) => ({ value: t, label: t }))}
 				bind:open
 			>
 				                <div class="flex items-center border-b border-muted-foreground/5 px-3">
@@ -208,7 +211,7 @@
 						{:else}
 							{#if !showCreateOption && !isSearchingSelectedTag}
 								<div class="py-6 text-center text-[12px] text-muted-foreground/60">
-									{#if allTags.all.length === 0}
+									{#if store.allTags.length === 0}
 										Create your first tag
 									{:else}
 										No results found

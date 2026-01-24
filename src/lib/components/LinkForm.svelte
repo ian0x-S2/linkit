@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Link } from '$lib/types';
-	import { addLink, updateLink } from '$lib/store.svelte';
+	import { getContext } from 'svelte';
+	import type { LinkStore } from '$lib/store.svelte';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
@@ -16,6 +17,8 @@
 	}
 
 	let { link = null, onsave, oncancel }: Props = $props();
+
+	const store = getContext<LinkStore>('store');
 
 	let url = $state('');
 	let title = $state('');
@@ -77,9 +80,9 @@
 			};
 
 			if (link?.id) {
-				updateLink(link.id, linkData);
+				await store.update(link.id, linkData);
 			} else {
-				addLink(linkData);
+				await store.add(linkData);
 			}
 			onsave();
 		} finally {

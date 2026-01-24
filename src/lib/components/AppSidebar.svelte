@@ -20,7 +20,10 @@
 	import { Label } from '$lib/components/ui/label';
 	import { setMode } from 'mode-watcher';
 	import { Button } from '$lib/components/ui/button';
-	import { workspaces, setActiveWorkspace, addWorkspace, links } from '$lib/store.svelte';
+	import { getContext } from 'svelte';
+	import type { LinkStore } from '$lib/store.svelte';
+
+	const store = getContext<LinkStore>('store');
 
 	const navMain = [
 		{ id: 'inbox', title: 'Inbox', icon: Inbox },
@@ -40,8 +43,8 @@
 	async function handleCreateWorkspace(e?: Event) {
 		e?.preventDefault();
 		if (newWorkspaceName.trim()) {
-			const newWs = await addWorkspace(newWorkspaceName.trim());
-			await setActiveWorkspace(newWs.id);
+			const newWs = await store.addWorkspace(newWorkspaceName.trim());
+			await store.setActiveWorkspace(newWs.id);
 			newWorkspaceName = '';
 			isCreateWorkspaceOpen = false;
 		}
@@ -51,7 +54,7 @@
 <Sidebar.Root collapsible="icon" class="border-r">
 	<Sidebar.Header class="flex h-12 flex-col justify-center border-b p-0 px-2">
 		<DropdownMenu.Root>
-			<DropdownMenu.Trigger>
+			<DropdownMenu.Trigger asChild>
 				{#snippet child({ props })}
 					<button
 						{...props}
@@ -66,7 +69,7 @@
 							class="flex min-w-0 flex-1 flex-col items-start group-data-[collapsible=icon]:hidden"
 						>
 							<span class="truncate text-[13px] leading-none font-bold tracking-tight">
-								{workspaces.active.name}
+								{store.activeWorkspace.name}
 							</span>
 							<span class="mt-0.5 text-[10px] leading-none text-muted-foreground">Free Plan</span>
 						</div>
@@ -85,9 +88,9 @@
 					Workspaces
 				</DropdownMenu.Label>
 				<DropdownMenu.Group>
-					{#each workspaces.all as ws (ws.id)}
+					{#each store.workspaces as ws (ws.id)}
 						<DropdownMenu.Item
-							onclick={() => setActiveWorkspace(ws.id)}
+							onclick={() => store.setActiveWorkspace(ws.id)}
 							class="flex cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-[13px]"
 						>
 							<div class="flex items-center gap-2">
@@ -96,9 +99,9 @@
 								>
 									{ws.name.charAt(0)}
 								</div>
-								<span class={ws.id === workspaces.active.id ? 'font-semibold' : ''}>{ws.name}</span>
+								<span class={ws.id === store.activeWorkspace.id ? 'font-semibold' : ''}>{ws.name}</span>
 							</div>
-							{#if ws.id === workspaces.active.id}
+							{#if ws.id === store.activeWorkspace.id}
 								<Check class="h-3.5 w-3.5 text-primary" />
 							{/if}
 						</DropdownMenu.Item>
@@ -128,8 +131,8 @@
 					{#each navMain as item (item.id)}
 						<Sidebar.MenuItem>
 							<Sidebar.MenuButton
-								isActive={links.activeCategory === item.id}
-								onclick={() => (links.activeCategory = item.id)}
+								isActive={store.activeCategory === item.id}
+								onclick={() => (store.activeCategory = item.id)}
 								class="h-8 rounded-md px-3 text-[13px] transition-colors hover:bg-muted/50 data-[active=true]:bg-muted data-[active=true]:font-medium"
 							>
 								{#snippet tooltipContent()}

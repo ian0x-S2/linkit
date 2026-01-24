@@ -14,7 +14,8 @@
 	} from '@lucide/svelte';
 	import { formatDistanceToNow } from 'date-fns';
 	import * as Popover from '$lib/components/ui/popover';
-	import { toggleFavorite, toggleArchived, toggleDeleted } from '$lib/store.svelte';
+	import { getContext } from 'svelte';
+	import type { LinkStore } from '$lib/store.svelte';
 
 	interface Props {
 		link: Link;
@@ -23,6 +24,7 @@
 	}
 
 	let { link, onedit, ondelete }: Props = $props();
+	const store = getContext<LinkStore>('store');
 	let imageError = $state(false);
 	let actionsOpen = $state(false);
 
@@ -111,7 +113,7 @@
 					class="h-7 w-7 rounded-md {link.isFavorite
 						? 'text-yellow-500 hover:text-yellow-600'
 						: 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
-					onclick={() => toggleFavorite(link.id)}
+					onclick={() => store.toggleFavorite(link.id)}
 				>
 					<Star class="h-3.5 w-3.5 {link.isFavorite ? 'fill-current' : ''}" />
 				</Button>
@@ -121,7 +123,7 @@
 					class="h-7 w-7 rounded-md {link.isArchived
 						? 'text-primary hover:bg-primary/10'
 						: 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
-					onclick={() => toggleArchived(link.id)}
+					onclick={() => store.toggleArchived(link.id)}
 				>
 					<Archive class="h-3.5 w-3.5 {link.isArchived ? 'fill-current' : ''}" />
 				</Button>
@@ -138,7 +140,7 @@
 
 			<Popover.Root bind:open={actionsOpen}>
 				<Popover.Trigger asChild>
-					{#snippet children(props)}
+					{#snippet child(props)}
 						<Button
 							variant="ghost"
 							size="icon"
@@ -170,7 +172,7 @@
 								size="sm"
 								class="h-8 justify-start rounded-md px-2 text-[12px] font-medium"
 								onclick={() => {
-									toggleDeleted(link.id);
+									store.toggleDeleted(link.id);
 									actionsOpen = false;
 								}}
 							>
@@ -183,7 +185,7 @@
 								size="sm"
 								class="h-8 justify-start rounded-md px-2 text-[12px] font-medium"
 								onclick={() => {
-									toggleArchived(link.id);
+									store.toggleArchived(link.id);
 									actionsOpen = false;
 								}}
 							>
@@ -202,7 +204,7 @@
 								if (link.isDeleted) {
 									ondelete(link.id); // Permanent delete
 								} else {
-									toggleDeleted(link.id); // Move to trash
+									store.toggleDeleted(link.id); // Move to trash
 								}
 								actionsOpen = false;
 							}}

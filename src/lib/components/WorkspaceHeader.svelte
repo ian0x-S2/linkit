@@ -2,7 +2,8 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { FileJson, Plus, Search, List, LayoutGrid, ChevronRight } from '@lucide/svelte';
-	import { search, workspaces, links } from '$lib/store.svelte';
+	import { getContext } from 'svelte';
+	import type { LinkStore } from '$lib/store.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 
@@ -16,8 +17,10 @@
 		viewMode?: 'list' | 'grid';
 	} = $props();
 
+	const store = getContext<LinkStore>('store');
+
 	const title = $derived(
-		links.activeCategory.charAt(0).toUpperCase() + links.activeCategory.slice(1)
+		store.activeCategory.charAt(0).toUpperCase() + store.activeCategory.slice(1)
 	);
 </script>
 
@@ -33,7 +36,7 @@
 			<nav class="flex min-w-0 items-center gap-1.5 text-[13px] font-medium">
 				<span
 					class="cursor-pointer truncate text-muted-foreground transition-colors hover:text-foreground"
-					>{workspaces.active.name}</span
+					>{store.activeWorkspace.name}</span
 				>
 				<ChevronRight class="h-3.5 w-3.5 shrink-0 text-muted-foreground/30" />
 				<span class="truncate text-foreground">{title}</span>
@@ -47,7 +50,13 @@
 					class="absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/40"
 				/>
 				<Input
-					bind:value={search.query}
+					bind:value={store.searchQuery}
+					onkeydown={(e) => {
+						if (e.key === 'Escape') {
+							store.searchQuery = '';
+							(e.target as HTMLInputElement).blur();
+						}
+					}}
 					placeholder="Search or jump to..."
 					class="h-8 w-full rounded-md border border-border bg-muted/20 pl-8.5 text-[13px] shadow-none transition-all hover:bg-muted/40 focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring"
 				/>

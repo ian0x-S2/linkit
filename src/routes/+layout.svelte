@@ -3,8 +3,8 @@
 	import { ModeWatcher } from 'mode-watcher';
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import AppSidebar from "$lib/components/AppSidebar.svelte";
-
-	import { hydrateStore, maybeMigrate } from '$lib/store.svelte';
+	import { setContext } from 'svelte';
+	import { LinkStore } from '$lib/store.svelte';
 
 	interface Props {
 		children?: import('svelte').Snippet;
@@ -13,30 +13,17 @@
 
 	let { children, data }: Props = $props();
 
-	// Immediate hydration
-	$effect.pre(() => {
-		hydrateStore(data);
-	});
+	// Create the store as early as possible
+	// Using context prevents shared state between users on the server (if it were not local-only)
+	// and ensures a clean hydration on the client.
+	const store = new LinkStore(data);
+	setContext('store', store);
 
 	$effect(() => {
-		maybeMigrate();
+		store.maybeMigrate();
 	});
 
 	let open = $state(true);
-	let headerElement = $state<HTMLElement | null>(null);
-	let headerHeight = $state(0);
-
-	$effect(() => {
-		if (headerElement) {
-			const observer = new ResizeObserver((entries) => {
-				for (let entry of entries) {
-					headerHeight = entry.target.clientHeight;
-				}
-			});
-			observer.observe(headerElement);
-			return () => observer.disconnect();
-		}
-	});
 </script>
 
 <ModeWatcher />
@@ -46,7 +33,6 @@
 		<AppSidebar />
 		
 		<main class="flex-1 min-w-0 flex flex-col h-screen overflow-hidden relative">
-			<!-- O Header será injetado aqui pelo +page.svelte via snippet ou renderizado diretamente se movermos a lógica -->
 			{@render children?.()}
 		</main>
 	</div>

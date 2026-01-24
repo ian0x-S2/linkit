@@ -5,7 +5,7 @@ import { SvelteSet } from 'svelte/reactivity';
 const ACTIVE_WORKSPACE_KEY = 'active_workspace_id';
 const MIGRATED_KEY = 'sqlite_migrated';
 
-class LinkStore {
+export class LinkStore {
 	links = $state<Link[]>([]);
 	workspaces = $state<Workspace[]>([]);
 	activeWorkspaceId = $state<string>('default');
@@ -13,11 +13,12 @@ class LinkStore {
 	searchQuery = $state('');
 	selectedTags = $state<string[]>([]);
 
-	// Hydrate the store with server-side data
-	hydrate(data: { workspaces: Workspace[], links: Link[], activeWorkspaceId: string }) {
-		this.workspaces = data.workspaces;
-		this.links = data.links;
-		this.activeWorkspaceId = data.activeWorkspaceId;
+	constructor(data?: { workspaces: Workspace[], links: Link[], activeWorkspaceId: string }) {
+		if (data) {
+			this.workspaces = data.workspaces;
+			this.links = data.links;
+			this.activeWorkspaceId = data.activeWorkspaceId;
+		}
 	}
 
 	async maybeMigrate() {
@@ -37,7 +38,7 @@ class LinkStore {
 				});
 				if (response.ok) {
 					localStorage.setItem(MIGRATED_KEY, 'true');
-					window.location.reload(); // Reload once to get server-side data from SQLite
+					window.location.reload(); 
 				}
 			} catch (e) {
 				console.error('Migration failed', e);
@@ -50,7 +51,7 @@ class LinkStore {
 	async loadLinks() {
 		const params = new URLSearchParams({
 			workspaceId: this.activeWorkspaceId,
-			category: this.activeCategory
+			all: 'true'
 		});
 		const res = await fetch(`/api/links?${params}`);
 		this.links = await res.json();
@@ -61,14 +62,24 @@ class LinkStore {
 			id: 'default',
 			name: 'My Workspace',
 			slug: 'my-workspace',
-			createdAt: Date.now()
+			createdAt: 0
 		};
 	});
 
 	filteredLinks = $derived.by(() => {
 		let result = this.links;
-		const query = (this.searchQuery || '').toLowerCase();
 
+		if (this.activeCategory === 'inbox') {
+			result = result.filter(l => !l.isArchived && !l.isDeleted);
+		} else if (this.activeCategory === 'favorites') {
+			result = result.filter(l => l.isFavorite && !l.isDeleted);
+		} else if (this.activeCategory === 'archive') {
+			result = result.filter(l => l.isArchived && !l.isDeleted);
+		} else if (this.activeCategory === 'trash') {
+			result = result.filter(l => l.isDeleted);
+		}
+
+		const query = (this.searchQuery || '').toLowerCase();
 		if (query) {
 			result = result.filter((link) => {
 				const titleMatch = link.title?.toLowerCase().includes(query) ?? false;
@@ -109,7 +120,6 @@ class LinkStore {
 			tags: (link as any).tags || []
 		};
 
-		// Optimistic update
 		this.links = [newLink, ...this.links];
 
 		try {
@@ -119,7 +129,6 @@ class LinkStore {
 			});
 			if (!res.ok) throw new Error('Failed to save');
 			const saved = await res.json();
-			// Replace optimistic with real data
 			const idx = this.links.findIndex(l => l.id === id);
 			if (idx !== -1) this.links[idx] = saved;
 		} catch (e) {
@@ -154,26 +163,14 @@ class LinkStore {
 	async toggleArchived(id: string) {
 		const link = this.links.find(l => l.id === id);
 		if (link) {
-			const original = this.links;
-			this.links = this.links.filter(l => l.id !== id); // Instant UI feedback
-			try {
-				await this.update(id, { isArchived: !link.isArchived });
-			} catch (e) {
-				this.links = original;
-			}
+			await this.update(id, { isArchived: !link.isArchived });
 		}
 	}
 
 	async toggleDeleted(id: string) {
 		const link = this.links.find(l => l.id === id);
 		if (link) {
-			const original = this.links;
-			this.links = this.links.filter(l => l.id !== id);
-			try {
-				await this.update(id, { isDeleted: !link.isDeleted });
-			} catch (e) {
-				this.links = original;
-			}
+			await this.update(id, { isDeleted: !link.isDeleted });
 		}
 	}
 
@@ -181,7 +178,8 @@ class LinkStore {
 		const original = this.links;
 		this.links = this.links.filter((l) => l.id !== id);
 		try {
-			await fetch(`/api/links/${id}`, { method: 'DELETE' });
+			const res = await fetch(`/api/links/${id}`, { method: 'DELETE' });
+			if (!res.ok) throw new Error();
 		} catch (e) {
 			this.links = original;
 		}
@@ -199,7 +197,6 @@ class LinkStore {
 
 	async setCategory(category: 'inbox' | 'favorites' | 'archive' | 'trash') {
 		this.activeCategory = category;
-		await this.loadLinks();
 	}
 
 	async addWorkspace(name: string) {
@@ -226,44 +223,3 @@ class LinkStore {
 		}
 	}
 }
-
-export const linkStore = new LinkStore();
-
-export const links = {
-	get all() { return linkStore.links; },
-	get activeCategory() { return linkStore.activeCategory; },
-	set activeCategory(v) { linkStore.setCategory(v); }
-};
-
-export const workspaces = {
-	get all() { return linkStore.workspaces; },
-	get active() { return linkStore.activeWorkspace; },
-	set activeId(id: string) { linkStore.setActiveWorkspace(id); },
-	add: (name: string) => linkStore.addWorkspace(name),
-	remove: (id: string) => linkStore.removeWorkspace(id)
-};
-
-export const search = {
-	get query() { return linkStore.searchQuery; },
-	set query(v: string) { linkStore.searchQuery = v; },
-	get filteredLinks() { return linkStore.filteredLinks; }
-};
-
-export const selectedTags = {
-	get all() { return linkStore.selectedTags; },
-	includes: (tag: string) => linkStore.selectedTags.includes(tag)
-};
-
-export const allTags = { get all() { return linkStore.allTags; } };
-
-export const addLink = (link: any) => linkStore.add(link);
-export const updateLink = (id: string, updates: any) => linkStore.update(id, updates);
-export const deleteLink = (id: string) => linkStore.remove(id);
-export const toggleFavorite = (id: string) => linkStore.toggleFavorite(id);
-export const toggleArchived = (id: string) => linkStore.toggleArchived(id);
-export const toggleDeleted = (id: string) => linkStore.toggleDeleted(id);
-export const toggleSelectedTag = (tag: string) => linkStore.toggleTag(tag);
-export const setActiveWorkspace = (id: string) => linkStore.setActiveWorkspace(id);
-export const addWorkspace = (name: string) => linkStore.addWorkspace(name);
-export const hydrateStore = (data: any) => linkStore.hydrate(data);
-export const maybeMigrate = () => linkStore.maybeMigrate();
