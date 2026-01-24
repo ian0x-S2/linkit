@@ -1,12 +1,13 @@
 <script lang="ts">
 	import type { Link } from '$lib/types';
 	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
+	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Edit2, Trash2, MoreHorizontal, FileText, Star, Archive, RotateCcw } from '@lucide/svelte';
 	import { formatDistanceToNow } from 'date-fns';
 	import * as Popover from '$lib/components/ui/popover';
 	import { getContext } from 'svelte';
 	import type { LinkStore } from '$lib/store.svelte';
+	import { cn } from '$lib/utils';
 
 	interface Props {
 		link: Link;
@@ -29,7 +30,7 @@
 	}
 </script>
 
-<div class="group border-b bg-background transition-all last:border-0 hover:bg-muted/[0.03]">
+<div class="group border-b bg-background transition-all last:border-0 hover:bg-muted/3">
 	<div class="flex items-center gap-4 px-4 py-2.5">
 		<!-- Preview: More Geometric -->
 		<div class="shrink-0">
@@ -98,17 +99,13 @@
 			<!-- Actions -->
 			<div class="flex shrink-0 items-center gap-1">
 				<Popover.Root bind:open={actionsOpen}>
-					<Popover.Trigger asChild>
-						{#snippet child(props)}
-							<Button
-								variant="ghost"
-								size="icon"
-								class="h-7 w-7 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-								{...props}
-							>
-								<MoreHorizontal class="h-3.5 w-3.5" />
-							</Button>
-						{/snippet}
+					<Popover.Trigger
+						class={cn(
+							buttonVariants({ variant: 'ghost', size: 'icon' }),
+							'h-7 w-7 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground'
+						)}
+					>
+						<MoreHorizontal class="h-3.5 w-3.5" />
 					</Popover.Trigger>
 					<Popover.Content align="end" class="w-44 rounded-lg p-1 shadow-md">
 						<div class="flex flex-col gap-0.5">

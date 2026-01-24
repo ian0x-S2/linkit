@@ -54,30 +54,25 @@
 <Sidebar.Root collapsible="icon" class="border-r">
 	<Sidebar.Header class="flex h-12 flex-col justify-center border-b p-0 px-2">
 		<DropdownMenu.Root>
-			<DropdownMenu.Trigger asChild>
-				{#snippet child({ props })}
-					<button
-						{...props}
-						class="flex w-full items-center justify-start gap-2 overflow-hidden rounded-md py-1.5 pr-2 pl-1.5 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 hover:bg-muted/50"
-					>
-						<div
-							class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm"
-						>
-							<Command class="h-3.5 w-3.5" />
-						</div>
-						<div
-							class="flex min-w-0 flex-1 flex-col items-start group-data-[collapsible=icon]:hidden"
-						>
-							<span class="truncate text-[13px] leading-none font-bold tracking-tight">
-								{store.activeWorkspace.name}
-							</span>
-							<span class="mt-0.5 text-[10px] leading-none text-muted-foreground">Free Plan</span>
-						</div>
-						<ChevronsUpDown
-							class="h-3.5 w-3.5 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden"
-						/>
-					</button>
-				{/snippet}
+			<DropdownMenu.Trigger
+				class="flex w-full items-center justify-start gap-2 overflow-hidden rounded-md py-1.5 pr-2 pl-1.5 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 hover:bg-muted/50"
+			>
+				<div
+					class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm"
+				>
+					<Command class="h-3.5 w-3.5" />
+				</div>
+				<div
+					class="flex min-w-0 flex-1 flex-col items-start group-data-[collapsible=icon]:hidden"
+				>
+					<span class="truncate text-[13px] leading-none font-bold tracking-tight">
+						{store.activeWorkspace.name}
+					</span>
+					<span class="mt-0.5 text-[10px] leading-none text-muted-foreground">Free Plan</span>
+				</div>
+				<ChevronsUpDown
+					class="h-3.5 w-3.5 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden"
+				/>
 			</DropdownMenu.Trigger>
 			<DropdownMenu.Content
 				class="w-(--bits-dropdown-menu-anchor-width) min-w-56 rounded-md border p-1 shadow-lg"
