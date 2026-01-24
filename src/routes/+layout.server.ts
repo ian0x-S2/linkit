@@ -1,22 +1,33 @@
 import { db } from '$lib/server/db';
 import { workspaces, links, linkTags, tags } from '$lib/server/db/schema';
-import { eq, desc, and, sql } from 'drizzle-orm';
+import { eq, desc,  sql } from 'drizzle-orm';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
-	// 1. Get workspaces
-	const allWorkspaces = db.select().from(workspaces).orderBy(desc(workspaces.createdAt)).all();
+	// 1. Get workspaces with link counts
+	const allWorkspaces = db.select({
+		id: workspaces.id,
+		name: workspaces.name,
+		slug: workspaces.slug,
+		createdAt: workspaces.createdAt,
+		linkCount: sql<number>`count(${links.id})`
+	})
+	.from(workspaces)
+	.leftJoin(links, eq(workspaces.id, links.workspaceId))
+	.groupBy(workspaces.id)
+	.orderBy(desc(workspaces.createdAt))
+	.all();
 	
 	// Ensure at least one workspace exists
 	if (allWorkspaces.length === 0) {
-		const newWs = {
+		const newWsData = {
 			id: 'default',
 			name: 'My Workspace',
 			slug: 'my-workspace',
 			createdAt: 1700000000000 // Fixed timestamp for hydration consistency
 		};
-		db.insert(workspaces).values(newWs).run();
-		allWorkspaces.push(newWs);
+		db.insert(workspaces).values(newWsData).run();
+		allWorkspaces.push({ ...newWsData, linkCount: 0 });
 	}
 
 	const activeWorkspaceId = cookies.get('active_workspace_id') || allWorkspaces[0].id;

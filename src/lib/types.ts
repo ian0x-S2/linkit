@@ -4,6 +4,7 @@ export interface Workspace {
 	slug: string;
 	icon?: string;
 	createdAt: number;
+	linkCount?: number;
 }
 
 export interface Link {

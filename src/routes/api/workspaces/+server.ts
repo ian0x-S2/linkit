@@ -1,12 +1,24 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { workspaces } from '$lib/server/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { workspaces, links } from '$lib/server/db/schema';
+import { eq, desc, sql } from 'drizzle-orm';
 import { cacheManager } from '$lib/server/cache';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async () => {
-	const result = await db.select().from(workspaces).orderBy(desc(workspaces.createdAt));
+	const result = await db.select({
+		id: workspaces.id,
+		name: workspaces.name,
+		slug: workspaces.slug,
+		icon: workspaces.icon,
+		createdAt: workspaces.createdAt,
+		linkCount: sql<number>`count(${links.id})`
+	})
+	.from(workspaces)
+	.leftJoin(links, eq(workspaces.id, links.workspaceId))
+	.groupBy(workspaces.id)
+	.orderBy(desc(workspaces.createdAt));
+	
 	return json(result);
 };
 
