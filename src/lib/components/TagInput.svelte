@@ -168,23 +168,30 @@
 						class="max-h-50 w-full overflow-y-auto p-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
 					>
 						{#if showCreateOption}
-							<div class="mb-1 border-b border-muted-foreground/5 px-1 pb-1">
+							<div class="mb-1 border-b border-muted-foreground/5 p-1">
 								<button
-									class="group flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[13px] font-medium text-primary transition-colors hover:bg-primary/10 hover:text-primary"
+									class="group flex h-9 w-full items-center justify-between rounded-md border border-muted-foreground/10 bg-muted/40 px-2 text-left text-[13px] transition-all hover:bg-muted/60 active:scale-[0.98]"
 									onclick={() => {
 										addTag(value);
 										value = '';
 									}}
 								>
-									<Plus class="h-3.5 w-3.5" />
-									<span>Create "{value}"</span>
+									<div class="flex items-center gap-2">
+										<Plus class="h-3.5 w-3.5 text-primary" />
+										<span class="font-medium">Create "{value}"</span>
+									</div>
+									<div
+										class="flex h-5 items-center gap-1 rounded border border-muted-foreground/20 bg-background px-1.5 text-[10px] font-medium text-muted-foreground/70"
+									>
+										<span>Enter</span>
+									</div>
 								</button>
 							</div>
 						{/if}
 
 						{#if isSearchingSelectedTag}
 							<div
-								class="flex items-center gap-2 rounded-lg bg-muted/30 px-3 py-3 text-[12px] text-muted-foreground"
+								class="flex items-center gap-2 rounded-md bg-muted/20 px-3 py-2.5 text-[12px] text-muted-foreground"
 							>
 								<Check class="h-3.5 w-3.5 text-primary" />
 								<span>Tag "{value}" is already selected</span>
@@ -195,21 +202,26 @@
 							<Combobox.Item
 								value={tag}
 								label={tag}
-								class="flex cursor-pointer items-center justify-between rounded-lg
-								px-2 py-1.5 text-[13px] transition-colors outline-none data-highlighted:bg-muted/50"
+								class="group flex h-9 cursor-pointer items-center justify-between rounded-md
+														px-2 text-[13px] transition-colors 	outline-none data-highlighted:bg-muted/50"
 							>
 								<div class="flex items-center gap-2">
 									<TagIcon class="h-3.5 w-3.5 opacity-40" />
-									{tag}
+									<span>{tag}</span>
+								</div>
+								<div
+									class="hidden h-5 items-center gap-1 rounded border border-muted-foreground/20 bg-background px-1.5 text-[10px] font-medium text-muted-foreground/70 group-data-highlighted:flex"
+								>
+									<span>Enter</span>
 								</div>
 							</Combobox.Item>
 						{:else}
 							{#if !showCreateOption && !isSearchingSelectedTag}
-								<div class="py-6 text-center text-[12px] text-muted-foreground/60">
+								<div class="py-6 text-center text-[12px] text-muted-foreground/50">
 									{#if store.allTags.length === 0}
-										Create your first tag
+										No tags found. Type to create one.
 									{:else}
-										No results found
+										All tags selected. Type to create more.
 									{/if}
 								</div>
 							{/if}
