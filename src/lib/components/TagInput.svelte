@@ -136,6 +136,7 @@
 		>
 			<Combobox.Root
 				type="single"
+				loop={true}
 				bind:value={selectedValue}
 				inputValue={value}
 				items={store.allTags.map((t: any) => ({ value: t, label: t }))}
