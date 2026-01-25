@@ -7,7 +7,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import TagInput from '$lib/components/TagInput.svelte';
-	import { Save, Loader2, X, Globe, Tag, Type, AlignLeft } from '@lucide/svelte';
+	import { X, Globe, Tag, Type, Loader, TextAlignStart } from '@lucide/svelte';
 	import { browser } from '$app/environment';
 
 	interface Props {
@@ -130,7 +130,7 @@
 					class="h-10 border-muted-foreground/10 bg-background px-4 hover:bg-muted/30"
 				>
 					{#if isLoadingPreview}
-						<Loader2 class="mr-2 h-3.5 w-3.5 animate-spin" />
+						<Loader class="mr-2 h-3.5 w-3.5 animate-spin" />
 					{/if}
 					Auto-fill
 				</Button>
@@ -171,7 +171,7 @@
 		<!-- Description -->
 		<div class="space-y-2.5">
 			<div class="flex items-center gap-2">
-				<AlignLeft class="h-3.5 w-3.5 text-muted-foreground/60" />
+				<TextAlignStart class="h-3.5 w-3.5 text-muted-foreground/60" />
 				<Label
 					for="description"
 					class="text-[11px] font-bold tracking-widest text-muted-foreground/80 uppercase"
@@ -190,10 +190,10 @@
 		{#if image}
 			<div class="pt-2 duration-300 animate-in fade-in slide-in-from-top-2">
 				<div
-					class="relative aspect-[21/9] overflow-hidden rounded-md border border-muted-foreground/10 bg-muted/20 shadow-inner"
+					class="relative aspect-21/9 overflow-hidden rounded-md border border-muted-foreground/10 bg-muted/20 shadow-inner"
 				>
 					<img src={image} alt="Preview" class="h-full w-full object-cover" />
-					<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+					<div class="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
 					<Button
 						variant="ghost"
 						size="icon"
@@ -226,7 +226,7 @@
 				class="h-9 rounded-md bg-primary px-5 text-[13px] font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
 			>
 				{#if isSaving}
-					<Loader2 class="mr-2 h-3.5 w-3.5 animate-spin" />
+					<Loader class="mr-2 h-3.5 w-3.5 animate-spin" />
 					Saving...
 				{:else}
 					{link ? 'Update link' : 'Create link'}

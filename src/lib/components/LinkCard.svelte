@@ -3,14 +3,14 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import {
-		Edit2,
 		Trash2,
-		MoreHorizontal,
 		FileText,
 		ExternalLink,
 		Star,
 		Archive,
-		RotateCcw
+		RotateCcw,
+		Ellipsis,
+		Pencil
 	} from '@lucide/svelte';
 	import { formatDistanceToNow } from 'date-fns';
 	import * as Popover from '$lib/components/ui/popover';
@@ -146,7 +146,7 @@
 						'h-7 w-7 rounded-md text-muted-foreground hover:text-foreground'
 					)}
 				>
-					<MoreHorizontal class="h-3.5 w-3.5" />
+					<Ellipsis class="h-3.5 w-3.5" />
 				</Popover.Trigger>
 				<Popover.Content align="end" class="w-40 rounded-md border p-1 shadow-lg">
 					<div class="flex flex-col gap-0.5">
@@ -159,7 +159,7 @@
 								actionsOpen = false;
 							}}
 						>
-							<Edit2 class="mr-2 h-3 w-3" />
+							<Pencil class="mr-2 h-3 w-3" />
 							<span>Edit</span>
 						</Button>
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { FileJson, Plus, Search, List, LayoutGrid, ChevronRight } from '@lucide/svelte';
+	import { Plus, Search, List, LayoutGrid, ChevronRight, FileBraces } from '@lucide/svelte';
 	import { getContext } from 'svelte';
 	import type { LinkStore } from '$lib/store.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
@@ -112,7 +112,7 @@
 				class="h-7 w-7 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
 				onclick={onExport}
 			>
-				<FileJson class="h-3.5 w-3.5" />
+				<FileBraces class="h-3.5 w-3.5" />
 			</Button>
 
 			<Button

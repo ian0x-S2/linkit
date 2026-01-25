@@ -6,7 +6,6 @@
 	import * as Popover from '$lib/components/ui/popover';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
-	import { tick } from 'svelte';
 	import { Combobox } from 'bits-ui';
 
 	interface Props {
@@ -144,24 +143,24 @@
 				items={store.allTags.map((t: any) => ({ value: t, label: t }))}
 				bind:open
 			>
-				                <div class="flex items-center border-b border-muted-foreground/5 px-3">
-				                    <Combobox.Input
-				                        bind:ref={inputRef}
-				                        placeholder={hasReachedLimit ? 'Maximum 10 tags reached' : 'Search or create tags...'}
-				                        disabled={hasReachedLimit}
-				                        class="h-10 w-full bg-transparent text-[13px] outline-none placeholder:text-muted-foreground/50 disabled:cursor-not-allowed disabled:opacity-50"
-				                        value={value}
-				                        oninput={(e) => (value = e.currentTarget.value)}
-				                        onkeydown={(e) => {
-				                            if (e.key === 'Enter') {
-				                                e.preventDefault();
-				                                if (showCreateOption) {
-				                                    addTag(value);
-				                                }
-				                            }
-				                        }}
-				                    />
-				                </div>
+				<div class="flex items-center border-b border-muted-foreground/5 px-3">
+					<Combobox.Input
+						bind:ref={inputRef}
+						placeholder={hasReachedLimit ? 'Maximum 10 tags reached' : 'Search or create tags...'}
+						disabled={hasReachedLimit}
+						class="h-10 w-full bg-transparent text-[13px] outline-none placeholder:text-muted-foreground/50 disabled:cursor-not-allowed disabled:opacity-50"
+						{value}
+						oninput={(e) => (value = e.currentTarget.value)}
+						onkeydown={(e) => {
+							if (e.key === 'Enter') {
+								e.preventDefault();
+								if (showCreateOption) {
+									addTag(value);
+								}
+							}
+						}}
+					/>
+				</div>
 				<Combobox.ContentStatic class="relative flex w-full flex-col bg-popover">
 					<Combobox.ScrollUpButton
 						class="absolute top-0 right-0 left-0 z-20 flex w-full items-center justify-center bg-linear-to-b from-popover via-popover/90 to-transparent py-2 text-muted-foreground/60 transition-colors hover:text-primary"

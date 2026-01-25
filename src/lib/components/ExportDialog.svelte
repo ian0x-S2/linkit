@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { FileJson, FileText } from '@lucide/svelte';
+	import { FileBraces,  FileText } from '@lucide/svelte';
 	import type { Link } from '$lib/types';
 
 	let { open = $bindable(false), links }: { open: boolean; links: Link[] } = $props();
@@ -58,7 +58,7 @@
 				<div
 					class="flex h-8 w-8 items-center justify-center rounded-md border bg-background shadow-sm transition-colors group-hover:border-primary/20"
 				>
-					<FileJson
+					<FileBraces
 						class="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary"
 					/>
 				</div>
