@@ -150,11 +150,9 @@
 						class="h-10 w-full bg-transparent text-[13px] outline-none placeholder:text-muted-foreground/50 disabled:cursor-not-allowed disabled:opacity-50"
 						oninput={(e) => (value = e.currentTarget.value)}
 						onkeydown={(e) => {
-							if (e.key === 'Enter') {
+							if (e.key === 'Enter' && showCreateOption) {
 								e.preventDefault();
-								if (showCreateOption) {
-									addTag(value);
-								}
+								addTag(value);
 							}
 						}}
 					/>
