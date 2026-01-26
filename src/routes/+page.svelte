@@ -107,7 +107,7 @@
 </div>
 
 <Dialog.Root bind:open={isAddDialogOpen}>
-	<Dialog.Content class="overflow-hidden rounded-lg border-none p-0 shadow-2xl sm:max-w-[640px]">
+	<Dialog.Content class="overflow-hidden rounded-lg border-none p-0 shadow-2xl sm:max-w-160">
 		<LinkForm
 			link={editingLink}
 			onsave={() => (isAddDialogOpen = false)}
@@ -117,7 +117,7 @@
 </Dialog.Root>
 
 <Dialog.Root bind:open={isExportDialogOpen}>
-	<Dialog.Content class="rounded-md sm:max-w-[500px]">
+	<Dialog.Content class="rounded-md sm:max-w-125">
 		<ExportDialog bind:open={isExportDialogOpen} links={store.filteredLinks} />
 	</Dialog.Content>
 </Dialog.Root>

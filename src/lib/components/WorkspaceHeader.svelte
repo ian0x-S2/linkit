@@ -75,33 +75,31 @@
 		<!-- Right Section: Actions -->
 		<div class="flex min-w-45 items-center justify-end gap-1">
 			<div class="flex items-center gap-0.5 rounded-md border bg-muted/20 p-0.5">
-				<Tooltip.Provider delayDuration={0}>
-					<Tooltip.Root>
-						<Tooltip.Trigger
-							class="flex h-6.5 w-6.5 items-center justify-center rounded-lg transition-all {viewMode ===
-							'list'
-								? 'border bg-background text-foreground shadow-sm'
-								: 'text-muted-foreground hover:bg-muted/50'}"
-							onclick={() => (viewMode = 'list')}
-						>
-							<List class="h-3.5 w-3.5" />
-						</Tooltip.Trigger>
-						<Tooltip.Content side="bottom" class="px-2 py-1 text-[10px]">List</Tooltip.Content>
-					</Tooltip.Root>
+				<Tooltip.Root ignoreNonKeyboardFocus delayDuration={900}>
+					<Tooltip.Trigger
+						class="flex h-6.5 w-6.5 items-center justify-center rounded-lg transition-all {viewMode ===
+						'list'
+							? 'border bg-background text-foreground shadow-sm'
+							: 'text-muted-foreground hover:bg-muted/50'}"
+						onclick={() => (viewMode = 'list')}
+					>
+						<List class="h-3.5 w-3.5" />
+					</Tooltip.Trigger>
+					<Tooltip.Content side="bottom" class="px-2 py-1 text-[10px]">List</Tooltip.Content>
+				</Tooltip.Root>
 
-					<Tooltip.Root>
-						<Tooltip.Trigger
-							class="flex h-6.5 w-6.5 items-center justify-center rounded-lg transition-all {viewMode ===
-							'grid'
-								? 'border bg-background text-foreground shadow-sm'
-								: 'text-muted-foreground hover:bg-muted/50'}"
-							onclick={() => (viewMode = 'grid')}
-						>
-							<LayoutGrid class="h-3.5 w-3.5" />
-						</Tooltip.Trigger>
-						<Tooltip.Content side="bottom" class="px-2 py-1 text-[10px]">Grid</Tooltip.Content>
-					</Tooltip.Root>
-				</Tooltip.Provider>
+				<Tooltip.Root ignoreNonKeyboardFocus delayDuration={900}>
+					<Tooltip.Trigger
+						class="flex h-6.5 w-6.5 items-center justify-center rounded-lg transition-all {viewMode ===
+						'grid'
+							? 'border bg-background text-foreground shadow-sm'
+							: 'text-muted-foreground hover:bg-muted/50'}"
+						onclick={() => (viewMode = 'grid')}
+					>
+						<LayoutGrid class="h-3.5 w-3.5" />
+					</Tooltip.Trigger>
+					<Tooltip.Content side="bottom" class="px-2 py-1 text-[10px]">Grid</Tooltip.Content>
+				</Tooltip.Root>
 			</div>
 
 			<div class="mx-1 h-4 w-px bg-border"></div>

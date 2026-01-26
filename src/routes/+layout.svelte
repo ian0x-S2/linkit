@@ -5,6 +5,7 @@
 	import AppSidebar from '$lib/components/AppSidebar.svelte';
 	import { setContext, untrack } from 'svelte'; // 1. Import untrack
 	import { LinkStore } from '$lib/store.svelte';
+	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 
 	interface Props {
 		children?: import('svelte').Snippet;
@@ -36,12 +37,14 @@
 
 <ModeWatcher />
 
-<Sidebar.Provider bind:open>
-	<div class="flex h-screen w-full overflow-hidden bg-background">
-		<AppSidebar />
+<Tooltip.Provider delayDuration={400}>
+	<Sidebar.Provider bind:open>
+		<div class="flex h-screen w-full overflow-hidden bg-background">
+			<AppSidebar />
 
-		<main class="relative flex h-screen min-w-0 flex-1 flex-col overflow-hidden">
-			{@render children?.()}
-		</main>
-	</div>
-</Sidebar.Provider>
+			<main class="relative flex h-screen min-w-0 flex-1 flex-col overflow-hidden">
+				{@render children?.()}
+			</main>
+		</div>
+	</Sidebar.Provider>
+</Tooltip.Provider>
