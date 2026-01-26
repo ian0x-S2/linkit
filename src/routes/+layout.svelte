@@ -1,9 +1,9 @@
 <script lang="ts">
 	import './layout.css';
 	import { ModeWatcher } from 'mode-watcher';
-	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-	import AppSidebar from "$lib/components/AppSidebar.svelte";
-	import { setContext } from 'svelte';
+	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import AppSidebar from '$lib/components/AppSidebar.svelte';
+	import { setContext, untrack } from 'svelte'; // 1. Import untrack
 	import { LinkStore } from '$lib/store.svelte';
 
 	interface Props {
@@ -13,11 +13,15 @@
 
 	let { children, data }: Props = $props();
 
-	// Create the store as early as possible
-	// Using context prevents shared state between users on the server (if it were not local-only)
-	// and ensures a clean hydration on the client.
-	const store = new LinkStore(data);
+	// 2. Wrap data in untrack() to tell Svelte
+	// "I know this only runs once at initialization"
+	const store = new LinkStore(untrack(() => data));
 	setContext('store', store);
+
+	// 3. Use an effect to sync the store when data changes (e.g., on navigation)
+	$effect(() => {
+		store.hydrate(data);
+	});
 
 	$effect(() => {
 		store.maybeMigrate();
@@ -31,8 +35,8 @@
 <Sidebar.Provider bind:open>
 	<div class="flex h-screen w-full overflow-hidden bg-background">
 		<AppSidebar />
-		
-		<main class="flex-1 min-w-0 flex flex-col h-screen overflow-hidden relative">
+
+		<main class="relative flex h-screen min-w-0 flex-1 flex-col overflow-hidden">
 			{@render children?.()}
 		</main>
 	</div>

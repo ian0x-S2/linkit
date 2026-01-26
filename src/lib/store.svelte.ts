@@ -1,7 +1,6 @@
 import type { Link, Workspace } from './types';
 import { browser } from '$app/environment';
-import { SvelteSet } from 'svelte/reactivity';
-
+import { SvelteSet, SvelteURLSearchParams } from 'svelte/reactivity';
 const ACTIVE_WORKSPACE_KEY = 'active_workspace_id';
 const MIGRATED_KEY = 'sqlite_migrated';
 
@@ -15,10 +14,14 @@ export class LinkStore {
 
 	constructor(data?: { workspaces: Workspace[], links: Link[], activeWorkspaceId: string }) {
 		if (data) {
-			this.workspaces = data.workspaces;
-			this.links = data.links;
-			this.activeWorkspaceId = data.activeWorkspaceId;
+			this.hydrate(data);
 		}
+	}
+
+	hydrate(data: { workspaces: Workspace[], links: Link[], activeWorkspaceId: string }) {
+		this.workspaces = data.workspaces;
+		this.links = data.links;
+		this.activeWorkspaceId = data.activeWorkspaceId;
 	}
 
 	async maybeMigrate() {
@@ -38,7 +41,7 @@ export class LinkStore {
 				});
 				if (response.ok) {
 					localStorage.setItem(MIGRATED_KEY, 'true');
-					window.location.reload(); 
+					window.location.reload();
 				}
 			} catch (e) {
 				console.error('Migration failed', e);
@@ -49,7 +52,7 @@ export class LinkStore {
 	}
 
 	async loadLinks() {
-		const params = new URLSearchParams({
+		const params = new SvelteURLSearchParams({
 			workspaceId: this.activeWorkspaceId,
 			all: 'true'
 		});
@@ -60,7 +63,7 @@ export class LinkStore {
 	activeWorkspace = $derived.by(() => {
 		const found = this.workspaces.find((w) => w.id === this.activeWorkspaceId);
 		if (found) return found;
-		
+
 		if (this.workspaces.length > 0) return this.workspaces[0];
 
 		return {
