@@ -25,7 +25,7 @@
 	});
 
 	$effect(() => {
-		store.maybeMigrate();
+		store.migrateFromLocalStorageIfNeeded();
 	});
 
 	let open = $state(untrack(() => data.isSidebarOpen));

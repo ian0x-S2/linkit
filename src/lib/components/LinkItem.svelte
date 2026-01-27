@@ -139,7 +139,7 @@
 										? 'text-yellow-500'
 										: ''}"
 									onclick={() => {
-										store.toggleFavorite(link.id);
+										store.toggleFavoriteAsync(link.id);
 										actionsOpen = false;
 									}}
 								>
@@ -152,7 +152,7 @@
 									size="sm"
 									class="h-8 justify-start rounded-md px-2 text-[12px] font-medium"
 									onclick={() => {
-										store.toggleArchived(link.id);
+										store.toggleArchivedAsync(link.id);
 										actionsOpen = false;
 									}}
 								>
@@ -167,7 +167,7 @@
 									size="sm"
 									class="h-8 justify-start rounded-md px-2 text-[12px] font-medium"
 									onclick={() => {
-										store.toggleDeleted(link.id);
+										store.toggleDeletedAsync(link.id);
 										actionsOpen = false;
 									}}
 								>
@@ -186,7 +186,7 @@
 									if (link.isDeleted) {
 										ondelete(link.id); // Permanent delete
 									} else {
-										store.toggleDeleted(link.id); // Move to trash
+										store.toggleDeletedAsync(link.id); // Move to trash
 									}
 									actionsOpen = false;
 								}}

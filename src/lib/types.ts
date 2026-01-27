@@ -1,5 +1,15 @@
+/**
+ * Branded type for Link IDs to prevent accidental ID confusion
+ */
+export type LinkId = string & { readonly __brand: 'LinkId' };
+
+/**
+ * Branded type for Workspace IDs
+ */
+export type WorkspaceId = string & { readonly __brand: 'WorkspaceId' };
+
 export interface Workspace {
-	id: string;
+	id: WorkspaceId;
 	name: string;
 	slug: string;
 	icon?: string;
@@ -8,7 +18,7 @@ export interface Workspace {
 }
 
 export interface Link {
-	id: string;
+	id: LinkId;
 	url: string;
 	title: string | null;
 	description: string | null;
@@ -19,8 +29,21 @@ export interface Link {
 	createdAt: number;
 	updatedAt: number;
 	tags: string[];
-	workspaceId: string;
+	workspaceId: WorkspaceId;
 	isFavorite?: boolean;
 	isArchived?: boolean;
 	isDeleted?: boolean;
+}
+
+/**
+ * Standard Result type for operations that can fail
+ */
+export type Result<T, E = Error> = 
+	| { ok: true; value: T }
+	| { ok: false; error: E };
+
+export interface ApiError {
+	message: string;
+	code?: string;
+	status?: number;
 }

@@ -25,6 +25,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import type { LinkStore } from '$lib/store.svelte';
+	import type { WorkspaceId } from '$lib/types';
 
 	const store = getContext<LinkStore>('store');
 
@@ -44,7 +45,7 @@
 	}
 
 	async function handleWorkspaceSwitch(id: string) {
-		await store.setActiveWorkspace(id);
+		await store.setActiveWorkspaceAsync(id as WorkspaceId);
 		if (page.url.pathname !== '/') {
 			await goto('/');
 		}
@@ -62,9 +63,9 @@
 		const name = newWorkspaceName.trim();
 		if (name) {
 			try {
-				const newWs = await store.addWorkspace(name);
-				if (newWs && newWs.id) {
-					await store.setActiveWorkspace(newWs.id);
+				const result = await store.addWorkspaceAsync(name);
+				if (result.ok && result.value.id) {
+					await store.setActiveWorkspaceAsync(result.value.id);
 					newWorkspaceName = '';
 					isCreateWorkspaceOpen = false;
 					if (page.url.pathname !== '/') {

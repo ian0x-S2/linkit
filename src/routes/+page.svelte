@@ -9,7 +9,7 @@
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { getContext } from 'svelte';
 	import type { LinkStore } from '$lib/store.svelte';
-	import type { Link } from '$lib/types';
+	import type { Link, LinkId } from '$lib/types';
 
 	const store = getContext<LinkStore>('store');
 
@@ -51,7 +51,7 @@
 	}
 
 	function handleDeleteLink(id: string) {
-		store.remove(id);
+		store.removeLinkPermanentlyAsync(id as LinkId);
 	}
 </script>
 

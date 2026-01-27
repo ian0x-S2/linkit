@@ -71,7 +71,7 @@
 		if (!url.trim()) return;
 		isSaving = true;
 		try {
-			const linkData: any = {
+			const linkData = {
 				url: url.trim(),
 				title: title.trim() || null,
 				description: description.trim() || null,
@@ -80,9 +80,9 @@
 			};
 
 			if (link?.id) {
-				await store.update(link.id, linkData);
+				await store.updateLinkAsync(link.id, linkData);
 			} else {
-				await store.add(linkData);
+				await store.addLinkAsync(linkData);
 			}
 			onsave();
 		} finally {

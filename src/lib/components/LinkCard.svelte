@@ -147,60 +147,59 @@
 								class="h-8 justify-start rounded-md px-2 text-[12px] font-medium {link.isFavorite
 									? 'text-yellow-500'
 									: ''}"
-								onclick={() => {
-									store.toggleFavorite(link.id);
-									actionsOpen = false;
-								}}
-							>
-								<Star class="mr-2 h-3 w-3 {link.isFavorite ? 'fill-current' : ''}" />
-								<span>{link.isFavorite ? 'Remove Favorite' : 'Mark Favorite'}</span>
-							</Button>
-
-							<Button
-								variant="ghost"
-								size="sm"
-								class="h-8 justify-start rounded-md px-2 text-[12px] font-medium"
-								onclick={() => {
-									store.toggleArchived(link.id);
-									actionsOpen = false;
-								}}
-							>
-								<Archive class="mr-2 h-3 w-3" />
-								<span>{link.isArchived ? 'Unarchive' : 'Archive'}</span>
-							</Button>
-						{/if}
-
-						{#if link.isDeleted}
-							<Button
-								variant="ghost"
-								size="sm"
-								class="h-8 justify-start rounded-md px-2 text-[12px] font-medium"
-								onclick={() => {
-									store.toggleDeleted(link.id);
-									actionsOpen = false;
-								}}
-							>
-								<RotateCcw class="mr-2 h-3 w-3" />
-								<span>Restore</span>
-							</Button>
-						{/if}
-
-						<div class="my-1 h-px bg-border"></div>
-
-						<Button
-							variant="ghost"
-							size="sm"
-							class="h-8 justify-start rounded-md px-2 text-[12px] font-medium text-destructive hover:bg-destructive/10 hover:text-destructive"
-							onclick={() => {
-								if (link.isDeleted) {
-									ondelete(link.id); // Permanent delete
-								} else {
-									store.toggleDeleted(link.id); // Move to trash
-								}
-								actionsOpen = false;
-							}}
-						>
-							<Trash2 class="mr-2 h-3 w-3" />
+																	onclick={() => {
+																		store.toggleFavoriteAsync(link.id);
+																		actionsOpen = false;
+																	}}
+																>
+																	<Star class="mr-2 h-3 w-3 {link.isFavorite ? 'fill-current' : ''}" />
+																	<span>{link.isFavorite ? 'Remove Favorite' : 'Mark Favorite'}</span>
+																</Button>
+								
+																<Button
+																	variant="ghost"
+																	size="sm"
+																	class="h-8 justify-start rounded-md px-2 text-[12px] font-medium"
+																	onclick={() => {
+																		store.toggleArchivedAsync(link.id);
+																		actionsOpen = false;
+																	}}
+																>
+																	<Archive class="mr-2 h-3 w-3" />
+																	<span>{link.isArchived ? 'Unarchive' : 'Archive'}</span>
+																</Button>
+															{/if}
+								
+															{#if link.isDeleted}
+																<Button
+																	variant="ghost"
+																	size="sm"
+																	class="h-8 justify-start rounded-md px-2 text-[12px] font-medium"
+																	onclick={() => {
+																		store.toggleDeletedAsync(link.id);
+																		actionsOpen = false;
+																	}}
+																>
+																	<RotateCcw class="mr-2 h-3 w-3" />
+																	<span>Restore</span>
+																</Button>
+															{/if}
+								
+															<div class="my-1 h-px bg-border"></div>
+								
+															<Button
+																variant="ghost"
+																size="sm"
+																class="h-8 justify-start rounded-md px-2 text-[12px] font-medium text-destructive hover:bg-destructive/10 hover:text-destructive"
+																onclick={() => {
+																	if (link.isDeleted) {
+																		ondelete(link.id); // Permanent delete
+																	} else {
+																		store.toggleDeletedAsync(link.id); // Move to trash
+																	}
+																	actionsOpen = false;
+																}}
+															>							<Trash2 class="mr-2 h-3 w-3" />
 							<span>{link.isDeleted ? 'Delete Permanently' : 'Delete'}</span>
 						</Button>
 					</div>

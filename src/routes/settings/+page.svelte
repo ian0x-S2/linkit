@@ -4,6 +4,7 @@
 	import { ArrowLeft, Trash2, Layers, Plus } from '@lucide/svelte';
 	import { getContext } from 'svelte';
 	import type { LinkStore } from '$lib/store.svelte';
+	import type { WorkspaceId } from '$lib/types';
 
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 
@@ -24,9 +25,9 @@
 		try {
 			const id = workspaceToDelete.id;
 			const wasActive = store.activeWorkspaceId === id;
-			await store.removeWorkspace(id);
+			await store.removeWorkspaceAsync(id as WorkspaceId);
 			if (wasActive && store.workspaces.length > 0) {
-				await store.setActiveWorkspace(store.workspaces[0].id);
+				await store.setActiveWorkspaceAsync(store.workspaces[0].id);
 			}
 			isDeleteDialogOpen = false;
 			workspaceToDelete = null;
