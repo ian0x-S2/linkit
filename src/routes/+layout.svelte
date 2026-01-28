@@ -3,8 +3,8 @@
 	import { ModeWatcher } from 'mode-watcher';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import AppSidebar from '$lib/components/AppSidebar.svelte';
-	import { setContext, untrack } from 'svelte'; // 1. Import untrack
-	import { LinkStore } from '$lib/store.svelte';
+	import { setContext } from 'svelte';
+	import { createAppStore, type AppStore } from '$lib/stores';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 
 	interface Props {
@@ -14,21 +14,30 @@
 
 	let { children, data }: Props = $props();
 
-	// 2. Wrap data in untrack() to tell Svelte
-	// "I know this only runs once at initialization"
-	const store = new LinkStore(untrack(() => data));
-	setContext('store', store);
+	// 2. Initialize store with server data immediately to prevent empty state flicker
+	const store = createAppStore({
+		initialData: {
+			workspaces: data.workspaces,
+			links: data.links,
+			activeWorkspaceId: data.activeWorkspaceId
+		}
+	});
+	setContext<AppStore>('store', store);
 
-	// 3. Use an effect to sync the store when data changes (e.g., on navigation)
+	// 3. Sync store when data changes (e.g., on navigation)
 	$effect(() => {
-		store.hydrate(data);
+		store.hydrate({
+			workspaces: data.workspaces,
+			links: data.links,
+			activeWorkspaceId: data.activeWorkspaceId
+		});
 	});
 
 	$effect(() => {
 		store.migrateFromLocalStorageIfNeeded();
 	});
 
-	let open = $state(untrack(() => data.isSidebarOpen));
+	let open = $state(data.isSidebarOpen);
 
 	$effect(() => {
 		open = data.isSidebarOpen;

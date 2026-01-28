@@ -24,10 +24,10 @@
 	import { cn } from '$lib/utils.js';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import type { LinkStore } from '$lib/store.svelte';
+	import type { AppStore } from '$lib/stores';
 	import type { WorkspaceId } from '$lib/types';
 
-	const store = getContext<LinkStore>('store');
+	const store = getContext<AppStore>('store');
 
 	const navMain = [
 		{ id: 'inbox', title: 'Inbox', icon: Inbox },
@@ -45,14 +45,14 @@
 	}
 
 	async function handleWorkspaceSwitch(id: string) {
-		await store.setActiveWorkspaceAsync(id as WorkspaceId);
+		await store.setActiveWorkspace(id as WorkspaceId);
 		if (page.url.pathname !== '/') {
 			await goto('/');
 		}
 	}
 
-	async function handleCategorySwitch(category: typeof navMain[number]['id']) {
-		store.activeCategory = category;
+	async function handleCategorySwitch(category: (typeof navMain)[number]['id']) {
+		store.filters.setCategory(category);
 		if (page.url.pathname !== '/') {
 			await goto('/');
 		}
@@ -63,9 +63,9 @@
 		const name = newWorkspaceName.trim();
 		if (name) {
 			try {
-				const result = await store.addWorkspaceAsync(name);
+				const result = await store.workspaces.add(name);
 				if (result.ok && result.value.id) {
-					await store.setActiveWorkspaceAsync(result.value.id);
+					await store.setActiveWorkspace(result.value.id);
 					newWorkspaceName = '';
 					isCreateWorkspaceOpen = false;
 					if (page.url.pathname !== '/') {
@@ -90,11 +90,9 @@
 				>
 					<Command class="h-3.5 w-3.5" />
 				</div>
-				<div
-					class="flex min-w-0 flex-1 flex-col items-start group-data-[collapsible=icon]:hidden"
-				>
+				<div class="flex min-w-0 flex-1 flex-col items-start group-data-[collapsible=icon]:hidden">
 					<span class="truncate text-[13px] leading-none font-bold tracking-tight">
-						{store.activeWorkspace?.name || 'Workspace'}
+						{store.workspaces.active?.name || 'Workspace'}
 					</span>
 					<span class="mt-0.5 text-[10px] leading-none text-muted-foreground">Free Plan</span>
 				</div>
@@ -111,7 +109,7 @@
 					Workspaces
 				</DropdownMenu.Label>
 				<DropdownMenu.Group>
-					{#each store.workspaces as ws (ws.id)}
+					{#each store.workspaces.workspaces as ws (ws.id)}
 						<DropdownMenu.Item
 							onclick={() => handleWorkspaceSwitch(ws.id)}
 							class="flex cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-[13px]"
@@ -122,9 +120,11 @@
 								>
 									{ws.name?.[0] || '?'}
 								</div>
-								<span class={ws.id === store.activeWorkspace?.id ? 'font-semibold' : ''}>{ws.name || 'Untitled'}</span>
+								<span class={ws.id === store.workspaces.active?.id ? 'font-semibold' : ''}
+									>{ws.name || 'Untitled'}</span
+								>
 							</div>
-							{#if ws.id === store.activeWorkspace.id}
+							{#if ws.id === store.workspaces.activeId}
 								<Check class="h-3.5 w-3.5 text-primary" />
 							{/if}
 						</DropdownMenu.Item>
@@ -154,7 +154,7 @@
 					{#each navMain as item (item.id)}
 						<Sidebar.MenuItem>
 							<Sidebar.MenuButton
-								isActive={page.url.pathname === '/' && store.activeCategory === item.id}
+								isActive={page.url.pathname === '/' && store.filters.activeCategory === item.id}
 								onclick={() => handleCategorySwitch(item.id)}
 								class="h-8 rounded-md px-3 text-[13px] transition-colors hover:bg-muted/50 data-[active=true]:bg-muted data-[active=true]:font-medium"
 							>
@@ -209,8 +209,8 @@
 				size="sm"
 				href="/settings"
 				class={cn(
-					"h-8 w-full justify-start gap-2 rounded-md px-2 text-[12px] font-medium text-muted-foreground group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 hover:text-foreground",
-					page.url.pathname === '/settings' && "bg-muted text-foreground"
+					'h-8 w-full justify-start gap-2 rounded-md px-2 text-[12px] font-medium text-muted-foreground group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 hover:text-foreground',
+					page.url.pathname === '/settings' && 'bg-muted text-foreground'
 				)}
 			>
 				<Settings class="h-3.5 w-3.5" />

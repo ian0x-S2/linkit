@@ -8,10 +8,10 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { getContext } from 'svelte';
-	import type { LinkStore } from '$lib/store.svelte';
+	import type { AppStore } from '$lib/stores';
 	import type { Link, LinkId } from '$lib/types';
 
-	const store = getContext<LinkStore>('store');
+	const store = getContext<AppStore>('store');
 
 	let viewMode = $state<'list' | 'grid'>('list');
 	let isAddDialogOpen = $state(false);
@@ -51,7 +51,7 @@
 	}
 
 	function handleDeleteLink(id: string) {
-		store.removeLinkPermanentlyAsync(id as LinkId);
+		store.links.removePermanently(id as LinkId);
 	}
 </script>
 
@@ -75,16 +75,16 @@
 		class="my-2 flex min-h-[calc(100%-1rem)] w-[98%] flex-col rounded-md border bg-muted/4 shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
 	>
 		<div
-			class="flex w-full flex-1 flex-col {store.filteredLinks.length === 0
+			class="flex w-full flex-1 flex-col {store.filters.filteredLinks.length === 0
 				? 'justify-center'
 				: 'justify-start'}"
 		>
 			<div class="w-full {viewMode === 'list' ? 'px-0 pt-0 pb-6' : 'px-3 py-6 md:px-6 lg:px-8'}">
-				{#if store.filteredLinks.length === 0}
+				{#if store.filters.filteredLinks.length === 0}
 					<EmptyState onAdd={handleAddLink} />
 				{:else if viewMode === 'list'}
 					<div class="flex flex-col border-b bg-background">
-						{#each store.filteredLinks as link (link.id)}
+						{#each store.filters.filteredLinks as link (link.id)}
 							<LinkItem {link} onedit={handleEditLink} ondelete={handleDeleteLink} />
 						{/each}
 					</div>
@@ -93,7 +93,7 @@
 					<div
 						class="3xl:grid-cols-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
 					>
-						{#each store.filteredLinks as link (link.id)}
+						{#each store.filters.filteredLinks as link (link.id)}
 							<LinkCard {link} onedit={handleEditLink} ondelete={handleDeleteLink} />
 						{/each}
 					</div>
@@ -118,6 +118,6 @@
 
 <Dialog.Root bind:open={isExportDialogOpen}>
 	<Dialog.Content class="rounded-md sm:max-w-125">
-		<ExportDialog bind:open={isExportDialogOpen} links={store.filteredLinks} />
+		<ExportDialog bind:open={isExportDialogOpen} links={store.filters.filteredLinks} />
 	</Dialog.Content>
 </Dialog.Root>

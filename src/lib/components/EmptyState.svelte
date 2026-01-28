@@ -2,25 +2,25 @@
 	import { Search, Star, Archive, Trash2, Inbox } from '@lucide/svelte';
 	import { getContext } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import type { LinkStore } from '$lib/store.svelte';
+	import type { AppStore } from '$lib/stores';
 
 	let { onAdd }: { onAdd: () => void } = $props();
 
-	const store = getContext<LinkStore>('store');
+	const store = getContext<AppStore>('store');
 
 	const config = $derived.by(() => {
-		const isFiltering = store.searchQuery || store.selectedTags.length > 0;
-		
+		const isFiltering = store.filters.searchQuery || store.filters.selectedTags.length > 0;
+
 		if (isFiltering) {
 			return {
 				title: 'No results found',
-				description: 'Try adjusting your search or filters to find what you\'re looking for.',
+				description: "Try adjusting your search or filters to find what you're looking for.",
 				icon: Search,
 				showAdd: false
 			};
 		}
 
-		switch (store.activeCategory) {
+		switch (store.filters.activeCategory) {
 			case 'favorites':
 				return {
 					title: 'No favorites yet',
@@ -58,14 +58,14 @@
 		<config.icon class="h-8 w-8 text-muted-foreground/40" />
 	</div>
 	<h3 class="text-base font-semibold text-foreground">{config.title}</h3>
-	<p class="mt-1.5 text-sm text-muted-foreground max-w-70">
+	<p class="mt-1.5 max-w-70 text-sm text-muted-foreground">
 		{config.description}
 	</p>
-	
+
 	{#if config.showAdd}
-		<button 
+		<button
 			onclick={onAdd}
-			class="mt-6 h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm"
+			class="mt-6 h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
 		>
 			Add your first link
 		</button>

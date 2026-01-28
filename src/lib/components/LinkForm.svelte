@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Link } from '$lib/types';
 	import { getContext } from 'svelte';
-	import type { LinkStore } from '$lib/store.svelte';
+	import type { AppStore } from '$lib/stores';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
@@ -18,7 +18,7 @@
 
 	let { link = null, onsave, oncancel }: Props = $props();
 
-	const store = getContext<LinkStore>('store');
+	const store = getContext<AppStore>('store');
 
 	let url = $state('');
 	let title = $state('');
@@ -76,13 +76,14 @@
 				title: title.trim() || null,
 				description: description.trim() || null,
 				image: image.trim() || null,
-				tags: tags
+				tags: tags,
+				workspaceId: store.workspaces.activeId
 			};
 
 			if (link?.id) {
-				await store.updateLinkAsync(link.id, linkData);
+				await store.links.update(link.id, linkData);
 			} else {
-				await store.addLinkAsync(linkData);
+				await store.links.add(linkData);
 			}
 			onsave();
 		} finally {

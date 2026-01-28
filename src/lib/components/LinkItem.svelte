@@ -2,11 +2,20 @@
 	import type { Link } from '$lib/types';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import { Trash2, FileText, Star, Archive, RotateCcw, Pencil, Ellipsis, ExternalLink } from '@lucide/svelte';
+	import {
+		Trash2,
+		FileText,
+		Star,
+		Archive,
+		RotateCcw,
+		Pencil,
+		Ellipsis,
+		ExternalLink
+	} from '@lucide/svelte';
 	import { formatDistanceToNow } from 'date-fns';
 	import * as Popover from '$lib/components/ui/popover';
 	import { getContext } from 'svelte';
-	import type { LinkStore } from '$lib/store.svelte';
+	import type { AppStore } from '$lib/stores';
 	import { cn } from '$lib/utils';
 
 	interface Props {
@@ -16,7 +25,7 @@
 	}
 
 	let { link, onedit, ondelete }: Props = $props();
-	const store = getContext<LinkStore>('store');
+	const store = getContext<AppStore>('store');
 
 	let imageError = $state(false);
 	let actionsOpen = $state(false);
@@ -139,7 +148,7 @@
 										? 'text-yellow-500'
 										: ''}"
 									onclick={() => {
-										store.toggleFavoriteAsync(link.id);
+										store.links.toggleFavorite(link.id);
 										actionsOpen = false;
 									}}
 								>
@@ -152,7 +161,7 @@
 									size="sm"
 									class="h-8 justify-start rounded-md px-2 text-[12px] font-medium"
 									onclick={() => {
-										store.toggleArchivedAsync(link.id);
+										store.links.toggleArchived(link.id);
 										actionsOpen = false;
 									}}
 								>
@@ -167,7 +176,7 @@
 									size="sm"
 									class="h-8 justify-start rounded-md px-2 text-[12px] font-medium"
 									onclick={() => {
-										store.toggleDeletedAsync(link.id);
+										store.links.toggleDeleted(link.id);
 										actionsOpen = false;
 									}}
 								>
@@ -186,7 +195,7 @@
 									if (link.isDeleted) {
 										ondelete(link.id); // Permanent delete
 									} else {
-										store.toggleDeletedAsync(link.id); // Move to trash
+										store.links.toggleDeleted(link.id); // Move to trash
 									}
 									actionsOpen = false;
 								}}
