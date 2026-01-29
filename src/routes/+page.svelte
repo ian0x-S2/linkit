@@ -13,7 +13,6 @@
 
 	const store = getContext<AppStore>('store');
 
-	let viewMode = $state<'list' | 'grid'>('list');
 	let isAddDialogOpen = $state(false);
 	let isExportDialogOpen = $state(false);
 	let editingLink = $state<Link | null>(null);
@@ -58,7 +57,7 @@
 <!-- Header Section -->
 <div bind:this={headerEl} class="z-10 w-full shrink-0 bg-background">
 	<WorkspaceHeader
-		bind:viewMode
+		bind:viewMode={store.settings.viewMode}
 		onExport={() => (isExportDialogOpen = true)}
 		onAddLink={handleAddLink}
 	/>
@@ -79,10 +78,14 @@
 				? 'justify-center'
 				: 'justify-start'}"
 		>
-			<div class="w-full {viewMode === 'list' ? 'px-0 pt-0 pb-6' : 'px-3 py-6 md:px-6 lg:px-8'}">
+			<div
+				class="w-full {store.settings.viewMode === 'list'
+					? 'px-0 pt-0 pb-6'
+					: 'px-3 py-6 md:px-6 lg:px-8'}"
+			>
 				{#if store.filters.filteredLinks.length === 0}
 					<EmptyState onAdd={handleAddLink} />
-				{:else if viewMode === 'list'}
+				{:else if store.settings.viewMode === 'list'}
 					<div class="flex flex-col border-b bg-background">
 						{#each store.filters.filteredLinks as link (link.id)}
 							<LinkItem {link} onedit={handleEditLink} ondelete={handleDeleteLink} />

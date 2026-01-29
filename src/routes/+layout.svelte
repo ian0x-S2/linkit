@@ -19,7 +19,8 @@
 		initialData: untrack(() => ({
 			workspaces: data.workspaces,
 			links: data.links,
-			activeWorkspaceId: data.activeWorkspaceId
+			activeWorkspaceId: data.activeWorkspaceId,
+			viewMode: data.viewMode
 		}))
 	});
 	setContext<AppStore>('store', store);
@@ -29,7 +30,8 @@
 		store.hydrate({
 			workspaces: data.workspaces,
 			links: data.links,
-			activeWorkspaceId: data.activeWorkspaceId
+			activeWorkspaceId: data.activeWorkspaceId,
+			viewMode: data.viewMode
 		});
 	});
 

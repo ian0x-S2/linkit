@@ -32,6 +32,7 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 	}
 
 	const activeWorkspaceId = cookies.get('active_workspace_id') || allWorkspaces[0].id;
+	const viewMode = (cookies.get('view_mode') as 'list' | 'grid') || 'list';
 
 	const sidebarState = cookies.get(SIDEBAR_COOKIE_NAME);
 	const isSidebarOpen = sidebarState ? sidebarState === 'true' : true;
@@ -61,6 +62,7 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 		workspaces: allWorkspaces,
 		links: linksWithTags,
 		activeWorkspaceId,
+		viewMode,
 		isSidebarOpen
 	};
 };

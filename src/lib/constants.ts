@@ -1,5 +1,6 @@
 export const STORAGE_KEYS = {
 	ACTIVE_WORKSPACE: 'active_workspace_id',
+	VIEW_MODE: 'view_mode',
 	MIGRATED_SQLITE: 'sqlite_migrated',
 	LEGACY_LINKS: 'links_data',
 	LEGACY_WORKSPACES: 'workspaces_data'
