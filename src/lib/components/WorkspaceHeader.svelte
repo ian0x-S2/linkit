@@ -27,7 +27,7 @@
 <header class="h-12 shrink-0 border-b bg-card/40">
 	<div class="flex h-full items-center justify-between gap-4 px-3">
 		<!-- Left Section: Breadcrumbs -->
-		<div class="flex min-w-45 items-center gap-1.5">
+		<div class="flex w-64 shrink-0 items-center gap-1.5">
 			<Sidebar.Trigger
 				class="h-7 w-7 shrink-0 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
 			/>
@@ -43,9 +43,9 @@
 			</nav>
 		</div>
 
-		<!-- Center Section: Search Bar -->
-		<div class="max-w-md flex-1">
-			<div class="group relative">
+		<!-- Center Section: Search Bar (Absolute Centering to avoid shift) -->
+		<div class="pointer-events-none absolute inset-x-0 flex justify-center">
+			<div class="group pointer-events-auto relative w-full max-w-md">
 				<Search
 					class="absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/40"
 				/>
@@ -74,7 +74,7 @@
 		</div>
 
 		<!-- Right Section: Actions -->
-		<div class="flex min-w-45 items-center justify-end gap-1">
+		<div class="flex w-64 shrink-0 items-center justify-end gap-1">
 			<div class="flex items-center gap-0.5 rounded-md border bg-muted/20 p-0.5">
 				<Tooltip.Root ignoreNonKeyboardFocus delayDuration={900}>
 					<Tooltip.Trigger
