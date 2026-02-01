@@ -24,7 +24,7 @@
 	);
 </script>
 
-<header class="h-12 shrink-0 border-b bg-background">
+<header class="h-12 shrink-0 border-b bg-card/40">
 	<div class="flex h-full items-center justify-between gap-4 px-3">
 		<!-- Left Section: Breadcrumbs -->
 		<div class="flex min-w-45 items-center gap-1.5">

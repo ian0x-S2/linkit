@@ -42,7 +42,7 @@
 	class="group flex h-full flex-col overflow-hidden rounded-md border p-1 transition-all hover:border-primary/20"
 >
 	<div
-		class="group relative flex h-full flex-col overflow-hidden rounded-md border bg-background transition-all hover:border-primary/20"
+		class="group relative flex h-full flex-col overflow-hidden rounded-md border bg-card/60 transition-all hover:border-primary/20"
 	>
 		<!-- Top: Preview Image -->
 		<div class="relative aspect-video w-full overflow-hidden border-b bg-muted/20">

@@ -79,7 +79,7 @@
 	}
 </script>
 
-<Sidebar.Root collapsible="icon" class="border-r">
+<Sidebar.Root collapsible="icon" class="border-r  ">
 	<Sidebar.Header class="flex h-12 flex-col justify-center border-b p-0 px-2">
 		<DropdownMenu.Root>
 			<DropdownMenu.Trigger
@@ -155,7 +155,7 @@
 							<Sidebar.MenuButton
 								isActive={page.url.pathname === '/' && store.filters.activeCategory === item.id}
 								onclick={() => handleCategorySwitch(item.id)}
-								class="h-8 rounded-md px-3 text-[13px] transition-colors hover:bg-muted/50 data-[active=true]:bg-muted data-[active=true]:font-medium"
+								class="h-8 rounded-md px-3 text-[13px] transition-colors hover:bg-sidebar-accent/50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium"
 							>
 								{#snippet tooltipContent()}
 									{item.title}

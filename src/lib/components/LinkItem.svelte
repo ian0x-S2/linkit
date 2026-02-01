@@ -39,7 +39,7 @@
 	}
 </script>
 
-<div class="group border-b bg-background transition-all last:border-0 hover:bg-muted/3">
+<div class="group border-b bg-card/60 transition-all last:border-0 hover:bg-muted/3">
 	<div class="flex items-center gap-4 px-4 py-2.5">
 		<!-- Preview: More Geometric -->
 		<div class="shrink-0">
