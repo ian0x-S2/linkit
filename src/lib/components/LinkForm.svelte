@@ -96,9 +96,6 @@
 	<!-- Header: Linear Style -->
 	<div class="flex items-center justify-between border-b bg-muted/5 px-6 py-4">
 		<div class="flex items-center gap-2.5">
-			<div class="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
-				<Globe class="h-3.5 w-3.5" />
-			</div>
 			<h2 class="text-[14px] font-semibold tracking-tight">
 				{link ? 'Edit link' : 'Save new link'}
 			</h2>

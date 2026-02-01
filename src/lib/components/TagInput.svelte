@@ -121,7 +121,6 @@
 			aria-expanded={open}
 		>
 			<div class="flex items-center gap-2">
-				<TagIcon class="h-3.5 w-3.5 opacity-50" />
 				<span>{selected.length > 0 ? 'Add more tags...' : 'Add tags...'}</span>
 			</div>
 			<Plus
