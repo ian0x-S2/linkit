@@ -3,12 +3,12 @@
 	import { ModeWatcher } from 'mode-watcher';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import AppSidebar from '$lib/components/AppSidebar.svelte';
-	import { setContext, untrack } from 'svelte';
+	import { setContext, untrack, type Snippet } from 'svelte';
 	import { createAppStore, type AppStore } from '$lib/stores';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 
 	interface Props {
-		children?: import('svelte').Snippet;
+		children?: Snippet;
 		data: any;
 	}
 

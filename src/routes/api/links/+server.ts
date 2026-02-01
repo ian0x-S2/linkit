@@ -88,6 +88,10 @@ export const POST: RequestHandler = async ({ request }) => {
 	const id = crypto.randomUUID();
 	const now = Date.now();
 
+	if (!data.workspaceId) {
+		return json({ error: 'workspaceId is required' }, { status: 400 });
+	}
+
 	const newLink = {
 		...data,
 		id,
@@ -127,9 +131,14 @@ export const POST: RequestHandler = async ({ request }) => {
 				}
 			}
 		});
-	} catch (error) {
-		console.error('Failed to create link:', error);
-		return json({ error: 'Failed to create link. Make sure the workspace exists.' }, { status: 500 });
+	} catch (error: any) {
+		console.error('Failed to create link. Data:', JSON.stringify(newLink, null, 2));
+		console.error('Error detail:', error);
+		return json({ 
+			error: 'Failed to create link. Make sure the workspace exists.',
+			details: error?.message,
+			workspaceId: newLink.workspaceId 
+		}, { status: 500 });
 	}
 
 	cacheManager.invalidateLink(id);
