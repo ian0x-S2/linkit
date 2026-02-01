@@ -93,7 +93,7 @@
 				{:else}
 					<!-- Card Mode -->
 					<div
-						class="3xl:grid-cols-6 gap- grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
+						class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6"
 					>
 						{#each store.filters.filteredLinks as link (link.id)}
 							<LinkCard {link} onedit={handleEditLink} ondelete={handleDeleteLink} />
