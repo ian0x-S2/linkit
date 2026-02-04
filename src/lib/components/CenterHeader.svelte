@@ -186,28 +186,37 @@
 				<Link2 class="h-4 w-4" />
 			</div>
 			<div class="flex flex-1 min-w-0 flex-col gap-2">
-				<textarea
-					bind:value={urlInput}
-					onkeydown={(e) => {
-						if (e.key === 'Enter' && !e.shiftKey) {
-							e.preventDefault();
-							handleSubmit(e);
-						}
-					}}
-					onpaste={(e) => {
-						const pastedData = e.clipboardData?.getData('text');
-						if (pastedData) {
-							const url = extractUrl(pastedData.trim());
-							if (url && isValidUrl(url)) {
-								setTimeout(() => {
-									fetchPreview(url);
-								}, 50);
+				<div class="flex items-start justify-between gap-2">
+					<textarea
+						bind:value={urlInput}
+						onkeydown={(e) => {
+							if (e.key === 'Enter' && !e.shiftKey) {
+								e.preventDefault();
+								handleSubmit(e);
 							}
-						}
-					}}
-					placeholder="What's the link today?"
-					class="w-full resize-none border-0 bg-transparent py-1 text-[15px] leading-relaxed placeholder:text-muted-foreground/60 focus:ring-0 focus:outline-none min-h-[40px]"
-				></textarea>
+						}}
+						onpaste={(e) => {
+							const pastedData = e.clipboardData?.getData('text');
+							if (pastedData) {
+								const url = extractUrl(pastedData.trim());
+								if (url && isValidUrl(url)) {
+									setTimeout(() => {
+										fetchPreview(url);
+									}, 50);
+								}
+							}
+						}}
+						placeholder="What's the link today?"
+						class="w-full resize-none border-0 bg-transparent py-1 text-[15px] leading-relaxed placeholder:text-muted-foreground/60 focus:ring-0 focus:outline-none min-h-[40px]"
+					></textarea>
+					<div class="mt-1.5 flex h-5 w-5 shrink-0 items-center justify-center text-primary/60">
+						{#if isLoading}
+							<Loader2 class="h-4 w-4 animate-spin" />
+						{:else if inlinePreview}
+							<Globe class="h-4 w-4 animate-in fade-in zoom-in duration-300" />
+						{/if}
+					</div>
+				</div>
 
 				{#if inlinePreview}
 					<div class="relative mt-1 w-full max-w-full">
@@ -241,21 +250,7 @@
 					<p class="text-[12px] text-destructive font-medium">{error}</p>
 				{/if}
 
-				<div class="flex items-center justify-between pt-1">
-					<div class="flex items-center gap-2">
-						<div class="flex h-5 w-5 items-center justify-center text-primary/60">
-							{#if isLoading}
-								<Loader2 class="h-3.5 w-3.5 animate-spin" />
-							{:else}
-								<Globe class="h-3.5 w-3.5" />
-							{/if}
-						</div>
-						{#if inlinePreview && !isLoading}
-							<span class="text-[11px] font-medium text-muted-foreground/80">
-								Preview loaded
-							</span>
-						{/if}
-					</div>
+				<div class="flex items-center justify-end pt-1">
 					{#if inlinePreview && !isLoading}
 						<div class="flex items-center gap-1.5 rounded-md bg-primary/5 px-2 py-1 text-[11px] font-bold text-primary animate-in fade-in slide-in-from-right-1">
 							<span>Press Enter to save</span>
