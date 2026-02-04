@@ -279,14 +279,15 @@
 
 				<div class="flex items-center justify-end pt-1">
 					{#if inlinePreview && !isLoading}
-						<button
+						<Button
 							type="button"
+							size="sm"
 							onclick={handleSave}
-							class="flex items-center gap-1.5 rounded-md bg-primary/5 px-2 py-1 text-[11px] font-bold text-primary transition-colors hover:bg-primary/10 active:scale-95 animate-in fade-in slide-in-from-right-1"
+							class="flex items-center gap-1.5 rounded-md bg-primary/5 px-2 py-1 text-[11px] font-bold text-primary transition-colors animate-in fade-in slide-in-from-right-1 hover:bg-primary/10 active:scale-95"
 						>
 							<span>Press Enter or click to save</span>
 							<span class="text-[10px] opacity-50">↵</span>
-						</button>
+						</Button>
 					{/if}
 				</div>
 			</div>
