@@ -32,6 +32,13 @@
 		}
 	});
 
+	$effect(() => {
+		if (!urlInput.trim()) {
+			inlinePreview = null;
+			error = '';
+		}
+	});
+
 	function isValidUrl(string: string): boolean {
 		try {
 			new URL(string);
@@ -238,6 +245,17 @@
 							<Loader2 class="h-4 w-4 animate-spin" />
 						{:else if inlinePreview}
 							<Globe class="h-4 w-4 duration-300 animate-in fade-in zoom-in" />
+						{:else if urlInput}
+							<button
+								onclick={() => {
+									urlInput = '';
+									inlinePreview = null;
+								}}
+								class="flex h-5 w-5 items-center justify-center rounded-md transition-colors hover:bg-muted hover:text-foreground"
+								title="Clear input"
+							>
+								<X class="h-3.5 w-3.5" />
+							</button>
 						{/if}
 					</div>
 				</div>
@@ -245,7 +263,10 @@
 				{#if inlinePreview}
 					<div class="relative mt-1 w-full max-w-full">
 						<button
-							onclick={() => (inlinePreview = null)}
+							onclick={() => {
+								inlinePreview = null;
+								urlInput = '';
+							}}
 							class="absolute top-2 right-2 z-10 flex h-6 w-6 items-center justify-center rounded-md border bg-background/80 shadow-sm backdrop-blur-sm transition-colors hover:bg-muted"
 						>
 							<X class="h-3 w-3" />
