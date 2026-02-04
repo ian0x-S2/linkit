@@ -1,12 +1,15 @@
 <script lang="ts">
-	import WorkspaceHeader from '$lib/components/WorkspaceHeader.svelte';
-	import LinkItem from '$lib/components/LinkItem.svelte';
+	import LeftSidebar from '$lib/components/LeftSidebar.svelte';
+	import CenterHeader from '$lib/components/CenterHeader.svelte';
+	import RightSidebar from '$lib/components/RightSidebar.svelte';
 	import LinkCard from '$lib/components/LinkCard.svelte';
 	import EmptyState from '$lib/components/EmptyState.svelte';
 	import LinkForm from '$lib/components/LinkForm.svelte';
 	import ExportDialog from '$lib/components/ExportDialog.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
+	import { Button } from '$lib/components/ui/button';
+	import { Plus } from '@lucide/svelte';
 	import { getContext } from 'svelte';
 	import type { AppStore } from '$lib/stores';
 	import type { Link, LinkId } from '$lib/types';
@@ -15,27 +18,19 @@
 
 	let isAddDialogOpen = $state(false);
 	let isExportDialogOpen = $state(false);
+	let isPreviewLoading = $state(false);
 	let editingLink = $state<Link | null>(null);
-
-	// Measurement logic
-	let headerEl = $state<HTMLElement | null>(null);
-	let headerHeight = $state(48);
-
-	$effect(() => {
-		if (headerEl) {
-			const resizeObserver = new ResizeObserver((entries) => {
-				for (let entry of entries) {
-					headerHeight = entry.target.clientHeight;
-				}
-			});
-			resizeObserver.observe(headerEl);
-			return () => resizeObserver.disconnect();
-		}
-	});
+	let previewData = $state<{
+		url: string;
+		title: string | null;
+		description: string | null;
+		image: string | null;
+	} | null>(null);
 
 	$effect(() => {
 		if (!isAddDialogOpen) {
 			editingLink = null;
+			previewData = null;
 		}
 	});
 
@@ -52,66 +47,80 @@
 	function handleDeleteLink(id: string) {
 		store.links.removePermanently(id as LinkId);
 	}
+
+	async function handleLinkPreview(url: string) {
+		isPreviewLoading = true;
+		try {
+			const response = await fetch('/api/opengraph', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ url })
+			});
+
+			if (!response.ok) throw new Error('Failed to fetch preview');
+
+			const data = await response.json();
+			previewData = {
+				url,
+				title: data.title || null,
+				description: data.description || null,
+				image: data.image || null
+			};
+
+			// Open dialog with preview data
+			isAddDialogOpen = true;
+		} catch (err) {
+			console.error('Failed to fetch link preview:', err);
+			// Still open dialog without preview
+			previewData = { url, title: null, description: null, image: null };
+			isAddDialogOpen = true;
+		} finally {
+			isPreviewLoading = false;
+		}
+	}
 </script>
 
-<!-- Header Section -->
-<div bind:this={headerEl} class="z-10 w-full shrink-0 bg-background">
-	<WorkspaceHeader
-		bind:viewMode={store.settings.viewMode}
-		onExport={() => (isExportDialogOpen = true)}
-		onAddLink={handleAddLink}
-	/>
-</div>
+<!-- Layout Container - centered like Twitter -->
+<div class="mx-auto flex h-screen w-full max-w-[1265px]">
+	<!-- Left Sidebar -->
+	<LeftSidebar onAddLink={handleAddLink} onExport={() => (isExportDialogOpen = true)} />
 
-<!-- Main Viewport Area -->
-<div
-	class="flex flex-1 flex-col items-center overflow-hidden bg-background"
-	style="height: calc(100vh - {headerHeight}px);"
->
-	<ScrollArea
-		type="hover"
-		class="my-2 flex min-h-[calc(100%-1rem)] w-[99%] flex-col rounded-md border bg-card/40 shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
-	>
-		<div
-			class="flex w-full flex-1 flex-col {store.filters.filteredLinks.length === 0
-				? 'justify-center'
-				: 'justify-start'}"
-		>
-			<div
-				class="w-full {store.settings.viewMode === 'list'
-					? 'px-0 pt-0 pb-6'
-					: 'px-3 py-6 md:px-6 lg:px-5'}"
-			>
-				{#if store.filters.filteredLinks.length === 0}
-					<EmptyState onAdd={handleAddLink} />
-				{:else if store.settings.viewMode === 'list'}
-					<div class="flex flex-col border-b bg-background">
+	<!-- Center Feed -->
+	<main class="flex h-screen w-[600px] flex-col border-x">
+		<!-- Sticky Header with Input -->
+		<CenterHeader />
+
+		<!-- Scrollable Feed Content -->
+		<div class="flex-1 overflow-hidden">
+			<ScrollArea type="hover" class="h-full w-full">
+				<div class="flex flex-col">
+					{#if store.filters.filteredLinks.length === 0}
+						<EmptyState onAdd={handleAddLink} />
+					{:else}
 						{#each store.filters.filteredLinks as link (link.id)}
-							<LinkItem {link} onedit={handleEditLink} ondelete={handleDeleteLink} />
+							<div class="border-b transition-colors hover:bg-muted/30">
+								<LinkCard {link} onedit={handleEditLink} ondelete={handleDeleteLink} />
+							</div>
 						{/each}
-					</div>
-				{:else}
-					<!-- Card Mode -->
-					<div
-						class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6"
-					>
-						{#each store.filters.filteredLinks as link (link.id)}
-							<LinkCard {link} onedit={handleEditLink} ondelete={handleDeleteLink} />
-						{/each}
-					</div>
-				{/if}
-			</div>
+					{/if}
+
+					<!-- Bottom spacing -->
+					<div class="h-20"></div>
+				</div>
+			</ScrollArea>
 		</div>
+	</main>
 
-		<!-- Safety bottom inset -->
-		<div class="h-12 w-full shrink-0"></div>
-	</ScrollArea>
+	<!-- Right Sidebar (hidden on mobile/tablet) -->
+	<RightSidebar />
 </div>
 
+<!-- Dialogs -->
 <Dialog.Root bind:open={isAddDialogOpen}>
-	<Dialog.Content class="overflow-hidden rounded-md border p-0 shadow-2xl sm:max-w-160">
+	<Dialog.Content class="overflow-hidden rounded-md border p-0 shadow-2xl sm:max-w-lg">
 		<LinkForm
 			link={editingLink}
+			{previewData}
 			onsave={() => (isAddDialogOpen = false)}
 			oncancel={() => (isAddDialogOpen = false)}
 		/>
@@ -119,7 +128,7 @@
 </Dialog.Root>
 
 <Dialog.Root bind:open={isExportDialogOpen}>
-	<Dialog.Content class="rounded-md sm:max-w-125">
+	<Dialog.Content class="rounded-md sm:max-w-md">
 		<ExportDialog bind:open={isExportDialogOpen} links={store.filters.filteredLinks} />
 	</Dialog.Content>
 </Dialog.Root>

@@ -53,19 +53,19 @@
 	});
 </script>
 
-<div in:fade={{ duration: 300 }} class="flex flex-col items-center justify-center p-12 text-center">
-	<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/30">
-		<config.icon class="h-8 w-8 text-muted-foreground/40" />
+<div in:fade={{ duration: 300 }} class="flex flex-col items-center justify-center py-24 px-8 text-center">
+	<div class="mb-5 flex h-16 w-16 items-center justify-center rounded-md bg-primary/5">
+		<config.icon class="h-8 w-8 text-primary/40" />
 	</div>
-	<h3 class="text-base font-semibold text-foreground">{config.title}</h3>
-	<p class="mt-1.5 max-w-70 text-sm text-muted-foreground">
+	<h3 class="text-[20px] font-bold tracking-tight text-foreground">{config.title}</h3>
+	<p class="mt-1.5 max-w-[300px] text-[14px] leading-relaxed text-muted-foreground">
 		{config.description}
 	</p>
 
 	{#if config.showAdd}
 		<button
 			onclick={onAdd}
-			class="mt-6 h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+			class="mt-6 h-9 rounded-md bg-primary px-6 text-[13px] font-bold text-primary-foreground shadow-sm transition-opacity hover:opacity-90 active:opacity-80"
 		>
 			Add your first link
 		</button>

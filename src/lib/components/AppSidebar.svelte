@@ -87,9 +87,9 @@
 					class="flex w-full items-center justify-start gap-2 overflow-hidden rounded-md py-1.5 pr-2 pl-1.5 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 hover:bg-muted/50"
 				>
 					<div
-						class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm"
+						class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary text-[11px] font-bold text-primary-foreground shadow-sm"
 					>
-						<Command class="h-3.5 w-3.5" />
+						{store.workspaces.active?.name?.[0] || '?'}
 					</div>
 					<div class="flex min-w-0 flex-1 items-center group-data-[collapsible=icon]:hidden">
 						<span class="truncate text-[13px] font-bold tracking-tight">
@@ -162,27 +162,13 @@
 								{#snippet tooltipContent()}
 									{item.title}
 								{/snippet}
-								<item.icon class="mr-2 h-4 w-4" />
+								<item.icon class="h-4 w-4 group-data-[collapsible=icon]:mr-0 mr-2" />
 								<span class="group-data-[collapsible=icon]:hidden">{item.title}</span>
 							</Sidebar.MenuButton>
 						</Sidebar.MenuItem>
 					{/each}
 				</Sidebar.Menu>
 			</Sidebar.GroupContent>
-		</Sidebar.Group>
-
-		<Sidebar.Group class="mt-auto border-t pt-2">
-			<Sidebar.Menu>
-				<Sidebar.MenuItem>
-					<Sidebar.MenuButton
-						onclick={() => (isCreateWorkspaceOpen = true)}
-						class="h-8 rounded-md px-3 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
-					>
-						<Plus class="mr-2 h-4 w-4" />
-						<span class="group-data-[collapsible=icon]:hidden">New Workspace</span>
-					</Sidebar.MenuButton>
-				</Sidebar.MenuItem>
-			</Sidebar.Menu>
 		</Sidebar.Group>
 	</Sidebar.Content>
 

@@ -8,25 +8,36 @@ export interface SettingsStore {
 }
 
 export function createSettingsStore(initialValue: 'list' | 'grid' = 'list'): SettingsStore {
-	const _viewMode = new PersistedState<'list' | 'grid'>('view-mode', initialValue);
+	// Use a regular $state for initial hydration to match server
+	let _currentMode = $state<'list' | 'grid'>(initialValue);
 
-	// Sync to cookie for SSR consistency (avoid flicker)
+	// Sync with localStorage only after mount/on client
 	$effect(() => {
-		const value = _viewMode.current;
 		if (browser) {
-			document.cookie = `${STORAGE_KEYS.VIEW_MODE}=${value}; path=/; max-age=31536000; SameSite=Lax`;
+			const saved = localStorage.getItem('view-mode');
+			if (saved === 'list' || saved === 'grid') {
+				_currentMode = saved;
+			}
+		}
+	});
+
+	// Sync to cookie for SSR consistency
+	$effect(() => {
+		if (browser) {
+			localStorage.setItem('view-mode', _currentMode);
+			document.cookie = `${STORAGE_KEYS.VIEW_MODE}=${_currentMode}; path=/; max-age=31536000; SameSite=Lax`;
 		}
 	});
 
 	return {
 		get viewMode() {
-			return _viewMode.current;
+			return _currentMode;
 		},
 		set viewMode(value: 'list' | 'grid') {
-			_viewMode.current = value;
+			_currentMode = value;
 		},
 		setViewMode(mode: 'list' | 'grid') {
-			_viewMode.current = mode;
+			_currentMode = mode;
 		}
 	};
 }

@@ -1,0 +1,274 @@
+<script lang="ts">
+	import { Input } from '$lib/components/ui/input';
+	import { Button } from '$lib/components/ui/button';
+	import { Search, Link2, Loader2, Globe, X } from '@lucide/svelte';
+	import { getContext, onMount } from 'svelte';
+	import type { AppStore } from '$lib/stores';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+
+	const store = getContext<AppStore>('store');
+
+	let mounted = $state(false);
+	let urlInput = $state('');
+	let isLoading = $state(false);
+
+	onMount(() => {
+		mounted = true;
+	});
+
+	let error = $state('');
+	let inlinePreview = $state<{
+		url: string;
+		title: string | null;
+		description: string | null;
+		image: string | null;
+	} | null>(null);
+
+	function isValidUrl(string: string): boolean {
+		try {
+			new URL(string);
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
+	function extractUrl(text: string): string | null {
+		const urlRegex = /(https?:\/\/[^\s]+)/;
+		const match = text.match(urlRegex);
+		if (match) return match[0];
+		if (text.includes('.') && !text.includes(' ')) {
+			return `https://${text}`;
+		}
+		return null;
+	}
+
+	async function fetchPreview(url: string) {
+		isLoading = true;
+		error = '';
+		try {
+			const response = await fetch('/api/opengraph', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ url })
+			});
+			if (!response.ok) throw new Error('Failed to fetch preview');
+			const data = await response.json();
+			inlinePreview = {
+				url,
+				title: data.title || null,
+				description: data.description || null,
+				image: data.image || null
+			};
+		} catch (err) {
+			console.error('Failed to fetch link preview:', err);
+			inlinePreview = { url, title: null, description: null, image: null };
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	async function handleSave() {
+		if (!inlinePreview) return;
+		isLoading = true;
+		try {
+			await store.links.add({
+				url: inlinePreview.url,
+				title: inlinePreview.title,
+				description: inlinePreview.description,
+				image: inlinePreview.image,
+				tags: [],
+				workspaceId: store.workspaces.activeId
+			});
+			inlinePreview = null;
+			urlInput = '';
+		} catch (err) {
+			error = 'Failed to save link';
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	async function handleSubmit(e: KeyboardEvent | MouseEvent) {
+		if (e instanceof KeyboardEvent && e.key !== 'Enter') return;
+
+		const url = extractUrl(urlInput.trim());
+		if (!url) {
+			error = 'Please enter a valid URL';
+			return;
+		}
+		if (!isValidUrl(url)) {
+			error = 'Invalid URL format';
+			return;
+		}
+
+		await fetchPreview(url);
+	}
+
+	// Derived title to ensure stability during hydration
+	const displayTitle = $derived.by(() => {
+		const category = store.filters.activeCategory;
+		if (category === 'inbox') return 'Home';
+		return category.charAt(0).toUpperCase() + category.slice(1);
+	});
+</script>
+
+<div
+	class="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md"
+>
+	<!-- Top Bar -->
+	<div class="flex h-12 items-center px-4">
+		<h1 class="text-[15px] font-bold tracking-tight">
+			{displayTitle}
+		</h1>
+		<div class="ml-auto flex items-center gap-1.5">
+			{#if mounted}
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger
+						class="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+					>
+						<Globe class="h-4 w-4" />
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content class="w-56 rounded-md shadow-xl" align="end">
+						<DropdownMenu.Label class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Filter View</DropdownMenu.Label>
+						<DropdownMenu.Separator />
+						<DropdownMenu.Item
+							onclick={() => store.filters.setCategory('inbox')}
+							class="flex items-center justify-between py-2 {store.filters.activeCategory === 'inbox' ? 'font-bold' : ''}"
+						>
+							<span class="text-[13px]">Inbox</span>
+						</DropdownMenu.Item>
+						<DropdownMenu.Item
+							onclick={() => store.filters.setCategory('favorites')}
+							class="flex items-center justify-between py-2 {store.filters.activeCategory === 'favorites' ? 'font-bold' : ''}"
+						>
+							<span class="text-[13px]">Favorites</span>
+						</DropdownMenu.Item>
+						<DropdownMenu.Separator />
+						<DropdownMenu.Label class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Tags</DropdownMenu.Label>
+						{#if store.filters.allTags.length > 0}
+							<div class="max-h-[200px] overflow-y-auto p-1">
+								{#each store.filters.allTags as tag (tag)}
+									<DropdownMenu.Item
+										onclick={() => store.filters.toggleTag(tag)}
+										class="flex items-center gap-2 py-1.5 {store.filters.selectedTags.includes(tag) ? 'bg-muted font-bold' : ''}"
+									>
+										<span class="text-muted-foreground text-[12px]">#</span>
+										<span class="truncate text-[13px]">{tag}</span>
+									</DropdownMenu.Item>
+								{/each}
+							</div>
+						{/if}
+						{#if store.filters.selectedTags.length > 0}
+							<DropdownMenu.Separator />
+							<DropdownMenu.Item onclick={() => store.filters.clearTags()} class="text-destructive font-medium py-2">
+								<span class="text-[13px]">Clear all filters</span>
+							</DropdownMenu.Item>
+						{/if}
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+			{/if}
+		</div>
+	</div>
+
+	<!-- Tweet Composer Style Input -->
+	<div class="px-4 py-3 border-b border-border/40">
+		<div class="flex items-start gap-3">
+			<div
+				class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary"
+			>
+				<Link2 class="h-4 w-4" />
+			</div>
+			<div class="flex flex-1 flex-col gap-2">
+				<textarea
+					bind:value={urlInput}
+					onkeydown={(e) => {
+						if (e.key === 'Enter' && !e.shiftKey) {
+							e.preventDefault();
+							handleSubmit(e);
+						}
+					}}
+					onpaste={(e) => {
+						const pastedData = e.clipboardData?.getData('text');
+						if (pastedData) {
+							const url = extractUrl(pastedData.trim());
+							if (url && isValidUrl(url)) {
+								setTimeout(() => {
+									fetchPreview(url);
+								}, 50);
+							}
+						}
+					}}
+					placeholder="What's the link today?"
+					class="w-full resize-none border-0 bg-transparent py-1 text-[15px] leading-relaxed placeholder:text-muted-foreground/60 focus:ring-0 focus:outline-none min-h-[40px]"
+				></textarea>
+
+				{#if inlinePreview}
+					<div class="relative mt-1 group">
+						<button 
+							onclick={() => inlinePreview = null}
+							class="absolute -top-2 -right-2 z-10 flex h-6 w-6 items-center justify-center rounded-md bg-background border shadow-sm hover:bg-muted transition-colors"
+						>
+							<X class="h-3 w-3" />
+						</button>
+						<div class="overflow-hidden rounded-md border border-border/60 bg-muted/20">
+							{#if inlinePreview.image}
+								<div class="aspect-[2.5/1] w-full border-b border-border/40 bg-muted/40">
+									<img src={inlinePreview.image} alt="" class="h-full w-full object-cover" />
+								</div>
+							{/if}
+							<div class="p-2.5">
+								<h3 class="text-[13px] font-bold leading-tight truncate">
+									{inlinePreview.title || inlinePreview.url}
+								</h3>
+								{#if inlinePreview.description}
+									<p class="mt-0.5 text-[12px] text-muted-foreground line-clamp-1 leading-snug">
+										{inlinePreview.description}
+									</p>
+								{/if}
+							</div>
+						</div>
+					</div>
+				{/if}
+				
+				{#if error}
+					<p class="text-[12px] text-destructive font-medium">{error}</p>
+				{/if}
+
+				<div class="flex items-center justify-between pt-1">
+					<div class="flex items-center gap-1">
+						<Button variant="ghost" size="icon" class="h-8 w-8 rounded-md text-primary hover:bg-primary/10">
+							<Globe class="h-4 w-4" />
+						</Button>
+					</div>
+					<div class="flex gap-2">
+						{#if inlinePreview}
+							<Button
+								variant="ghost"
+								size="sm"
+								onclick={() => {
+									inlinePreview = null;
+									urlInput = '';
+								}}
+								class="rounded-md px-3 h-8 text-[12px] font-bold"
+							>
+								Cancel
+							</Button>
+						{/if}
+						<Button
+							size="sm"
+							disabled={(!urlInput.trim() && !inlinePreview) || isLoading}
+							onclick={inlinePreview ? handleSave : handleSubmit}
+							class="rounded-md px-4 h-8 text-[12px] font-bold shadow-sm"
+						>
+							{#if isLoading}
+								<Loader2 class="mr-1.5 h-3.5 w-3.5 animate-spin" />
+							{/if}
+							{inlinePreview ? 'Confirm & Save' : 'Save Link'}
+						</Button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

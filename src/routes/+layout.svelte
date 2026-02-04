@@ -1,8 +1,6 @@
 <script lang="ts">
 	import './layout.css';
 	import { ModeWatcher, mode } from 'mode-watcher';
-	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import AppSidebar from '$lib/components/AppSidebar.svelte';
 	import { setContext, untrack, type Snippet, onMount } from 'svelte';
 	import { createAppStore, type AppStore } from '$lib/stores';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
@@ -14,17 +12,17 @@
 	}
 
 	let { children, data }: Props = $props();
+	let mounted = $state(false);
 
 	const themeColor = $derived(mode.current === 'dark' ? '#09090b' : '#ffffff');
 	const colorScheme = $derived(mode.current === 'dark' ? 'dark' : 'light');
 
 	$effect(() => {
 		if (typeof document !== 'undefined') {
-			// Update meta tags for PWA title bar
-			const updateMeta = (name, value) => {
-				let meta = document.querySelector(`meta[name="${name}"]`);
+			const updateMeta = (name: string, value: string) => {
+				let meta = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
 				if (!meta) {
-					meta = document.createElement('meta');
+					meta = document.createElement('meta') as HTMLMetaElement;
 					meta.name = name;
 					document.head.appendChild(meta);
 				}
@@ -36,6 +34,7 @@
 	});
 
 	onMount(async () => {
+		mounted = true;
 		if (pwaInfo) {
 			const { registerSW } = await import('virtual:pwa-register');
 			registerSW({
@@ -50,7 +49,6 @@
 		}
 	});
 
-	// 2. Initialize store with server data immediately to prevent empty state flicker
 	const store = createAppStore({
 		initialData: untrack(() => ({
 			workspaces: data.workspaces,
@@ -61,24 +59,20 @@
 	});
 	setContext<AppStore>('store', store);
 
-	// 3. Sync store when data changes (e.g., on navigation)
 	$effect(() => {
-		store.hydrate({
-			workspaces: data.workspaces,
-			links: data.links,
-			activeWorkspaceId: data.activeWorkspaceId,
-			viewMode: data.viewMode
-		});
+		// Only run hydration logic if data actually changes after initial mount
+		if (mounted) {
+			store.hydrate({
+				workspaces: data.workspaces,
+				links: data.links,
+				activeWorkspaceId: data.activeWorkspaceId,
+				viewMode: data.viewMode
+			});
+		}
 	});
 
 	$effect(() => {
 		store.migrateFromLocalStorageIfNeeded();
-	});
-
-	let open = $state(untrack(() => data.isSidebarOpen));
-
-	$effect(() => {
-		open = data.isSidebarOpen;
 	});
 </script>
 
@@ -91,13 +85,7 @@
 <ModeWatcher />
 
 <Tooltip.Provider delayDuration={400}>
-	<Sidebar.Provider bind:open>
-		<div class="flex h-screen w-full overflow-hidden bg-background">
-			<AppSidebar />
-
-			<main class="relative flex h-screen min-w-0 flex-1 flex-col overflow-hidden">
-				{@render children?.()}
-			</main>
-		</div>
-	</Sidebar.Provider>
+	<div class="flex h-screen w-full overflow-hidden bg-background">
+		{@render children?.()}
+	</div>
 </Tooltip.Provider>

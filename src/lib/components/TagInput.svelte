@@ -84,14 +84,14 @@
 	}
 </script>
 
-<div class="flex w-full flex-col gap-3">
+<div class="flex w-full flex-col gap-2">
 	<!-- Selected Tags Display (Linear Style) -->
 	{#if selected.length > 0}
 		<div class="flex flex-wrap gap-1.5">
 			{#each selected as tag (tag)}
 				<Badge
 					variant="secondary"
-					class="h-6 gap-1 rounded-lg border-primary/20 bg-primary/10 px-1.5 py-0 text-[11px] text-primary transition-colors duration-200 animate-in fade-in slide-in-from-left-2 hover:bg-primary/20"
+					class="h-5 gap-1 rounded-md border-primary/20 bg-primary/10 px-1.5 py-0 text-[10px] font-bold text-primary transition-colors duration-200 animate-in fade-in slide-in-from-left-2 hover:bg-primary/20"
 				>
 					{tag}
 					<button
@@ -115,7 +115,7 @@
 			bind:ref={triggerRef}
 			class={cn(
 				buttonVariants({ variant: 'outline' }),
-				'h-10 w-full justify-between border-muted-foreground/10 bg-muted/20 text-[13px] font-normal text-muted-foreground transition-all duration-200 hover:bg-muted/30'
+				'h-8 w-full justify-between border-muted-foreground/10 bg-muted/20 text-[12px] font-normal text-muted-foreground transition-all duration-200 hover:bg-muted/30'
 			)}
 			role="combobox"
 			aria-expanded={open}
@@ -124,7 +124,7 @@
 				<span>{selected.length > 0 ? 'Add more tags...' : 'Add tags...'}</span>
 			</div>
 			<Plus
-				class={cn('h-3.5 w-3.5 opacity-50 transition-transform duration-200', open && 'rotate-45')}
+				class={cn('h-3 w-3 opacity-50 transition-transform duration-200', open && 'rotate-45')}
 			/>
 		</Popover.Trigger>
 
@@ -141,12 +141,12 @@
 				items={store.filters.allTags.map((t: any) => ({ value: t, label: t }))}
 				bind:open
 			>
-				<div class="flex items-center border-b border-muted-foreground/5 px-3">
+				<div class="flex items-center border-b border-muted-foreground/5 px-2.5">
 					<Combobox.Input
 						bind:ref={inputRef}
-						placeholder={hasReachedLimit ? 'Maximum 10 tags reached' : 'Search or create tags...'}
+						placeholder={hasReachedLimit ? 'Limit reached' : 'Search or create tags...'}
 						disabled={hasReachedLimit}
-						class="h-10 w-full bg-transparent text-[13px] outline-none placeholder:text-muted-foreground/50 disabled:cursor-not-allowed disabled:opacity-50"
+						class="h-8 w-full bg-transparent text-[12px] outline-none placeholder:text-muted-foreground/50 disabled:cursor-not-allowed disabled:opacity-50"
 						oninput={(e) => (value = e.currentTarget.value)}
 						onkeydown={(e) => {
 							if (e.key === 'Enter' && showCreateOption) {
@@ -158,29 +158,29 @@
 				</div>
 				<Combobox.ContentStatic class="relative flex w-full flex-col bg-popover">
 					<Combobox.ScrollUpButton
-						class="absolute top-0 right-0 left-0 z-20 flex w-full items-center justify-center bg-linear-to-b from-popover via-popover/90 to-transparent py-2 text-muted-foreground/60 transition-colors hover:text-primary"
+						class="absolute top-0 right-0 left-0 z-20 flex w-full items-center justify-center bg-linear-to-b from-popover via-popover/90 to-transparent py-1.5 text-muted-foreground/60 transition-colors hover:text-primary"
 					>
-						<ChevronUp class="size-3" />
+						<ChevronUp class="size-2.5" />
 					</Combobox.ScrollUpButton>
 
 					<Combobox.Viewport
-						class="max-h-50 w-full overflow-y-auto p-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+						class="max-h-40 w-full overflow-y-auto p-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
 					>
 						{#if showCreateOption}
 							<div class="mb-1 border-b border-muted-foreground/5 p-1">
 								<button
-									class="group flex h-9 w-full items-center justify-between rounded-md border border-muted-foreground/10 bg-muted/40 px-2 text-left text-[13px] transition-all hover:bg-muted/60 active:scale-[0.98]"
+									class="group flex h-8 w-full items-center justify-between rounded-md border border-muted-foreground/10 bg-muted/40 px-2 text-left text-[12px] transition-all hover:bg-muted/60 active:scale-[0.98]"
 									onclick={() => {
 										addTag(value);
 										value = '';
 									}}
 								>
 									<div class="flex items-center gap-2">
-										<Plus class="h-3.5 w-3.5 text-primary" />
+										<Plus class="h-3 w-3 text-primary" />
 										<span class="font-medium">Create "{value}"</span>
 									</div>
 									<div
-										class="flex h-5 items-center gap-1 rounded border border-muted-foreground/20 bg-background px-1.5 text-[10px] font-medium text-muted-foreground/70"
+										class="flex h-4 items-center gap-1 rounded border border-muted-foreground/20 bg-background px-1 text-[9px] font-medium text-muted-foreground/70"
 									>
 										<span>Enter</span>
 									</div>
@@ -190,10 +190,10 @@
 
 						{#if isSearchingSelectedTag}
 							<div
-								class="flex items-center gap-2 rounded-md bg-muted/20 px-3 py-2.5 text-[12px] text-muted-foreground"
+								class="flex items-center gap-2 rounded-md bg-muted/20 px-2.5 py-2 text-[11px] text-muted-foreground"
 							>
-								<Check class="h-3.5 w-3.5 text-primary" />
-								<span>Tag "{value}" is already selected</span>
+								<Check class="h-3 w-3 text-primary" />
+								<span>Already selected</span>
 							</div>
 						{/if}
 
@@ -201,36 +201,32 @@
 							<Combobox.Item
 								value={tag}
 								label={tag}
-								class="group flex h-9 cursor-pointer items-center justify-between rounded-md
-														px-2 text-[13px] transition-colors 	outline-none data-highlighted:bg-muted/50"
+								class="group flex h-8 cursor-pointer items-center justify-between rounded-md
+														px-2 text-[12px] transition-colors 	outline-none data-highlighted:bg-muted/50"
 							>
 								<div class="flex items-center gap-2">
-									<TagIcon class="h-3.5 w-3.5 opacity-40" />
+									<TagIcon class="h-3 w-3 opacity-40" />
 									<span>{tag}</span>
 								</div>
 								<div
-									class="hidden h-5 items-center gap-1 rounded border border-muted-foreground/20 bg-background px-1.5 text-[10px] font-medium text-muted-foreground/70 group-data-highlighted:flex"
+									class="hidden h-4 items-center gap-1 rounded border border-muted-foreground/20 bg-background px-1 text-[9px] font-medium text-muted-foreground/70 group-data-highlighted:flex"
 								>
 									<span>Enter</span>
 								</div>
 							</Combobox.Item>
 						{:else}
 							{#if !showCreateOption && !isSearchingSelectedTag}
-								<div class="py-6 text-center text-[12px] text-muted-foreground/50">
-									{#if store.filters.allTags.length === 0}
-										No tags found. Type to create one.
-									{:else}
-										All tags selected. Type to create more.
-									{/if}
+								<div class="py-4 text-center text-[11px] text-muted-foreground/50">
+									No results.
 								</div>
 							{/if}
 						{/each}
 					</Combobox.Viewport>
 
 					<Combobox.ScrollDownButton
-						class="absolute right-0 bottom-0 left-0 z-20 flex w-full items-center justify-center bg-linear-to-t from-popover via-popover/90 to-transparent py-2 text-muted-foreground/60 transition-colors hover:text-primary"
+						class="absolute right-0 bottom-0 left-0 z-20 flex w-full items-center justify-center bg-linear-to-t from-popover via-popover/90 to-transparent py-1.5 text-muted-foreground/60 transition-colors hover:text-primary"
 					>
-						<ChevronDown class="size-3" />
+						<ChevronDown class="size-2.5" />
 					</Combobox.ScrollDownButton>
 				</Combobox.ContentStatic>
 			</Combobox.Root>
