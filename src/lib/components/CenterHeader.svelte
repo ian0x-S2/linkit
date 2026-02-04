@@ -92,6 +92,12 @@
 	async function handleSubmit(e: KeyboardEvent | MouseEvent) {
 		if (e instanceof KeyboardEvent && e.key !== 'Enter') return;
 
+		// If we already have a preview, Enter saves it
+		if (inlinePreview) {
+			await handleSave();
+			return;
+		}
+
 		const url = extractUrl(urlInput.trim());
 		if (!url) {
 			error = 'Please enter a valid URL';
@@ -179,7 +185,7 @@
 			>
 				<Link2 class="h-4 w-4" />
 			</div>
-			<div class="flex flex-1 flex-col gap-2">
+			<div class="flex flex-1 min-w-0 flex-col gap-2">
 				<textarea
 					bind:value={urlInput}
 					onkeydown={(e) => {
@@ -204,16 +210,16 @@
 				></textarea>
 
 				{#if inlinePreview}
-					<div class="relative mt-1 group">
+					<div class="relative mt-1 w-full max-w-full">
 						<button 
 							onclick={() => inlinePreview = null}
-							class="absolute -top-2 -right-2 z-10 flex h-6 w-6 items-center justify-center rounded-md bg-background border shadow-sm hover:bg-muted transition-colors"
+							class="absolute top-2 right-2 z-10 flex h-6 w-6 items-center justify-center rounded-md bg-background/80 border shadow-sm hover:bg-muted transition-colors backdrop-blur-sm"
 						>
 							<X class="h-3 w-3" />
 						</button>
-						<div class="overflow-hidden rounded-md border border-border/60 bg-muted/20">
+						<div class="overflow-hidden rounded-md border border-border/60 bg-muted/20 w-full">
 							{#if inlinePreview.image}
-								<div class="aspect-[2.5/1] w-full border-b border-border/40 bg-muted/40">
+								<div class="aspect-video w-full border-b border-border/40 bg-muted/40">
 									<img src={inlinePreview.image} alt="" class="h-full w-full object-cover" />
 								</div>
 							{/if}
@@ -236,37 +242,26 @@
 				{/if}
 
 				<div class="flex items-center justify-between pt-1">
-					<div class="flex items-center gap-1">
-						<Button variant="ghost" size="icon" class="h-8 w-8 rounded-md text-primary hover:bg-primary/10">
-							<Globe class="h-4 w-4" />
-						</Button>
-					</div>
-					<div class="flex gap-2">
-						{#if inlinePreview}
-							<Button
-								variant="ghost"
-								size="sm"
-								onclick={() => {
-									inlinePreview = null;
-									urlInput = '';
-								}}
-								class="rounded-md px-3 h-8 text-[12px] font-bold"
-							>
-								Cancel
-							</Button>
-						{/if}
-						<Button
-							size="sm"
-							disabled={(!urlInput.trim() && !inlinePreview) || isLoading}
-							onclick={inlinePreview ? handleSave : handleSubmit}
-							class="rounded-md px-4 h-8 text-[12px] font-bold shadow-sm"
-						>
+					<div class="flex items-center gap-2">
+						<div class="flex h-5 w-5 items-center justify-center text-primary/60">
 							{#if isLoading}
-								<Loader2 class="mr-1.5 h-3.5 w-3.5 animate-spin" />
+								<Loader2 class="h-3.5 w-3.5 animate-spin" />
+							{:else}
+								<Globe class="h-3.5 w-3.5" />
 							{/if}
-							{inlinePreview ? 'Confirm & Save' : 'Save Link'}
-						</Button>
+						</div>
+						{#if inlinePreview && !isLoading}
+							<span class="text-[11px] font-medium text-muted-foreground/80">
+								Preview loaded
+							</span>
+						{/if}
 					</div>
+					{#if inlinePreview && !isLoading}
+						<div class="flex items-center gap-1.5 rounded-md bg-primary/5 px-2 py-1 text-[11px] font-bold text-primary animate-in fade-in slide-in-from-right-1">
+							<span>Press Enter to save</span>
+							<span class="opacity-50 text-[10px]">↵</span>
+						</div>
+					{/if}
 				</div>
 			</div>
 		</div>
