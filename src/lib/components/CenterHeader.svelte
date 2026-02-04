@@ -5,12 +5,14 @@
 	import { getContext, onMount } from 'svelte';
 	import type { AppStore } from '$lib/stores';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import TagInput from '$lib/components/TagInput.svelte';
 
 	const store = getContext<AppStore>('store');
 
 	let mounted = $state(false);
 	let urlInput = $state('');
 	let isLoading = $state(false);
+	let previewTags = $state<string[]>([]);
 
 	onMount(() => {
 		mounted = true;
@@ -23,6 +25,12 @@
 		description: string | null;
 		image: string | null;
 	} | null>(null);
+
+	$effect(() => {
+		if (!inlinePreview) {
+			previewTags = [];
+		}
+	});
 
 	function isValidUrl(string: string): boolean {
 		try {
@@ -77,11 +85,12 @@
 				title: inlinePreview.title,
 				description: inlinePreview.description,
 				image: inlinePreview.image,
-				tags: [],
+				tags: [...previewTags],
 				workspaceId: store.workspaces.activeId
 			});
 			inlinePreview = null;
 			urlInput = '';
+			previewTags = [];
 		} catch (err) {
 			error = 'Failed to save link';
 		} finally {
@@ -119,9 +128,7 @@
 	});
 </script>
 
-<div
-	class="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md"
->
+<div class="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md">
 	<!-- Top Bar -->
 	<div class="flex h-12 items-center px-4">
 		<h1 class="text-[15px] font-bold tracking-tight">
@@ -136,30 +143,44 @@
 						<Globe class="h-4 w-4" />
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content class="w-56 rounded-md shadow-xl" align="end">
-						<DropdownMenu.Label class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Filter View</DropdownMenu.Label>
+						<DropdownMenu.Label
+							class="text-[11px] font-bold tracking-wider text-muted-foreground uppercase"
+							>Filter View</DropdownMenu.Label
+						>
 						<DropdownMenu.Separator />
 						<DropdownMenu.Item
 							onclick={() => store.filters.setCategory('inbox')}
-							class="flex items-center justify-between py-2 {store.filters.activeCategory === 'inbox' ? 'font-bold' : ''}"
+							class="flex items-center justify-between py-2 {store.filters.activeCategory ===
+							'inbox'
+								? 'font-bold'
+								: ''}"
 						>
 							<span class="text-[13px]">Inbox</span>
 						</DropdownMenu.Item>
 						<DropdownMenu.Item
 							onclick={() => store.filters.setCategory('favorites')}
-							class="flex items-center justify-between py-2 {store.filters.activeCategory === 'favorites' ? 'font-bold' : ''}"
+							class="flex items-center justify-between py-2 {store.filters.activeCategory ===
+							'favorites'
+								? 'font-bold'
+								: ''}"
 						>
 							<span class="text-[13px]">Favorites</span>
 						</DropdownMenu.Item>
 						<DropdownMenu.Separator />
-						<DropdownMenu.Label class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Tags</DropdownMenu.Label>
+						<DropdownMenu.Label
+							class="text-[11px] font-bold tracking-wider text-muted-foreground uppercase"
+							>Tags</DropdownMenu.Label
+						>
 						{#if store.filters.allTags.length > 0}
 							<div class="max-h-[200px] overflow-y-auto p-1">
 								{#each store.filters.allTags as tag (tag)}
 									<DropdownMenu.Item
 										onclick={() => store.filters.toggleTag(tag)}
-										class="flex items-center gap-2 py-1.5 {store.filters.selectedTags.includes(tag) ? 'bg-muted font-bold' : ''}"
+										class="flex items-center gap-2 py-1.5 {store.filters.selectedTags.includes(tag)
+											? 'bg-muted font-bold'
+											: ''}"
 									>
-										<span class="text-muted-foreground text-[12px]">#</span>
+										<span class="text-[12px] text-muted-foreground">#</span>
 										<span class="truncate text-[13px]">{tag}</span>
 									</DropdownMenu.Item>
 								{/each}
@@ -167,7 +188,10 @@
 						{/if}
 						{#if store.filters.selectedTags.length > 0}
 							<DropdownMenu.Separator />
-							<DropdownMenu.Item onclick={() => store.filters.clearTags()} class="text-destructive font-medium py-2">
+							<DropdownMenu.Item
+								onclick={() => store.filters.clearTags()}
+								class="py-2 font-medium text-destructive"
+							>
 								<span class="text-[13px]">Clear all filters</span>
 							</DropdownMenu.Item>
 						{/if}
@@ -178,14 +202,14 @@
 	</div>
 
 	<!-- Tweet Composer Style Input -->
-	<div class="px-4 py-3 border-b border-border/40">
+	<div class="border-b border-border/40 px-4 py-3">
 		<div class="flex items-start gap-3">
 			<div
 				class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary"
 			>
 				<Link2 class="h-4 w-4" />
 			</div>
-			<div class="flex flex-1 min-w-0 flex-col gap-2">
+			<div class="flex min-w-0 flex-1 flex-col gap-2">
 				<div class="flex items-start justify-between gap-2">
 					<textarea
 						bind:value={urlInput}
@@ -207,54 +231,59 @@
 							}
 						}}
 						placeholder="What's the link today?"
-						class="w-full resize-none border-0 bg-transparent py-1 text-[15px] leading-relaxed placeholder:text-muted-foreground/60 focus:ring-0 focus:outline-none min-h-[40px]"
+						class="min-h-[40px] w-full resize-none border-0 bg-transparent py-1 text-[15px] leading-relaxed placeholder:text-muted-foreground/60 focus:ring-0 focus:outline-none"
 					></textarea>
 					<div class="mt-1.5 flex h-5 w-5 shrink-0 items-center justify-center text-primary/60">
 						{#if isLoading}
 							<Loader2 class="h-4 w-4 animate-spin" />
 						{:else if inlinePreview}
-							<Globe class="h-4 w-4 animate-in fade-in zoom-in duration-300" />
+							<Globe class="h-4 w-4 duration-300 animate-in fade-in zoom-in" />
 						{/if}
 					</div>
 				</div>
 
 				{#if inlinePreview}
 					<div class="relative mt-1 w-full max-w-full">
-						<button 
-							onclick={() => inlinePreview = null}
-							class="absolute top-2 right-2 z-10 flex h-6 w-6 items-center justify-center rounded-md bg-background/80 border shadow-sm hover:bg-muted transition-colors backdrop-blur-sm"
+						<button
+							onclick={() => (inlinePreview = null)}
+							class="absolute top-2 right-2 z-10 flex h-6 w-6 items-center justify-center rounded-md border bg-background/80 shadow-sm backdrop-blur-sm transition-colors hover:bg-muted"
 						>
 							<X class="h-3 w-3" />
 						</button>
-						<div class="overflow-hidden rounded-md border border-border/60 bg-muted/20 w-full">
+						<div class="w-full overflow-hidden rounded-md border border-border/60 bg-muted/20">
 							{#if inlinePreview.image}
 								<div class="aspect-video w-full border-b border-border/40 bg-muted/40">
 									<img src={inlinePreview.image} alt="" class="h-full w-full object-cover" />
 								</div>
 							{/if}
 							<div class="p-2.5">
-								<h3 class="text-[13px] font-bold leading-tight truncate">
+								<h3 class="truncate text-[13px] leading-tight font-bold">
 									{inlinePreview.title || inlinePreview.url}
 								</h3>
 								{#if inlinePreview.description}
-									<p class="mt-0.5 text-[12px] text-muted-foreground line-clamp-1 leading-snug">
+									<p class="mt-0.5 line-clamp-1 text-[12px] leading-snug text-muted-foreground">
 										{inlinePreview.description}
 									</p>
 								{/if}
 							</div>
 						</div>
+						<div class="mt-2 w-80">
+							<TagInput selected={previewTags} onchange={(tags) => (previewTags = tags)} />
+						</div>
 					</div>
 				{/if}
-				
+
 				{#if error}
-					<p class="text-[12px] text-destructive font-medium">{error}</p>
+					<p class="text-[12px] font-medium text-destructive">{error}</p>
 				{/if}
 
 				<div class="flex items-center justify-end pt-1">
 					{#if inlinePreview && !isLoading}
-						<div class="flex items-center gap-1.5 rounded-md bg-primary/5 px-2 py-1 text-[11px] font-bold text-primary animate-in fade-in slide-in-from-right-1">
+						<div
+							class="flex items-center gap-1.5 rounded-md bg-primary/5 px-2 py-1 text-[11px] font-bold text-primary animate-in fade-in slide-in-from-right-1"
+						>
 							<span>Press Enter to save</span>
-							<span class="opacity-50 text-[10px]">↵</span>
+							<span class="text-[10px] opacity-50">↵</span>
 						</div>
 					{/if}
 				</div>
