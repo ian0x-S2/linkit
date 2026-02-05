@@ -89,19 +89,19 @@
 	{#each selected as tag (tag)}
 		<Badge
 			variant="secondary"
-			class="h-5 gap-1 rounded-md border-primary/20 bg-primary/10 px-1.5 py-0 text-[10px] font-bold text-primary transition-colors duration-200 animate-in fade-in slide-in-from-left-2 hover:bg-primary/20"
+			class="h-6 gap-1 rounded-[4px] border-primary/20 bg-primary/10 px-2 py-0 text-[11px] font-medium text-primary transition-colors duration-200 animate-in fade-in slide-in-from-left-2 hover:bg-primary/20"
 		>
 			{tag}
 			<button
 				type="button"
-				class="ml-0.5 transition-colors outline-none hover:text-destructive"
+				class="ml-0.5 opacity-60 transition-colors outline-none hover:opacity-100 hover:text-destructive"
 				onclick={(e) => {
 					e.stopPropagation();
 					removeTag(tag);
 				}}
 				aria-label="Remove {tag}"
 			>
-				<X class="h-2.5 w-2.5" />
+				<X class="h-3 w-3" />
 			</button>
 		</Badge>
 	{/each}
@@ -110,14 +110,14 @@
 		<Popover.Trigger
 			bind:ref={triggerRef}
 			class={cn(
-				'flex h-6 items-center gap-1.5 rounded-md border-none bg-transparent px-2 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground',
-				open && 'bg-muted/50 text-foreground'
+				'flex h-7 items-center gap-1.5 rounded-md border border-dashed border-border/60 bg-transparent px-2 text-[11px] font-medium text-muted-foreground transition-all hover:border-border hover:bg-muted/30 hover:text-foreground',
+				open && 'border-primary/30 bg-muted/50 text-foreground'
 			)}
 			role="combobox"
 			aria-expanded={open}
 		>
 			<Plus
-				class={cn('h-3 w-3 transition-transform duration-200', open && 'rotate-45')}
+				class={cn('h-3.5 w-3.5 transition-transform duration-200', open && 'rotate-45')}
 			/>
 			<span>{selected.length > 0 ? 'Add' : 'Add tags'}</span>
 		</Popover.Trigger>

@@ -107,52 +107,32 @@
 
 <div class="flex h-full flex-col bg-background text-foreground">
 	<!-- Header -->
-	<div class="flex items-center justify-between px-4 py-2 sticky top-0 bg-background/80 backdrop-blur-md z-10 border-b border-border/40">
-		<div class="flex items-center gap-3">
-			<Button
-				variant="ghost"
-				size="icon"
-				onclick={oncancel}
-				class="h-8 w-8 rounded-md"
-			>
-				<X class="h-4 w-4" />
-			</Button>
-			<h2 class="text-[14px] font-bold tracking-tight">
-				{link ? 'Edit link' : 'New link'}
-			</h2>
-		</div>
-		<Button
-			onclick={handleSubmit}
-			disabled={isSaving || !url.trim()}
-			class="rounded-md px-4 h-8 text-[12px] font-bold shadow-sm"
-		>
-			{#if isSaving}
-				<Loader class="mr-1.5 h-3.5 w-3.5 animate-spin" />
-			{/if}
-			Save
-		</Button>
+	<div class="flex h-11 items-center border-b border-border/40 px-4">
+		<h2 class="text-[13px] font-semibold tracking-tight text-foreground/90">
+			{link ? 'Edit link' : 'Add new link'}
+		</h2>
 	</div>
 
 	<!-- Body -->
-	<div class="max-h-[80vh] space-y-4 overflow-y-auto px-5 py-5">
+	<div class="max-h-[85vh] flex-1 space-y-4 overflow-y-auto px-4 py-4">
 		<!-- URL Field -->
 		<div class="space-y-1.5">
-			<div class="flex items-center gap-2 px-0.5">
-				<Globe class="h-3.5 w-3.5 text-primary" />
-				<Label for="url" class="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">Link URL</Label>
+			<div class="flex items-center gap-2">
+				<Globe class="h-3.5 w-3.5 text-muted-foreground" />
+				<Label for="url" class="text-[12px] font-medium text-muted-foreground">URL</Label>
 			</div>
 			<div class="flex gap-2">
 				<Input
 					id="url"
 					bind:value={url}
 					placeholder="https://example.com"
-					class="h-9 rounded-md border-border bg-muted/20 text-[13px] focus-visible:ring-1 focus-visible:ring-primary focus-visible:bg-background transition-all"
+					class="h-9 flex-1 rounded-md border-border bg-muted/10 text-[13px] transition-all focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-primary/50"
 				/>
 				<Button
-					variant="secondary"
+					variant="outline"
 					onclick={fetchOpenGraphPreview}
 					disabled={!url || isLoadingPreview}
-					class="h-9 rounded-md px-3 text-[12px] font-bold"
+					class="h-9 rounded-md px-3 text-[12px] font-medium"
 				>
 					{#if isLoadingPreview}
 						<Loader class="mr-1.5 h-3.5 w-3.5 animate-spin" />
@@ -164,52 +144,54 @@
 
 		<!-- Title Field -->
 		<div class="space-y-1.5">
-			<div class="flex items-center gap-2 px-0.5">
-				<Type class="h-3.5 w-3.5 text-primary" />
-				<Label for="title" class="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">Title</Label>
+			<div class="flex items-center gap-2">
+				<Type class="h-3.5 w-3.5 text-muted-foreground" />
+				<Label for="title" class="text-[12px] font-medium text-muted-foreground">Title</Label>
 			</div>
 			<Input
 				id="title"
 				bind:value={title}
 				placeholder="Give it a name..."
-				class="h-9 rounded-md border-border bg-muted/20 text-[13px] focus-visible:ring-1 focus-visible:ring-primary focus-visible:bg-background transition-all"
+				class="h-9 rounded-md border-border bg-muted/10 text-[13px] transition-all focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-primary/50"
 			/>
 		</div>
 
 		<!-- Tags Field -->
 		<div class="space-y-1.5">
-			<div class="flex items-center gap-2 px-0.5">
-				<Tag class="h-3.5 w-3.5 text-primary" />
-				<Label for="tags" class="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">Tags</Label>
+			<div class="flex items-center gap-2">
+				<Tag class="h-3.5 w-3.5 text-muted-foreground" />
+				<Label for="tags" class="text-[12px] font-medium text-muted-foreground">Tags</Label>
 			</div>
 			<TagInput selected={tags} onchange={(newTags) => (tags = newTags)} />
 		</div>
 
 		<!-- Description -->
 		<div class="space-y-1.5">
-			<div class="flex items-center gap-2 px-0.5">
-				<TextAlignStart class="h-3.5 w-3.5 text-primary" />
-				<Label for="description" class="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">Notes</Label>
+			<div class="flex items-center gap-2">
+				<TextAlignStart class="h-3.5 w-3.5 text-muted-foreground" />
+				<Label for="description" class="text-[12px] font-medium text-muted-foreground"
+					>Description</Label
+				>
 			</div>
 			<Textarea
 				id="description"
 				bind:value={description}
 				placeholder="What makes this link interesting?"
 				rows={3}
-				class="resize-none rounded-md border-border bg-muted/20 py-2.5 focus-visible:ring-1 focus-visible:ring-primary focus-visible:bg-background transition-all text-[13px] leading-snug"
+				class="min-h-20 resize-none rounded-md border-border bg-muted/10 px-3 py-2 text-[13px] leading-relaxed transition-all focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-primary/50"
 			/>
 		</div>
 
 		{#if image}
 			<div class="pt-1 duration-300 animate-in fade-in slide-in-from-top-2">
 				<div
-					class="relative aspect-[2/1] overflow-hidden rounded-md border border-border shadow-sm"
+					class="relative aspect-video overflow-hidden rounded-md border border-border/60 shadow-sm"
 				>
 					<img src={image} alt="Preview" class="h-full w-full object-cover" />
 					<Button
 						variant="secondary"
 						size="icon"
-						class="absolute top-1.5 right-1.5 h-7 w-7 rounded-md bg-background/80 shadow-md backdrop-blur-md hover:bg-background"
+						class="absolute top-2 right-2 h-7 w-7 rounded-md bg-background/90 shadow-sm backdrop-blur-sm hover:bg-background"
 						onclick={() => (image = '')}
 					>
 						<X class="h-3.5 w-3.5" />
@@ -217,5 +199,26 @@
 				</div>
 			</div>
 		{/if}
+	</div>
+
+	<!-- Footer -->
+	<div class="mt-auto flex items-center justify-end gap-2 border-t border-border/40 px-4 py-2.5">
+		<Button
+			variant="ghost"
+			onclick={oncancel}
+			class="h-8 rounded-md px-3 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+		>
+			Cancel
+		</Button>
+		<Button
+			onclick={handleSubmit}
+			disabled={isSaving || !url.trim()}
+			class="h-8 rounded-md px-4 text-[12px] font-medium shadow-sm"
+		>
+			{#if isSaving}
+				<Loader class="mr-1.5 h-3 w-3 animate-spin" />
+			{/if}
+			{link ? 'Save changes' : 'Add link'}
+		</Button>
 	</div>
 </div>

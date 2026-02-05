@@ -1,22 +1,10 @@
 <script lang="ts">
 	import type { Link } from '$lib/types';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import {
-		Trash2,
-		FileText,
-		ExternalLink,
-		Star,
-		Archive,
-		RotateCcw,
-		Ellipsis,
-		Pencil
-	} from '@lucide/svelte';
+	import { Button } from '$lib/components/ui/button';
+	import { Trash2, FileText, ExternalLink, Star, Archive, Pencil } from '@lucide/svelte';
 	import { formatDistanceToNow } from 'date-fns';
-	import * as Popover from '$lib/components/ui/popover';
 	import { getContext } from 'svelte';
 	import type { AppStore } from '$lib/stores';
-	import { cn } from '$lib/utils';
 
 	interface Props {
 		link: Link;
@@ -27,7 +15,6 @@
 	let { link, onedit, ondelete }: Props = $props();
 	const store = getContext<AppStore>('store');
 	let imageError = $state(false);
-	let actionsOpen = $state(false);
 
 	function getDomain(url: string) {
 		try {
@@ -131,18 +118,6 @@
 				<Button
 					variant="ghost"
 					size="icon"
-					class="h-8 w-8 rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-					onclick={(e) => {
-						e.preventDefault();
-						window.open(link.url, '_blank');
-					}}
-				>
-					<ExternalLink class="h-4 w-4" />
-				</Button>
-
-				<Button
-					variant="ghost"
-					size="icon"
 					class="h-8 w-8 rounded-md {link.isFavorite
 						? 'text-yellow-500'
 						: 'text-muted-foreground'} transition-colors hover:bg-yellow-500/10 hover:text-yellow-500"
@@ -152,6 +127,18 @@
 					}}
 				>
 					<Star class="h-4 w-4 {link.isFavorite ? 'fill-current' : ''}" />
+				</Button>
+
+				<Button
+					variant="ghost"
+					size="icon"
+					class="h-8 w-8 rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+					onclick={(e) => {
+						e.preventDefault();
+						onedit(link);
+					}}
+				>
+					<Pencil class="h-4 w-4" />
 				</Button>
 
 				<Button
@@ -183,4 +170,3 @@
 		</div>
 	</div>
 </div>
-
