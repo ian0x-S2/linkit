@@ -59,31 +59,34 @@
 	const activeCategory = $derived(store.filters.activeCategory);
 </script>
 
-<aside class="w-[17 sticky top-0 flex h-screen shrink-0 flex-col bg-background xl:w-68.75">
+<aside class="sticky top-0 flex h-screen w-17 shrink-0 flex-col bg-background xl:w-68.75">
 	<!-- Workspace Switcher (Replaces Logo) -->
 	<div class="flex h-14 items-center px-2 xl:px-3">
 		<DropdownMenu.Root>
-			<DropdownMenu.Trigger class="w-full     ">
+			<DropdownMenu.Trigger
+				class="flex w-full items-center justify-center gap-2.5 rounded-md p-2 transition-colors hover:bg-muted/80 xl:justify-start"
+			>
 				<div
-					class="flex w-full items-center justify-center gap-2.5 rounded-md p-2 transition-colors hover:bg-muted/80 xl:justify-start"
+					class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-[11px] font-bold text-primary-foreground"
 				>
-					<div
-						class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-[11px] font-bold text-primary-foreground"
-					>
-						{store.workspaces.active?.name?.[0] || '?'}
-					</div>
-					<div class="hidden min-w-0 flex-1 text-left xl:block">
-						<p class="truncate text-[13px] leading-none font-bold">
-							{store.workspaces.active?.name || 'Workspace'}
-						</p>
-						<p class="truncate text-[11px] leading-normal text-muted-foreground">
-							@{store.workspaces.active?.slug || 'workspace'}
-						</p>
-					</div>
-					<Ellipsis class="ml-auto hidden h-4 w-4 text-muted-foreground xl:block" />
+					{store.workspaces.active?.name?.[0] || '?'}
 				</div>
+				<div class="hidden min-w-0 flex-1 text-left xl:block">
+					<p class="truncate text-[13px] leading-none font-bold">
+						{store.workspaces.active?.name || 'Workspace'}
+					</p>
+					<p class="truncate text-[11px] leading-normal text-muted-foreground">
+						@{store.workspaces.active?.slug || 'workspace'}
+					</p>
+				</div>
+				<Ellipsis class="ml-auto hidden h-4 w-4 text-muted-foreground xl:block" />
 			</DropdownMenu.Trigger>
-			<DropdownMenu.Content class="w-full rounded-sm  shadow-xl" align="start" side="bottom">
+			<DropdownMenu.Content
+				class="w-(--bits-dropdown-menu-anchor-width) min-w-17  rounded-sm shadow-xl"
+				align="start"
+				side="bottom"
+				sideOffset={4}
+			>
 				<DropdownMenu.Label
 					class="text-[11px] font-bold tracking-wider text-muted-foreground uppercase"
 					>Switch Workspace</DropdownMenu.Label
