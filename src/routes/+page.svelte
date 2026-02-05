@@ -25,6 +25,7 @@
 		title: string | null;
 		description: string | null;
 		image: string | null;
+		logo: string | null;
 	} | null>(null);
 
 	$effect(() => {
@@ -64,7 +65,8 @@
 				url,
 				title: data.title || null,
 				description: data.description || null,
-				image: data.image || null
+				image: data.image || null,
+				logo: data.logo || null
 			};
 
 			// Open dialog with preview data
@@ -72,7 +74,7 @@
 		} catch (err) {
 			console.error('Failed to fetch link preview:', err);
 			// Still open dialog without preview
-			previewData = { url, title: null, description: null, image: null };
+			previewData = { url, title: null, description: null, image: null, logo: null };
 			isAddDialogOpen = true;
 		} finally {
 			isPreviewLoading = false;

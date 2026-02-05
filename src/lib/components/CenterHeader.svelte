@@ -24,6 +24,7 @@
 		title: string | null;
 		description: string | null;
 		image: string | null;
+		logo: string | null;
 	} | null>(null);
 
 	$effect(() => {
@@ -73,11 +74,12 @@
 				url,
 				title: data.title || null,
 				description: data.description || null,
-				image: data.image || null
+				image: data.image || null,
+				logo: data.logo || null
 			};
 		} catch (err) {
 			console.error('Failed to fetch link preview:', err);
-			inlinePreview = { url, title: null, description: null, image: null };
+			inlinePreview = { url, title: null, description: null, image: null, logo: null };
 		} finally {
 			isLoading = false;
 		}
@@ -92,6 +94,7 @@
 				title: inlinePreview.title,
 				description: inlinePreview.description,
 				image: inlinePreview.image,
+				logo: inlinePreview.logo,
 				tags: [...previewTags],
 				workspaceId: store.workspaces.activeId
 			});

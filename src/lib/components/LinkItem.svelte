@@ -27,7 +27,7 @@
 	let { link, onedit, ondelete }: Props = $props();
 	const store = getContext<AppStore>('store');
 
-	let imageError = $state(false);
+	let logoError = $state(false);
 	let actionsOpen = $state(false);
 
 	function getDomain(url: string) {
@@ -46,12 +46,12 @@
 			<div
 				class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border bg-muted/20 text-muted-foreground transition-colors group-hover:border-border"
 			>
-				{#if link.image && !imageError}
+				{#if link.logo && !logoError}
 					<img
-						src={link.image}
+						src={link.logo}
 						alt=""
-						class="h-full w-full object-cover"
-						onerror={() => (imageError = true)}
+						class="h-6 w-6 object-contain"
+						onerror={() => (logoError = true)}
 					/>
 				{:else}
 					<FileText class="h-4.5 w-4.5 opacity-30" />

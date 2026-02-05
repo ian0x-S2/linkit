@@ -17,6 +17,7 @@
 			title: string | null;
 			description: string | null;
 			image: string | null;
+			logo: string | null;
 		} | null;
 		onsave: () => void;
 		oncancel: () => void;
@@ -31,6 +32,7 @@
 	let description = $state('');
 	let tags = $state<string[]>([]);
 	let image = $state('');
+	let logo = $state('');
 	let isSaving = $state(false);
 	let isLoadingPreview = $state(false);
 
@@ -41,12 +43,14 @@
 			description = link.description || '';
 			tags = [...link.tags];
 			image = link.image || '';
+			logo = link.logo || '';
 		} else if (previewData) {
 			// New link with preview data
 			url = previewData.url || '';
 			title = previewData.title || '';
 			description = previewData.description || '';
 			image = previewData.image || '';
+			logo = previewData.logo || '';
 			tags = [];
 		} else {
 			url = '';
@@ -54,6 +58,7 @@
 			description = '';
 			tags = [];
 			image = '';
+			logo = '';
 		}
 	});
 
@@ -72,6 +77,7 @@
 				if (data.title && !title) title = data.title;
 				if (data.description && !description) description = data.description;
 				if (data.image && !image) image = data.image;
+				if (data.logo && !logo) logo = data.logo;
 			}
 		} catch {
 			// Ignore
@@ -89,6 +95,7 @@
 				title: title.trim() || null,
 				description: description.trim() || null,
 				image: image.trim() || null,
+				logo: logo.trim() || null,
 				tags: tags,
 				workspaceId: store.workspaces.activeId
 			};
