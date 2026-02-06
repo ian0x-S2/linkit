@@ -36,6 +36,15 @@
 	let isCreateWorkspaceOpen = $state(false);
 	let newWorkspaceName = $state('');
 	let isCreating = $state(false);
+	let isWide = $state(false);
+
+	$effect(() => {
+		const mql = window.matchMedia('(min-width: 1280px)');
+		isWide = mql.matches;
+		const handler = (e: MediaQueryListEvent) => (isWide = e.matches);
+		mql.addEventListener('change', handler);
+		return () => mql.removeEventListener('change', handler);
+	});
 
 	const navItems = [
 		{ id: 'inbox' as Category, label: 'Inbox', icon: Inbox },
@@ -103,43 +112,51 @@
 				<Ellipsis class="ml-auto hidden h-4 w-4 text-muted-foreground xl:block" />
 			</DropdownMenu.Trigger>
 			<DropdownMenu.Content
-				class="w-(--bits-dropdown-menu-anchor-width) min-w-17  rounded-sm shadow-xl"
+				class="z-50 w-63.75 rounded-xl border bg-popover p-1 shadow-2xl outline-none"
 				align="start"
-				side="bottom"
-				sideOffset={4}
+				side={isWide ? 'bottom' : 'right'}
+				sideOffset={isWide ? 4 : 16}
 			>
 				<DropdownMenu.Label
-					class="text-[11px] font-bold tracking-wider text-muted-foreground uppercase"
+					class="px-2 py-1.5 text-[11px] font-bold tracking-wider text-muted-foreground uppercase"
 					>Switch Workspace</DropdownMenu.Label
 				>
-				<DropdownMenu.Separator />
-				<div class="max-h-75 overflow-y-auto p-1">
+				<DropdownMenu.Separator class="-mx-1 my-1 h-px bg-muted" />
+				<div class="max-h-80 overflow-y-auto">
 					{#each store.workspaces.workspaces as ws (ws.id)}
 						<DropdownMenu.Item
 							onclick={() => handleWorkspaceSelect(ws.id)}
-							class="flex items-center gap-2.5 px-2 py-2 {ws.id === store.workspaces.activeId
-								? 'bg-muted'
+							class="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2.5 transition-colors outline-none hover:bg-muted focus:bg-muted {ws.id ===
+							store.workspaces.activeId
+								? 'bg-muted/60'
 								: ''}"
 						>
 							<div
-								class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-[10px] font-bold text-primary"
+								class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-[11px] font-bold text-primary"
 							>
 								{ws.name[0]}
 							</div>
-							<div class="flex flex-1 flex-col">
-								<span class="text-[13px] leading-none font-bold">{ws.name}</span>
-								<span class="text-[11px] text-muted-foreground">@{ws.slug}</span>
+							<div class="flex flex-1 flex-col overflow-hidden">
+								<span class="truncate text-[13px] leading-none font-bold">{ws.name}</span>
+								<span class="truncate text-[11px] text-muted-foreground">@{ws.slug}</span>
 							</div>
+							{#if ws.id === store.workspaces.activeId}
+								<div class="h-1.5 w-1.5 rounded-full bg-primary"></div>
+							{/if}
 						</DropdownMenu.Item>
 					{/each}
 				</div>
-				<DropdownMenu.Separator />
+				<DropdownMenu.Separator class="-mx-1 my-1 h-px bg-muted" />
 				<DropdownMenu.Item
 					onclick={() => (isCreateWorkspaceOpen = true)}
-					class="cursor-pointer px-2 py-2"
+					class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2.5 transition-colors outline-none hover:bg-muted focus:bg-muted"
 				>
-					<Plus class="mr-2 h-3.5 w-3.5" />
-					<span class="text-[13px] font-medium">Create New Workspace</span>
+					<div
+						class="flex h-8 w-8 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground"
+					>
+						<Plus class="h-4 w-4" />
+					</div>
+					<span class="text-[13px] font-bold">New Workspace</span>
 				</DropdownMenu.Item>
 			</DropdownMenu.Content>
 		</DropdownMenu.Root>

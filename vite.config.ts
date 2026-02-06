@@ -11,6 +11,9 @@ export default defineConfig({
 		devtoolsJson(),
 		SvelteKitPWA({
 			registerType: 'autoUpdate',
+			devOptions: {
+				enabled: false
+			},
 			manifest: {
 				name: 'Exe Link Manager',
 				short_name: 'Exe',

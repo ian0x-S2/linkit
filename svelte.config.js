@@ -16,7 +16,7 @@ const config = {
       binaryName: "my-app",
     }),
     alias: {
-      "@/*": "./path/to/lib/*",
+      "$lib/*": "./src/lib/*",
     },
   },
 
