@@ -10,6 +10,7 @@
 	const trendingTags = $derived.by(() => {
 		const tagCounts: Record<string, number> = {};
 		store.links.links.forEach((link) => {
+			if (link.isDeleted) return;
 			link.tags.forEach((tag) => {
 				tagCounts[tag] = (tagCounts[tag] || 0) + 1;
 			});
@@ -27,9 +28,10 @@
 	});
 
 	const stats = $derived.by(() => {
-		const total = store.links.links.length;
-		const favorites = store.links.links.filter((l) => l.isFavorite).length;
-		const archived = store.links.links.filter((l) => l.isArchived).length;
+		const activeLinks = store.links.links.filter((l) => !l.isDeleted);
+		const total = activeLinks.length;
+		const favorites = activeLinks.filter((l) => l.isFavorite).length;
+		const archived = activeLinks.filter((l) => l.isArchived).length;
 		return { total, favorites, archived };
 	});
 </script>
