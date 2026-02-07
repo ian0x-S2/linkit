@@ -70,7 +70,7 @@
 	<main class="flex h-screen w-[600px] flex-col border-x">
 		<!-- Header -->
 		<div class="sticky top-0 z-40 flex h-12 shrink-0 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-md">
-			<Button variant="ghost" size="icon" href="/" class="h-8 w-8 rounded-full hover:bg-muted">
+			<Button variant="ghost" size="icon" href="/" class="h-8 w-8 rounded-sm hover:bg-muted">
 				<ArrowLeft class="h-4 w-4" />
 			</Button>
 			<div class="flex flex-col">
@@ -112,7 +112,7 @@
 								{#if newWorkspaceName.trim() && !isAddingWorkspace}
 									<button 
 										onclick={handleAddWorkspace}
-										class="absolute right-2 top-1/2 -translate-y-1/2 h-7 px-3 rounded-md bg-primary text-[11px] font-bold text-primary-foreground hover:bg-primary/90 transition-all active:scale-95"
+										class="absolute right-2 top-1/2 -translate-y-1/2 h-7 px-3 rounded-sm bg-primary text-[11px] font-bold text-primary-foreground hover:bg-primary/90 transition-all active:scale-95"
 									>
 										Create
 									</button>
@@ -126,11 +126,11 @@
 						<div class="grid gap-2 mt-4">
 							{#each store.workspaces.workspaces as ws (ws.id)}
 								<div
-									class="group relative flex items-center justify-between rounded-xl border border-border/10 bg-muted/5 p-4 transition-all hover:bg-muted/10 {ws.id === store.workspaces.activeId ? 'border-primary/20 bg-primary/5' : ''}"
+									class="group relative flex items-center justify-between rounded-sm border border-border/10 bg-muted/5 p-4 transition-all hover:bg-muted/10 {ws.id === store.workspaces.activeId ? 'border-primary/20 bg-primary/5' : ''}"
 								>
 									<div class="flex items-center gap-3">
 										<div
-											class="flex h-10 w-10 items-center justify-center rounded-lg border border-border/10 bg-background shadow-sm group-hover:scale-105 transition-transform"
+											class="flex h-10 w-10 items-center justify-center rounded-sm border border-border/10 bg-background shadow-sm group-hover:scale-105 transition-transform"
 										>
 											<Layers class="h-5 w-5 {ws.id === store.workspaces.activeId ? 'text-primary' : 'text-muted-foreground'}" />
 										</div>
@@ -138,7 +138,7 @@
 											<div class="flex items-center gap-2">
 												<p class="text-[14px] font-bold">{ws.name}</p>
 												{#if ws.id === store.workspaces.activeId}
-													<div class="flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full uppercase tracking-tight">
+													<div class="flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-sm uppercase tracking-tight">
 														<Check class="h-2.5 w-2.5" />
 														Active
 													</div>
@@ -166,7 +166,7 @@
 											<Button
 												variant="ghost"
 												size="icon"
-												class="h-8 w-8 rounded-full text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
+												class="h-8 w-8 rounded-sm text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
 												onclick={() => requestDeleteWorkspace(ws.id, ws.name)}
 											>
 												<Trash2 class="h-3.5 w-3.5" />
@@ -186,10 +186,10 @@
 							</h3>
 						</div>
 						
-						<div class="rounded-xl border border-border/10 bg-muted/5 p-4 space-y-4">
+						<div class="rounded-sm border border-border/10 bg-muted/5 p-4 space-y-4">
 							<div class="flex items-center justify-between">
 								<div class="flex items-center gap-3">
-									<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-background border border-border/10 shadow-sm">
+									<div class="flex h-8 w-8 items-center justify-center rounded-sm bg-background border border-border/10 shadow-sm">
 										<Database class="h-4 w-4 text-muted-foreground" />
 									</div>
 									<div class="space-y-0.5">
@@ -197,14 +197,14 @@
 										<p class="text-[11px] text-muted-foreground">SQLite (Local Server)</p>
 									</div>
 								</div>
-								<div class="flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-500/10 text-green-600 dark:text-green-400">
-									<div class="h-1.5 w-1.5 rounded-full bg-current animate-pulse"></div>
+								<div class="flex items-center gap-1.5 px-2 py-1 rounded-sm bg-green-500/10 text-green-600 dark:text-green-400">
+									<div class="h-1.5 w-1.5 rounded-sm bg-current animate-pulse"></div>
 									<span class="text-[10px] font-bold uppercase tracking-tight">Connected</span>
 								</div>
 							</div>
 
 							<div class="flex items-center gap-3 pt-2 border-t border-border/5">
-								<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-background border border-border/10 shadow-sm">
+								<div class="flex h-8 w-8 items-center justify-center rounded-sm bg-background border border-border/10 shadow-sm">
 									<Info class="h-4 w-4 text-muted-foreground" />
 								</div>
 								<div class="space-y-0.5">
@@ -237,7 +237,7 @@
 </div>
 
 <Dialog.Root bind:open={isDeleteDialogOpen}>
-	<Dialog.Content class="max-w-[400px] rounded-2xl border-none shadow-2xl p-6">
+	<Dialog.Content class="max-w-[400px] rounded-sm border-none shadow-2xl p-6">
 		<Dialog.Header>
 			<Dialog.Title class="text-lg font-bold">Delete Workspace?</Dialog.Title>
 			<Dialog.Description class="text-[14px] leading-relaxed pt-2">
@@ -247,14 +247,14 @@
 		<Dialog.Footer class="mt-6 flex flex-col gap-2 sm:flex-col">
 			<Button
 				variant="destructive"
-				class="w-full rounded-full font-bold h-11"
+				class="w-full rounded-sm font-bold h-11"
 				onclick={confirmDeleteWorkspace}
 			>
 				Delete Workspace
 			</Button>
 			<Button
 				variant="ghost"
-				class="w-full rounded-full font-bold h-11"
+				class="w-full rounded-sm font-bold h-11"
 				onclick={() => (isDeleteDialogOpen = false)}
 			>
 				Cancel
