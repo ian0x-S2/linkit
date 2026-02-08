@@ -133,7 +133,7 @@
 </Dialog.Root>
 
 <Dialog.Root bind:open={isExportDialogOpen}>
-	<Dialog.Content class="rounded-md sm:max-w-md">
+	<Dialog.Content showCloseButton={false} class="overflow-hidden p-0 rounded-md sm:max-w-md">
 		<ExportDialog bind:open={isExportDialogOpen} links={store.filters.filteredLinks} />
 	</Dialog.Content>
 </Dialog.Root>

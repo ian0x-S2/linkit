@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Input } from '$lib/components/ui/input';
-	import { ArrowLeft, Trash2, Layers, Plus, Database, Info, Loader2, Check } from '@lucide/svelte';
+	import { ArrowLeft, Trash2, Layers, Plus, Database, Info, Loader2, Check, X } from '@lucide/svelte';
 	import { getContext } from 'svelte';
 	import type { AppStore } from '$lib/stores';
 	import type { WorkspaceId } from '$lib/types';
@@ -237,28 +237,52 @@
 </div>
 
 <Dialog.Root bind:open={isDeleteDialogOpen}>
-	<Dialog.Content class="max-w-[400px] rounded-sm border-none shadow-2xl p-6">
-		<Dialog.Header>
-			<Dialog.Title class="text-lg font-bold">Delete Workspace?</Dialog.Title>
-			<Dialog.Description class="text-[14px] leading-relaxed pt-2">
-				This will permanently delete <span class="font-bold text-foreground">"{workspaceToDelete?.name}"</span> and all its links. This action cannot be undone.
-			</Dialog.Description>
-		</Dialog.Header>
-		<Dialog.Footer class="mt-6 flex flex-col gap-2 sm:flex-col">
-			<Button
-				variant="destructive"
-				class="w-full rounded-sm font-bold h-11"
-				onclick={confirmDeleteWorkspace}
-			>
-				Delete Workspace
-			</Button>
-			<Button
-				variant="ghost"
-				class="w-full rounded-sm font-bold h-11"
-				onclick={() => (isDeleteDialogOpen = false)}
-			>
-				Cancel
-			</Button>
-		</Dialog.Footer>
+	<Dialog.Content showCloseButton={false} class="overflow-hidden p-0 max-w-[400px] rounded-sm">
+		<div class="flex flex-col bg-background text-foreground">
+			<!-- Header -->
+			<div class="flex h-11 items-center justify-between border-b border-border px-4">
+				<h2 class="text-[13px] font-semibold tracking-tight text-foreground/90">
+					Delete Workspace
+				</h2>
+				<Button
+					variant="ghost"
+					size="icon"
+					onclick={() => (isDeleteDialogOpen = false)}
+					class="h-7 w-7 rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+				>
+					<X class="h-3.5 w-3.5" />
+				</Button>
+			</div>
+
+			<!-- Body -->
+			<div class="space-y-3 px-4 py-4">
+				<p class="text-[13px] leading-relaxed text-muted-foreground">
+					This will permanently delete the workspace and all its links. This action cannot be undone.
+				</p>
+				<div class="rounded-sm border border-border/50 bg-muted/20 px-3 py-2">
+					<span class="text-[13px] font-medium text-foreground">
+						{workspaceToDelete?.name}
+					</span>
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div class="flex items-center justify-end gap-2 border-t border-border px-4 py-2.5">
+				<Button
+					variant="ghost"
+					onclick={() => (isDeleteDialogOpen = false)}
+					class="h-8 rounded-sm px-3 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+				>
+					Cancel
+				</Button>
+				<Button
+					variant="destructive"
+					onclick={confirmDeleteWorkspace}
+					class="h-8 rounded-sm px-4 text-[12px] font-medium shadow-sm"
+				>
+					Delete Workspace
+				</Button>
+			</div>
+		</div>
 	</Dialog.Content>
 </Dialog.Root>

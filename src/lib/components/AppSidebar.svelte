@@ -11,7 +11,8 @@
 		Plus,
 		ChevronsUpDown,
 		Check,
-		LogOut
+		LogOut,
+		X
 	} from '@lucide/svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
@@ -208,45 +209,59 @@
 </Sidebar.Root>
 
 <Dialog.Root bind:open={isCreateWorkspaceOpen}>
-	<Dialog.Content class="max-w-[320px] rounded-sm">
-		<Dialog.Header>
-			<Dialog.Title class="text-[15px] font-semibold">Create Workspace</Dialog.Title>
-			<Dialog.Description class="text-[12px] text-muted-foreground">
-				Workspaces help you organize links for different projects.
-			</Dialog.Description>
-		</Dialog.Header>
-		<form onsubmit={handleCreateWorkspace} class="mt-4 flex flex-col gap-4">
-			<div class="flex flex-col gap-2">
-				<Label for="ws-name" class="text-[11px] font-medium text-muted-foreground uppercase"
-					>Name</Label
-				>
-				<Input
-					id="ws-name"
-					bind:value={newWorkspaceName}
-					placeholder="My New Project"
-					class="h-9 text-[13px] focus-visible:ring-1"
-					autofocus
-				/>
-			</div>
-			<div class="flex justify-end gap-2">
+	<Dialog.Content showCloseButton={false} class="overflow-hidden p-0 max-w-[320px] rounded-sm">
+		<div class="flex flex-col bg-background text-foreground">
+			<!-- Header -->
+			<div class="flex h-11 items-center justify-between border-b border-border px-4">
+				<h2 class="text-[13px] font-semibold tracking-tight text-foreground/90">
+					Create Workspace
+				</h2>
 				<Button
-					type="button"
 					variant="ghost"
-					size="sm"
-					class="h-8 px-3 text-[12px]"
+					size="icon"
 					onclick={() => (isCreateWorkspaceOpen = false)}
+					class="h-7 w-7 rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground"
 				>
-					Cancel
-				</Button>
-				<Button
-					type="submit"
-					size="sm"
-					class="h-8 px-3 text-[12px]"
-					disabled={!newWorkspaceName.trim()}
-				>
-					Create
+					<X class="h-3.5 w-3.5" />
 				</Button>
 			</div>
-		</form>
+
+			<!-- Body -->
+			<form onsubmit={handleCreateWorkspace}>
+				<div class="space-y-4 px-4 py-4">
+					<p class="text-[12px] text-muted-foreground leading-snug">
+						Workspaces help you organize links for different projects.
+					</p>
+					<div class="space-y-1.5">
+						<Label for="ws-name" class="text-[12px] font-medium text-muted-foreground">Name</Label>
+						<Input
+							id="ws-name"
+							bind:value={newWorkspaceName}
+							placeholder="My New Project"
+							class="h-9 rounded-sm border-border bg-muted/10 text-[13px] transition-all focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-primary/50"
+							autofocus
+						/>
+					</div>
+				</div>
+
+				<!-- Footer -->
+				<div class="flex items-center justify-end gap-2 border-t border-border px-4 py-2.5">
+					<Button
+						variant="ghost"
+						onclick={() => (isCreateWorkspaceOpen = false)}
+						class="h-8 rounded-sm px-3 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+					>
+						Cancel
+					</Button>
+					<Button
+						type="submit"
+						disabled={!newWorkspaceName.trim()}
+						class="h-8 rounded-sm px-4 text-[12px] font-medium shadow-sm"
+					>
+						Create
+					</Button>
+				</div>
+			</form>
+		</div>
 	</Dialog.Content>
 </Dialog.Root>

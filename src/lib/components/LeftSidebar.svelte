@@ -9,7 +9,8 @@
 		Moon,
 		Sun,
 		FileBraces,
-		Ellipsis
+		Ellipsis,
+		X
 	} from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
@@ -22,6 +23,7 @@
 
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
 
 	const store = getContext<AppStore>('store');
 
@@ -164,37 +166,62 @@
 
 	<!-- Create Workspace Dialog -->
 	<Dialog.Root bind:open={isCreateWorkspaceOpen}>
-		<Dialog.Content class="max-w-[400px] rounded-sm border-none p-6 shadow-2xl">
-			<Dialog.Header>
-				<Dialog.Title class="text-lg font-bold">New Workspace</Dialog.Title>
-				<Dialog.Description class="pt-1 text-[14px]">
-					Create a new space to organize your links.
-				</Dialog.Description>
-			</Dialog.Header>
-			<div class="py-4">
-				<Input
-					bind:value={newWorkspaceName}
-					placeholder="Workspace name..."
-					class="h-11 rounded-sm border-none bg-muted/20 transition-all focus-visible:ring-2 focus-visible:ring-primary"
-					onkeydown={(e) => e.key === 'Enter' && handleCreateWorkspace()}
-				/>
+		<Dialog.Content showCloseButton={false} class="overflow-hidden p-0 max-w-[320px] rounded-sm">
+			<div class="flex flex-col bg-background text-foreground">
+				<!-- Header -->
+				<div class="flex h-11 items-center justify-between border-b border-border px-4">
+					<h2 class="text-[13px] font-semibold tracking-tight text-foreground/90">
+						Create Workspace
+					</h2>
+					<Button
+						variant="ghost"
+						size="icon"
+						onclick={() => (isCreateWorkspaceOpen = false)}
+						class="h-7 w-7 rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+					>
+						<X class="h-3.5 w-3.5" />
+					</Button>
+				</div>
+
+				<!-- Body -->
+				<div class="space-y-4 px-4 py-4">
+					<p class="text-[12px] text-muted-foreground leading-snug">
+						Workspaces help you organize links for different projects.
+					</p>
+					<div class="space-y-1.5">
+						<Label for="ws-name" class="text-[12px] font-medium text-muted-foreground">Name</Label>
+						<Input
+							id="ws-name"
+							bind:value={newWorkspaceName}
+							placeholder="My New Project"
+							class="h-9 rounded-sm border-border bg-muted/10 text-[13px] transition-all focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-primary/50"
+							onkeydown={(e) => e.key === 'Enter' && handleCreateWorkspace()}
+							autofocus
+						/>
+					</div>
+				</div>
+
+				<!-- Footer -->
+				<div class="flex items-center justify-end gap-2 border-t border-border px-4 py-2.5">
+					<Button
+						variant="ghost"
+						onclick={() => (isCreateWorkspaceOpen = false)}
+						class="h-8 rounded-sm px-3 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+					>
+						Cancel
+					</Button>
+					<Button
+						onclick={handleCreateWorkspace}
+						disabled={!newWorkspaceName.trim() || isCreating}
+						class="h-8 rounded-sm px-4 text-[12px] font-medium shadow-sm"
+					>
+						{#if isCreating}
+							<div class="mr-1.5 h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+						{/if}
+						Create
+					</Button>
+				</div>
 			</div>
-			<Dialog.Footer class="flex flex-col gap-2 sm:flex-col">
-				<Button
-					class="h-11 w-full rounded-sm font-bold"
-					onclick={handleCreateWorkspace}
-					disabled={!newWorkspaceName.trim() || isCreating}
-				>
-					{isCreating ? 'Creating...' : 'Create Workspace'}
-				</Button>
-				<Button
-					variant="ghost"
-					class="h-11 w-full rounded-sm font-bold"
-					onclick={() => (isCreateWorkspaceOpen = false)}
-				>
-					Cancel
-				</Button>
-			</Dialog.Footer>
 		</Dialog.Content>
 	</Dialog.Root>
 
