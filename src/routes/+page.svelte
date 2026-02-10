@@ -20,6 +20,17 @@
 	let isExportDialogOpen = $state(false);
 	let isPreviewLoading = $state(false);
 	let editingLink = $state<Link | null>(null);
+	let isLargeScreen = $state(false);
+
+	$effect(() => {
+		const mql = window.matchMedia('(min-width: 1024px)');
+		isLargeScreen = mql.matches;
+		const handler = (e: MediaQueryListEvent) => {
+			isLargeScreen = e.matches;
+		};
+		mql.addEventListener('change', handler);
+		return () => mql.removeEventListener('change', handler);
+	});
 	let previewData = $state<{
 		url: string;
 		title: string | null;
@@ -83,38 +94,42 @@
 </script>
 
 <!-- Layout Container - centered like Twitter -->
-<div class="mx-auto flex h-screen w-full max-w-[1265px]">
-	<!-- Left Sidebar -->
-	<LeftSidebar onAddLink={handleAddLink} onExport={() => (isExportDialogOpen = true)} />
+<!-- Always centers all visible content -->
+<div class="flex h-screen w-full justify-center">
+	<!-- Container with max-width to prevent stretching -->
+	<div class="flex h-screen w-fit">
+		<!-- Left Sidebar -->
+		<LeftSidebar onAddLink={handleAddLink} onExport={() => (isExportDialogOpen = true)} />
 
-	<!-- Center Feed -->
-	<main class="flex h-screen w-[600px] flex-col border-x">
-		<!-- Sticky Header with Input -->
-		<CenterHeader />
+		<!-- Center Feed -->
+		<main class="flex h-screen w-full flex-col border-x md:w-[600px]">
+			<!-- Sticky Header with Input -->
+			<CenterHeader />
 
-		<!-- Scrollable Feed Content -->
-		<div class="flex-1 overflow-hidden">
-			<ScrollArea type="hover" class="h-full w-full">
-				<div class="flex flex-col">
-					{#if store.filters.filteredLinks.length === 0}
-						<EmptyState onAdd={handleAddLink} />
-					{:else}
-						{#each store.filters.filteredLinks as link (link.id)}
-							<div class="border-b transition-colors hover:bg-muted/30">
-								<LinkCard {link} onedit={handleEditLink} ondelete={handleDeleteLink} />
-							</div>
-						{/each}
-					{/if}
+			<!-- Scrollable Feed Content -->
+			<div class="flex-1 overflow-hidden">
+				<ScrollArea type="hover" class="h-full w-full">
+					<div class="flex flex-col">
+						{#if store.filters.filteredLinks.length === 0}
+							<EmptyState onAdd={handleAddLink} />
+						{:else}
+							{#each store.filters.filteredLinks as link (link.id)}
+								<div class="border-b transition-colors hover:bg-muted/30">
+									<LinkCard {link} onedit={handleEditLink} ondelete={handleDeleteLink} />
+								</div>
+							{/each}
+						{/if}
 
-					<!-- Bottom spacing -->
-					<div class="h-20"></div>
-				</div>
-			</ScrollArea>
-		</div>
-	</main>
+						<!-- Bottom spacing -->
+						<div class="h-20"></div>
+					</div>
+				</ScrollArea>
+			</div>
+		</main>
 
-	<!-- Right Sidebar (hidden on mobile/tablet) -->
-	<RightSidebar />
+		<!-- Right Sidebar (hidden on mobile/tablet) -->
+		<RightSidebar />
+	</div>
 </div>
 
 <!-- Dialogs -->
@@ -133,7 +148,7 @@
 </Dialog.Root>
 
 <Dialog.Root bind:open={isExportDialogOpen}>
-	<Dialog.Content showCloseButton={false} class="overflow-hidden p-0 rounded-md sm:max-w-md">
+	<Dialog.Content showCloseButton={false} class="overflow-hidden rounded-md p-0 sm:max-w-md">
 		<ExportDialog bind:open={isExportDialogOpen} links={store.filters.filteredLinks} />
 	</Dialog.Content>
 </Dialog.Root>

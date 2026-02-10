@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
-	import { Search, Link2, Loader2, Ellipsis, X, Globe } from '@lucide/svelte';
+	import { Link2, Loader2, Ellipsis, X, Globe } from '@lucide/svelte';
 	import { getContext, onMount } from 'svelte';
 	import type { AppStore } from '$lib/stores';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
@@ -182,7 +182,7 @@
 							>Tags</DropdownMenu.Label
 						>
 						{#if store.filters.allTags.length > 0}
-							<div class="max-h-[200px] overflow-y-auto p-1">
+							<div class="max-h-50 overflow-y-auto p-1">
 								{#each store.filters.allTags as tag (tag)}
 									<DropdownMenu.Item
 										onclick={() => store.filters.toggleTag(tag)}
