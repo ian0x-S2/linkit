@@ -1,418 +1,268 @@
 <script lang="ts">
 	import type { Link } from '$lib/types';
 	import { Button } from '$lib/components/ui/button';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { getContext } from 'svelte';
 	import type { AppStore } from '$lib/stores';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { cn } from '$lib/utils.js';
 	import { TUI, formatRelativeTime } from '$lib/tui';
 	import TagInput from '$lib/components/TagInput.svelte';
+	import { Ellipsis, Star, Pencil, Trash2 } from '@lucide/svelte';
 
-		interface Props {
-			link: Link;
-			viewMode?: 'list' | 'grid';
-			onedit: (link: Link) => void;
-			ondelete: (id: string) => void;
+	interface Props {
+		link: Link;
+		viewMode?: 'list' | 'grid';
+		onedit: (link: Link) => void;
+		ondelete: (id: string) => void;
+	}
+
+	let { link, viewMode = 'list', onedit, ondelete }: Props = $props();
+	const store = getContext<AppStore>('store');
+
+	let isDeleteDialogOpen = $state(false);
+
+	async function updateTags(tags: string[]) {
+		await store.links.update(link.id, { tags });
+	}
+
+	function getDomain(url: string) {
+		try {
+			return new URL(url).hostname.replace('www.', '');
+		} catch {
+			return url;
 		}
+	}
 
-		let { link, viewMode = 'list', onedit, ondelete }: Props = $props();
-		const store = getContext<AppStore>('store');
+	async function handlePermanentDelete() {
+		await store.links.removePermanently(link.id);
+		isDeleteDialogOpen = false;
+	}
+</script>
 
-		let isDeleteDialogOpen = $state(false);
-
-		async function updateTags(tags: string[]) {
-			await store.links.update(link.id, { tags });
-		}
-
-		function getDomain(url: string) {
-
-			try {
-
-				return new URL(url).hostname.replace('www.', '');
-
-			} catch {
-
-				return url;
-
-			}
-
-		}
-
-	
-
-		async function handlePermanentDelete() {
-
-			await store.links.removePermanently(link.id);
-
-			isDeleteDialogOpen = false;
-
-		}
-
-	</script>
-
-	
-
-	{#if viewMode === 'list'}
-
-		<div
-
-			class={cn(
-
-				'group flex flex-col border-b border-border/30',
-
-				'hover:bg-muted/30 transition-colors'
-
-			)}
-
+{#snippet ActionMenuContent()}
+	<DropdownMenu.Content
+		align="end"
+		class="min-w-[140px] rounded-none border-2 border-border bg-background p-1 font-mono"
+	>
+		<DropdownMenu.Item
+			onclick={() => store.links.toggleFavorite(link.id)}
+			class="flex cursor-pointer items-center gap-2 px-2 py-1.5 text-[11px] font-bold uppercase hover:bg-muted"
 		>
+			<Star
+				class={cn(
+					'h-3.5 w-3.5',
+					link.isFavorite ? 'fill-chart-3 text-chart-3' : 'text-muted-foreground'
+				)}
+			/>
+			<span>{link.isFavorite ? 'Unfavorite' : 'Favorite'}</span>
+			<DropdownMenu.Shortcut class="text-[9px] opacity-50">f</DropdownMenu.Shortcut>
+		</DropdownMenu.Item>
+		<DropdownMenu.Item
+			onclick={() => onedit(link)}
+			class="flex cursor-pointer items-center gap-2 px-2 py-1.5 text-[11px] font-bold uppercase hover:bg-muted"
+		>
+			<Pencil class="h-3.5 w-3.5 text-primary" />
+			<span>Edit Link</span>
+			<DropdownMenu.Shortcut class="text-[9px] opacity-50">e</DropdownMenu.Shortcut>
+		</DropdownMenu.Item>
+		<DropdownMenu.Separator class="bg-border" />
+		<DropdownMenu.Item
+			onclick={() => {
+				if (link.isDeleted) {
+					isDeleteDialogOpen = true;
+				} else {
+					store.links.toggleDeleted(link.id);
+				}
+			}}
+			class="flex cursor-pointer items-center gap-2 px-2 py-1.5 text-[11px] font-bold uppercase text-destructive hover:bg-destructive/10"
+		>
+			<Trash2 class="h-3.5 w-3.5" />
+			<span>{link.isDeleted ? 'Delete Permanently' : 'Move to Trash'}</span>
+			<DropdownMenu.Shortcut class="text-[9px] opacity-50">d</DropdownMenu.Shortcut>
+		</DropdownMenu.Item>
+	</DropdownMenu.Content>
+{/snippet}
 
-			<div class="flex gap-2 px-2 py-0.5 items-center min-h-[28px]">
+{#if viewMode === 'list'}
+	<div
+		class={cn(
+			'group flex flex-col border-b border-border/30',
+			'hover:bg-muted/30 transition-colors'
+		)}
+	>
+		<div class="flex min-h-[28px] items-center gap-2 px-2 py-0.5">
+			<!-- Selection indicator -->
+			<span class="w-3 shrink-0 text-[10px] text-primary opacity-0 group-hover:opacity-100">
+				{TUI.arrowRight}
+			</span>
 
-				<!-- Selection indicator -->
+			<!-- Compact Line -->
+			<div
+				class="grid min-w-0 flex-1 grid-cols-[20px_1fr_200px_150px_40px] items-center gap-2 font-mono text-[12px]"
+			>
+				<button
+					onclick={(e) => {
+						e.preventDefault();
+						store.links.toggleFavorite(link.id);
+					}}
+					class={cn(
+						'flex shrink-0 justify-center transition-transform hover:scale-125',
+						link.isFavorite ? 'text-chart-3' : 'text-muted-foreground/30 hover:text-chart-3'
+					)}
+				>
+					{TUI.bullet}
+				</button>
 
-				<span class="w-3 shrink-0 text-[10px] text-primary opacity-0 group-hover:opacity-100">
+				<a
+					href={link.url}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="truncate pr-4 font-bold text-foreground hover:text-primary"
+				>
+					{link.title || link.url}
+				</a>
 
-					{TUI.arrowRight}
-
+				<span class="truncate text-[11px] text-primary">
+					{getDomain(link.url)}
 				</span>
 
-	
-
-				<!-- Compact Line: Favorite? | Title | Domain | Time (Grid for alignment) -->
-
-				<div
-
-					class="grid grid-cols-[20px_1fr_200px_150px_40px] gap-2 flex-1 min-w-0 font-mono text-[12px] items-center"
-
-				>
-
-					<button
-
-						onclick={(e) => {
-
-							e.preventDefault();
-
-							store.links.toggleFavorite(link.id);
-
-						}}
-
-						class={cn(
-
-							'shrink-0 flex justify-center hover:scale-125 transition-transform',
-
-							link.isFavorite ? 'text-chart-3' : 'text-muted-foreground/30 hover:text-chart-3'
-
-						)}
-
-					>
-
-						{TUI.bullet}
-
-					</button>
-
-	
-
-					<a
-
-						href={link.url}
-
-						target="_blank"
-
-						rel="noopener noreferrer"
-
-						class="truncate font-bold text-foreground hover:text-primary pr-4"
-
-					>
-
-						{link.title || link.url}
-
-					</a>
-
-	
-
-					<span class="text-primary truncate text-[11px]">
-
-						{getDomain(link.url)}
-
-					</span>
-
-	
-
-					<div class="hidden sm:flex gap-2 text-[10px] text-chart-3 truncate">
-
-						{#each link.tags.slice(0, 2) as tag}
-
-							<span>#{tag}</span>
-
-						{/each}
-
-						{#if link.tags.length > 2}
-
-							<span class="text-muted-foreground">+{link.tags.length - 2}</span>
-
-						{/if}
-
-					</div>
-
-	
-
-					<span class="text-muted-foreground text-[10px] text-right">
-
-						{formatRelativeTime(link.createdAt)}
-
-					</span>
-
+				<div class="hidden gap-2 truncate text-[10px] text-chart-3 sm:flex">
+					{#each link.tags.slice(0, 2) as tag}
+						<span>#{tag}</span>
+					{/each}
+					{#if link.tags.length > 2}
+						<span class="text-muted-foreground">+{link.tags.length - 2}</span>
+					{/if}
 				</div>
 
-	
-
-				<!-- Actions -->
-
-				<div
-
-					class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity ml-2 shrink-0"
-
-				>
-
-					<button
-
-						class={cn('text-[10px] hover:underline', link.isFavorite ? 'text-chart-3' : 'text-primary')}
-
-						onclick={(e) => {
-
-							e.preventDefault();
-
-							store.links.toggleFavorite(link.id);
-
-						}}
-
-					>
-
-						[f]av
-
-					</button>
-
-					<button
-
-						class="text-[10px] text-primary hover:underline"
-
-						onclick={(e) => {
-
-							e.preventDefault();
-
-							onedit(link);
-
-						}}
-
-					>
-
-						[e]dit
-
-					</button>
-
-					<button
-
-						class="text-[10px] text-destructive hover:underline"
-
-						onclick={(e) => {
-
-							e.preventDefault();
-
-							if (link.isDeleted) {
-
-								isDeleteDialogOpen = true;
-
-							} else {
-
-								store.links.toggleDeleted(link.id);
-
-							}
-
-						}}
-
-					>
-
-						[d]el
-
-					</button>
-
-				</div>
-
+				<span class="text-right text-[10px] text-muted-foreground">
+					{formatRelativeTime(link.createdAt)}
+				</span>
 			</div>
 
+			<!-- Actions Dropdown -->
+			<div class="ml-4 shrink-0">
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						<Button
+							variant="ghost"
+							size="icon"
+							class="h-7 w-7 rounded-none border border-transparent hover:border-border hover:bg-muted"
+						>
+							<Ellipsis class="h-4 w-4 text-muted-foreground/70" />
+						</Button>
+					</DropdownMenu.Trigger>
+					{@render ActionMenuContent()}
+				</DropdownMenu.Root>
+			</div>
+		</div>
+	</div>
+{:else}
+	<!-- Grid / Card View -->
+	<div
+		class={cn(
+			'group flex flex-col border border-border/50 bg-card/5',
+			'hover:border-primary/50 transition-all duration-200'
+		)}
+	>
+		<!-- TUI Header for Card -->
+		<div class="flex h-6 items-center justify-between border-b border-border/50 bg-muted/20 px-2">
+			<div class="flex items-center gap-2 truncate">
+				<button
+					onclick={() => store.links.toggleFavorite(link.id)}
+					class={cn(
+						'text-[10px]',
+						link.isFavorite ? 'text-chart-3' : 'text-muted-foreground/30 hover:text-chart-3'
+					)}
+				>
+					{TUI.bullet}
+				</button>
+				<span class="truncate font-mono text-[10px] text-primary">{getDomain(link.url)}</span>
+			</div>
+			<span class="text-[9px] text-muted-foreground">{formatRelativeTime(link.createdAt)}</span>
 		</div>
 
-	{:else}
-
-		<!-- Grid / Card View -->
-
-		<div
-
-			class={cn(
-
-				'group flex flex-col border border-border/50 bg-card/5',
-
-				'hover:border-primary/50 transition-all duration-200'
-
-			)}
-
-		>
-
-			<!-- TUI Header for Card -->
-
-			<div class="flex h-6 items-center border-b border-border/50 bg-muted/20 px-2 justify-between">
-
-				<div class="flex items-center gap-2 truncate">
-
-					<button
-
-						onclick={() => store.links.toggleFavorite(link.id)}
-
-						class={cn(
-
-							'text-[10px]',
-
-							link.isFavorite ? 'text-chart-3' : 'text-muted-foreground/30 hover:text-chart-3'
-
-						)}
-
-					>
-
-						{TUI.bullet}
-
-					</button>
-
-					<span class="text-[10px] font-mono text-primary truncate">{getDomain(link.url)}</span>
-
+		<!-- Image / Content -->
+		<div class="relative aspect-video w-full overflow-hidden bg-muted/10">
+			{#if link.image}
+				<img src={link.image} alt={link.title} class="h-full w-full object-cover" />
+			{:else}
+				<div class="flex h-full w-full items-center justify-center text-muted-foreground/20">
+					<span class="font-mono text-4xl">{TUI.bullet}</span>
 				</div>
+			{/if}
 
-				<span class="text-[9px] text-muted-foreground">{formatRelativeTime(link.createdAt)}</span>
-
-			</div>
-
-	
-
-			<!-- Image / Content -->
-
-			<div class="relative aspect-video w-full overflow-hidden bg-muted/10">
-
-																{#if link.image}
-
-																	<img
-
-																		src={link.image}
-
-																		alt={link.title}
-
-																		class="h-full w-full object-cover"
-
-																	/>
-
-																{:else}
-
-					<div class="flex h-full w-full items-center justify-center text-muted-foreground/20">
-
-						<span class="text-4xl font-mono">{TUI.bullet}</span>
-
-					</div>
-
-				{/if}
-
-	
-
-				<!-- Selection indicator overlay -->
-
-				<div
-
-					class="absolute inset-0 border-2 border-primary opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity"
-
-				></div>
-
-			</div>
-
-	
-
-			<!-- Footer Info -->
-
-			<div class="p-2 flex flex-col gap-1">
-
-								<a
-
-									href={link.url}
-
-									target="_blank"
-
-									rel="noopener noreferrer"
-
-									class="text-[12px] font-bold text-foreground line-clamp-1 hover:text-primary transition-colors"
-
-								>
-
-									{link.title || link.url}
-
-								</a>
-
-								
-
-								<div class="mt-1">
-
-									<TagInput selected={link.tags} onchange={updateTags} />
-
-								</div>
-
-					
-
-								<!-- Hover Actions for Card -->
-
-				<div class="mt-2 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-
-					<button
-
-						class="text-[10px] text-primary hover:underline"
-
-						onclick={(e) => {
-
-							e.preventDefault();
-
-							onedit(link);
-
-						}}
-
-					>
-
-						[e]dit
-
-					</button>
-
-					<button
-
-						class="text-[10px] text-destructive hover:underline"
-
-						onclick={(e) => {
-
-							e.preventDefault();
-
-							store.links.toggleDeleted(link.id);
-
-						}}
-
-					>
-
-						[d]el
-
-					</button>
-
-				</div>
-
-			</div>
-
+			<!-- Selection indicator overlay -->
+			<div
+				class="pointer-events-none absolute inset-0 border-2 border-primary opacity-0 transition-opacity group-hover:opacity-100"
+			></div>
 		</div>
 
-	{/if}
+		<!-- Footer Info -->
+		<div class="flex flex-col gap-1 p-2">
+			<a
+				href={link.url}
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-[12px] font-bold text-foreground line-clamp-1 hover:text-primary transition-colors"
+			>
+				{link.title || link.url}
+			</a>
+			
+			<div class="mt-1">
+				<TagInput selected={link.tags} onchange={updateTags} />
+			</div>
+
+			<!-- Hover Actions for Card -->
+			<div class="mt-2 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+				<Button
+					variant="ghost"
+					size="sm"
+					class={cn(
+						'h-auto p-0 text-[10px] font-bold uppercase hover:bg-transparent hover:underline transition-none',
+						link.isFavorite ? 'text-chart-3' : 'text-primary'
+					)}
+					onclick={(e) => {
+						e.preventDefault();
+						store.links.toggleFavorite(link.id);
+					}}
+				>
+					[f]av
+				</Button>
+				<Button
+					variant="ghost"
+					size="sm"
+					class="h-auto p-0 text-[10px] font-bold uppercase text-primary hover:bg-transparent hover:underline transition-none"
+					onclick={(e) => {
+						e.preventDefault();
+						onedit(link);
+					}}
+				>
+					[e]dit
+				</Button>
+				<Button
+					variant="ghost"
+					size="sm"
+					class="h-auto p-0 text-[10px] font-bold uppercase text-destructive hover:bg-transparent hover:underline transition-none"
+					onclick={(e) => {
+						e.preventDefault();
+						store.links.toggleDeleted(link.id);
+					}}
+				>
+					[d]el
+				</Button>
+			</div>
+		</div>
+	</div>
+{/if}
 
 <Dialog.Root bind:open={isDeleteDialogOpen}>
-	<Dialog.Content showCloseButton={false} class="max-w-[400px] overflow-hidden border-2 border-foreground bg-background p-0 rounded-none">
-		<div class="flex flex-col text-foreground font-mono">
+	<Dialog.Content
+		showCloseButton={false}
+		class="max-w-[400px] overflow-hidden rounded-none border-2 border-border bg-background p-0 shadow-2xl"
+	>
+		<div class="flex flex-col font-mono text-foreground">
 			<div class="flex h-11 items-center justify-between border-b border-border px-4">
 				<h2 class="text-[13px] font-bold uppercase tracking-tight text-destructive">
 					Confirm Delete
@@ -434,13 +284,13 @@
 				<Button
 					variant="ghost"
 					onclick={() => (isDeleteDialogOpen = false)}
-					class="h-8 px-3 text-[12px] hover:bg-muted/50"
+					class="h-8 rounded-none border border-border px-3 text-[11px] font-bold uppercase hover:bg-muted"
 				>
 					Cancel
 				</Button>
 				<Button
 					onclick={handlePermanentDelete}
-					class="h-8 px-4 text-[12px] bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-none"
+					class="h-8 rounded-none border border-destructive bg-destructive px-4 text-[11px] font-bold uppercase text-destructive-foreground hover:bg-destructive/90 shadow-sm"
 				>
 					Delete
 				</Button>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { theme, TUI } from '$lib/tui';
+	import { cn } from '$lib/utils';
 
 	interface Props {
 		title: string;
@@ -10,6 +11,7 @@
 		counter?: string;
 		focused?: boolean;
 		class?: string;
+		contentClass?: string;
 	}
 
 	let {
@@ -19,7 +21,8 @@
 		subtitle,
 		counter,
 		focused = false,
-		class: className = ''
+		class: className = '',
+		contentClass = ''
 	}: Props = $props();
 </script>
 
@@ -34,7 +37,7 @@
 	</div>
 
 	<!-- Content -->
-	<div class={theme.panelContent}>
+	<div class={cn(theme.panelContent, contentClass)}>
 		{@render children()}
 	</div>
 

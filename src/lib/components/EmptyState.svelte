@@ -5,6 +5,7 @@
 	import type { AppStore } from '$lib/stores';
 	import { cn } from '$lib/utils.js';
 	import { TUI } from '$lib/tui';
+	import { Button } from '$lib/components/ui/button';
 
 	let { onAdd }: { onAdd: () => void } = $props();
 
@@ -78,16 +79,17 @@
 		</p>
 
 		{#if config.showAdd}
-			<button
+			<Button
 				onclick={onAdd}
+				variant="outline"
 				class={cn(
-					'mt-4 flex items-center gap-2 border-2 border-primary bg-primary/5 px-4 py-1.5',
+					'mt-6 flex h-9 items-center gap-2 rounded-none border-2 border-primary bg-primary/5 px-4',
 					'text-[12px] font-bold text-primary hover:bg-primary/10'
 				)}
 			>
 				<span class="rounded bg-secondary px-1 text-secondary-foreground">a</span>
 				<span>Add your first link</span>
-			</button>
+			</Button>
 		{/if}
 
 		<!-- Lazygit-style hint -->

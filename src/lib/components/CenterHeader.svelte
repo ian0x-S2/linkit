@@ -151,7 +151,7 @@
 	}
 </script>
 
-<div class="border-b border-border p-3 pt-0">
+<div class="border-b border-border px-2 py-3 pt-0">
 	<div class="flex flex-col gap-2">
 		<!-- Prompt row -->
 		<div class="flex items-center gap-2">

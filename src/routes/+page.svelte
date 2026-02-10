@@ -8,6 +8,7 @@
 	import ExportDialog from '$lib/components/ExportDialog.svelte';
 	import LazyStatusBar from '$lib/components/tui/LazyStatusBar.svelte';
 	import LazyPanel from '$lib/components/tui/LazyPanel.svelte';
+	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { getContext } from 'svelte';
@@ -68,31 +69,36 @@
 					focused={true}
 					class="flex-1"
 					counter="{store.filters.filteredLinks.length} items"
+					contentClass={store.settings.viewMode === 'list' ? 'px-0 pt-5' : 'p-2 pt-5'}
 				>
 					{#snippet subtitle()}
 						<div class="ml-2 flex items-center gap-2">
-							<button
+							<Button
+								variant="ghost"
+								size="sm"
 								onclick={() => (store.settings.viewMode = 'list')}
 								class={cn(
-									'px-1 text-[10px] font-bold uppercase',
+									'h-5 rounded-none px-1.5 text-[10px] font-bold uppercase transition-none',
 									store.settings.viewMode === 'list'
-										? 'bg-primary text-primary-foreground'
-										: 'text-muted-foreground hover:text-foreground'
+										? 'bg-primary text-primary-foreground hover:bg-primary/90'
+										: 'text-muted-foreground hover:bg-muted hover:text-foreground'
 								)}
 							>
 								[l]ist
-							</button>
-							<button
+							</Button>
+							<Button
+								variant="ghost"
+								size="sm"
 								onclick={() => (store.settings.viewMode = 'grid')}
 								class={cn(
-									'px-1 text-[10px] font-bold uppercase',
+									'h-5 rounded-none px-1.5 text-[10px] font-bold uppercase transition-none',
 									store.settings.viewMode === 'grid'
-										? 'bg-primary text-primary-foreground'
-										: 'text-muted-foreground hover:text-foreground'
+										? 'bg-primary text-primary-foreground hover:bg-primary/90'
+										: 'text-muted-foreground hover:bg-muted hover:text-foreground'
 								)}
 							>
 								[g]rid
-							</button>
+							</Button>
 						</div>
 					{/snippet}
 
@@ -177,4 +183,3 @@
 		padding: 0;
 	}
 </style>
-
