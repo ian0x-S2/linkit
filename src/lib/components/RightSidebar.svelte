@@ -4,6 +4,7 @@
 	import { cn } from '$lib/utils.js';
 	import { TUI, theme } from '$lib/tui';
 	import LazyPanel from './tui/LazyPanel.svelte';
+	import { ScrollArea } from '$lib/components/ui/scroll-area';
 
 	const store = getContext<AppStore>('store');
 
@@ -63,20 +64,22 @@
 
 	<!-- Tags Panel -->
 	<LazyPanel title="Top Tags" titleClass={theme.titleBranches} class="flex-1">
-		<div class="flex flex-col gap-0.5">
-			{#each trendingTags as [tag, count] (tag)}
-				<button
-					onclick={() => store.filters.toggleTag(tag)}
-					class={cn(theme.item, theme.itemDefault, 'px-2 py-0.5')}
-				>
-					<span class="text-primary text-[10px]">{TUI.bullet}</span>
-					<span class="flex-1 text-left truncate">{tag}</span>
-					<span class="text-muted-foreground text-[10px]">({count})</span>
-				</button>
-			{:else}
-				<div class="text-muted-foreground italic text-center py-4">No tags found</div>
-			{/each}
-		</div>
+		<ScrollArea type="hover" class="h-full w-full">
+			<div class="flex flex-col gap-0.5">
+				{#each trendingTags as [tag, count] (tag)}
+					<button
+						onclick={() => store.filters.toggleTag(tag)}
+						class={cn(theme.item, theme.itemDefault, 'px-2 py-0.5')}
+					>
+						<span class="text-primary text-[10px]">{TUI.bullet}</span>
+						<span class="flex-1 text-left truncate">{tag}</span>
+						<span class="text-muted-foreground text-[10px]">({count})</span>
+					</button>
+				{:else}
+					<div class="text-muted-foreground italic text-center py-4">No tags found</div>
+				{/each}
+			</div>
+		</ScrollArea>
 	</LazyPanel>
 
 	<!-- App Info Panel -->

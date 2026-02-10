@@ -71,18 +71,18 @@ export const theme = {
 
 	// Layout parts
 	layoutMain: 'flex flex-1 overflow-hidden gap-4 p-4',
-	layoutContent: 'flex flex-col flex-1',
+	layoutContent: 'flex flex-col flex-1 min-h-0',
 
 	// Left sidebar with panels
 	sidebar: 'w-[300px] shrink-0 flex flex-col gap-4',
 
 	// Panel
-	panel: 'relative flex flex-col bg-background',
+	panel: 'relative flex flex-col bg-background min-h-0',
 	panelFocus: 'z-10',
 	panelHeader: 'absolute top-0 left-2 -translate-y-1/2 bg-background px-1 flex items-center gap-1 z-20',
 	panelBorder: 'absolute inset-0 border border-border pointer-events-none',
 	panelBorderFocus: 'border-foreground border-2',
-	panelContent: 'flex-1 overflow-auto p-2 pt-5',
+	panelContent: 'flex flex-col flex-1 min-h-0 overflow-hidden p-2 pt-5',
 	panelFooter: 'absolute bottom-0 right-2 translate-y-1/2 bg-background px-1 text-muted-foreground text-[10px] z-20',
 
 	// Panel titles

@@ -85,17 +85,24 @@ export function createLinkStore(options: CreateLinkStoreOptions): LinkStore {
 
         const originalLink = { ..._links[index] };
 
-        // Optimistic update
+        // Optimistic update - Replace the object to ensure reactivity
         _links[index] = {
             ..._links[index],
             ...updates,
             updatedAt: Date.now()
         };
+        // Re-assign to trigger full reactivity if needed
+        _links = [..._links];
 
         const result = await repository.updateLink(id, updates);
         if (!result.ok) {
             // Rollback
-            _links[index] = originalLink;
+            _links = [..._links];
+            const rollbackIdx = _links.findIndex(l => l.id === id);
+            if (rollbackIdx !== -1) {
+                _links[rollbackIdx] = originalLink;
+                _links = [..._links];
+            }
             logger.error(`Update failed for link ${id}`, result.error);
         }
     }

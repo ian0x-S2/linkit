@@ -14,6 +14,7 @@
 	import type { AppStore } from '$lib/stores';
 	import type { Link, LinkId } from '$lib/types';
 	import { theme } from '$lib/tui';
+	import { cn } from '$lib/utils';
 
 	const store = getContext<AppStore>('store');
 
@@ -68,19 +69,60 @@
 					class="flex-1"
 					counter="{store.filters.filteredLinks.length} items"
 				>
+					{#snippet subtitle()}
+						<div class="flex items-center gap-2 ml-2">
+							<button
+								onclick={() => (store.settings.viewMode = 'list')}
+								class={cn(
+									'text-[10px] uppercase font-bold px-1',
+									store.settings.viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+								)}
+							>
+								[l]ist
+							</button>
+							<button
+								onclick={() => (store.settings.viewMode = 'grid')}
+								class={cn(
+									'text-[10px] uppercase font-bold px-1',
+									store.settings.viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+								)}
+							>
+								[g]rid
+							</button>
+						</div>
+					{/snippet}
+
 					<!-- Sticky Header with Input -->
 					<CenterHeader />
 
 					<!-- Scrollable Feed Content -->
-					<div class="flex-1 overflow-hidden mt-1">
+					<div class="flex-1 min-h-0 overflow-hidden mt-1">
 						<ScrollArea type="hover" class="h-full w-full">
 							<div class="flex flex-col">
 								{#if store.filters.filteredLinks.length === 0}
 									<EmptyState onAdd={handleAddLink} />
+								{:else if store.settings.viewMode === 'list'}
+									<div class="flex flex-col">
+										{#each store.filters.filteredLinks as link (link.id)}
+											<LinkCard
+												{link}
+												viewMode="list"
+												onedit={handleEditLink}
+												ondelete={handleDeleteLink}
+											/>
+										{/each}
+									</div>
 								{:else}
-									{#each store.filters.filteredLinks as link (link.id)}
-										<LinkCard {link} onedit={handleEditLink} ondelete={handleDeleteLink} />
-									{/each}
+									<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4">
+										{#each store.filters.filteredLinks as link (link.id)}
+											<LinkCard
+												{link}
+												viewMode="grid"
+												onedit={handleEditLink}
+												ondelete={handleDeleteLink}
+											/>
+										{/each}
+									</div>
 								{/if}
 
 								<!-- Bottom spacing -->

@@ -20,16 +20,44 @@
 		logo: string | null;
 	} | null>(null);
 
+	// TUI Spinner logic
+	const spinnerFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+	let frameIndex = $state(0);
+	let lastFetchedUrl = $state('');
+
+	$effect(() => {
+		let interval: any;
+		if (isLoading) {
+			interval = setInterval(() => {
+				frameIndex = (frameIndex + 1) % spinnerFrames.length;
+			}, 80);
+		}
+		return () => clearInterval(interval);
+	});
+
 	$effect(() => {
 		if (!inlinePreview) {
 			previewTags = [];
 		}
 	});
 
+	// Automatic fetching logic
 	$effect(() => {
-		if (!urlInput.trim()) {
+		const trimmed = urlInput.trim();
+		if (!trimmed) {
 			inlinePreview = null;
 			error = '';
+			lastFetchedUrl = '';
+			return;
+		}
+
+		const url = extractUrl(trimmed);
+		if (url && url !== lastFetchedUrl && isValidUrl(url)) {
+			const timeout = setTimeout(() => {
+				lastFetchedUrl = url;
+				fetchPreview(url);
+			}, 500); // Debounce
+			return () => clearTimeout(timeout);
 		}
 	});
 
@@ -134,19 +162,33 @@
 					onkeydown={(e) => {
 						if (e.key === 'Enter') {
 							e.preventDefault();
-							handleSubmit(e);
+							if (inlinePreview) {
+								handleSave();
+							} else if (urlInput.trim()) {
+								// Force fetch if Enter pressed before debounce
+								const url = extractUrl(urlInput.trim());
+								if (url && isValidUrl(url)) {
+									fetchPreview(url);
+								}
+							}
+						} else if (e.key === 'Escape') {
+							urlInput = '';
+							inlinePreview = null;
 						}
 					}}
 					placeholder="Paste link to add..."
 					class="w-full bg-background border-none outline-none text-foreground text-[13px] font-mono placeholder:text-muted-foreground/50"
 				/>
 				{#if isLoading}
-					<Loader2 class="h-3.5 w-3.5 animate-spin text-primary" />
+					<span class="text-primary font-mono text-[14px] w-4 text-center">
+						{spinnerFrames[frameIndex]}
+					</span>
 				{:else if urlInput}
 					<button
 						onclick={() => {
 							urlInput = '';
 							inlinePreview = null;
+							lastFetchedUrl = '';
 						}}
 						class="text-muted-foreground hover:text-foreground"
 					>
@@ -160,10 +202,16 @@
 		{#if inlinePreview}
 			<div class="relative mt-2 border border-border bg-background">
 				<div class="flex h-6 items-center border-b border-border bg-muted/30 px-2 justify-between">
-					<span class="text-[10px] font-bold text-destructive uppercase tracking-tighter">Preview</span>
+					<div class="flex items-center gap-2">
+						<span class="text-[10px] font-bold text-destructive uppercase tracking-tighter">Preview</span>
+						{#if isLoading}
+							<span class="text-[10px] text-primary animate-pulse italic">fetching metadata...</span>
+						{/if}
+					</div>
 					<button
 						onclick={() => {
 							inlinePreview = null;
+							lastFetchedUrl = '';
 						}}
 						class="text-muted-foreground hover:text-foreground"
 					>
@@ -172,8 +220,12 @@
 				</div>
 				<div class="flex gap-3 p-3">
 					{#if inlinePreview.image}
-						<div class="w-24 h-16 shrink-0 border border-border">
-							<img src={inlinePreview.image} alt="" class="h-full w-full object-cover" />
+						<div class="w-24 h-16 shrink-0 border border-border bg-muted/20 overflow-hidden">
+							<img src={inlinePreview.image} alt="" class="h-full w-full object-cover opacity-80" />
+						</div>
+					{:else}
+						<div class="w-24 h-16 shrink-0 border border-border bg-muted/10 flex items-center justify-center">
+							<span class="text-muted-foreground/20 text-2xl font-mono">{TUI.bullet}</span>
 						</div>
 					{/if}
 					<div class="flex-1 min-w-0">
@@ -192,10 +244,10 @@
 				</div>
 				<div class="flex items-center justify-end gap-3 border-t border-border/30 px-2 py-1 bg-muted/30">
 					<span class="text-[10px] text-muted-foreground">
-						<span class="text-primary">enter</span>: save
+						<span class="text-primary font-bold">[enter]</span> confirm & save
 					</span>
 					<span class="text-[10px] text-muted-foreground">
-						<span class="text-destructive">esc</span>: cancel
+						<span class="text-destructive font-bold">[esc]</span> cancel
 					</span>
 				</div>
 			</div>

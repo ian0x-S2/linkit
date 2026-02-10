@@ -8,6 +8,7 @@
 	import { cn } from '$lib/utils.js';
 	import { TUI, theme } from '$lib/tui';
 	import LazyPanel from './tui/LazyPanel.svelte';
+	import { ScrollArea } from '$lib/components/ui/scroll-area';
 
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
@@ -74,63 +75,67 @@
 <aside class={theme.sidebar}>
 	<!-- Workspace Panel -->
 	<LazyPanel title="Workspaces" titleClass={theme.titleStatus} class="flex-[0.8] min-h-[120px]">
-		<div class="flex flex-col gap-0.5">
-			{#each store.workspaces.workspaces as ws (ws.id)}
-				{@const isActive = ws.id === store.workspaces.activeId}
+		<ScrollArea type="hover" class="h-full w-full">
+			<div class="flex flex-col gap-0.5">
+				{#each store.workspaces.workspaces as ws (ws.id)}
+					{@const isActive = ws.id === store.workspaces.activeId}
+					<button
+						onclick={() => handleWorkspaceSelect(ws.id)}
+						class={cn(
+							theme.item,
+							isActive ? theme.itemSelected : theme.itemDefault,
+							'px-2 py-1'
+						)}
+					>
+						{#if isActive}
+							<span class="text-foreground font-bold">{TUI.bullet}</span>
+						{:else}
+							<span class="w-3"></span>
+						{/if}
+						<span class="flex-1 text-left truncate">{ws.name}</span>
+						<span class="text-[10px] opacity-50">@{ws.slug}</span>
+					</button>
+				{/each}
 				<button
-					onclick={() => handleWorkspaceSelect(ws.id)}
-					class={cn(
-						theme.item,
-						isActive ? theme.itemSelected : theme.itemDefault,
-						'px-2 py-1'
-					)}
+					onclick={() => (isCreateWorkspaceOpen = true)}
+					class={cn(theme.item, theme.itemDefault, 'px-2 py-1 text-muted-foreground italic')}
 				>
-					{#if isActive}
-						<span class="text-foreground font-bold">{TUI.bullet}</span>
-					{:else}
-						<span class="w-3"></span>
-					{/if}
-					<span class="flex-1 text-left truncate">{ws.name}</span>
-					<span class="text-[10px] opacity-50">@{ws.slug}</span>
+					<span class="w-3">{TUI.bullet}</span>
+					<span>New workspace...</span>
 				</button>
-			{/each}
-			<button
-				onclick={() => (isCreateWorkspaceOpen = true)}
-				class={cn(theme.item, theme.itemDefault, 'px-2 py-1 text-muted-foreground italic')}
-			>
-				<span class="w-3">{TUI.bullet}</span>
-				<span>New workspace...</span>
-			</button>
-		</div>
+			</div>
+		</ScrollArea>
 	</LazyPanel>
 
 	<!-- Categories Panel -->
 	<LazyPanel title="Categories" titleClass={theme.titleFiles} class="flex-1">
-		<nav class="flex flex-col gap-0.5">
-			{#each navItems as item (item.id)}
-				{@const isActive = page.url.pathname === '/' && activeCategory === item.id}
-				<button
-					onclick={() => handleNavClick(item.id)}
-					class={cn(
-						theme.item,
-						isActive ? theme.itemSelected : theme.itemDefault,
-						'px-2 py-1'
-					)}
-				>
-					<span class="w-4 text-[10px] opacity-50">{item.key}</span>
-					<span class="flex-1 text-left">{item.label}</span>
-					{#if item.id === 'inbox'}
-						{@const count = store.links.links.filter((l) => !l.isArchived && !l.isDeleted).length}
-						{#if count > 0}
-							<span class="text-[10px] opacity-70">[{count}]</span>
+		<ScrollArea type="hover" class="h-full w-full">
+			<nav class="flex flex-col gap-0.5">
+				{#each navItems as item (item.id)}
+					{@const isActive = page.url.pathname === '/' && activeCategory === item.id}
+					<button
+						onclick={() => handleNavClick(item.id)}
+						class={cn(
+							theme.item,
+							isActive ? theme.itemSelected : theme.itemDefault,
+							'px-2 py-1'
+						)}
+					>
+						<span class="w-4 text-[10px] opacity-50">{item.key}</span>
+						<span class="flex-1 text-left">{item.label}</span>
+						{#if item.id === 'inbox'}
+							{@const count = store.links.links.filter((l) => !l.isArchived && !l.isDeleted).length}
+							{#if count > 0}
+								<span class="text-[10px] opacity-70">[{count}]</span>
+							{/if}
 						{/if}
-					{/if}
-					{#if isActive}
-						<span class="text-[10px]">{TUI.arrowRight}</span>
-					{/if}
-				</button>
-			{/each}
-		</nav>
+						{#if isActive}
+							<span class="text-[10px]">{TUI.arrowRight}</span>
+						{/if}
+					</button>
+				{/each}
+			</nav>
+		</ScrollArea>
 	</LazyPanel>
 
 	<!-- Actions Panel -->
