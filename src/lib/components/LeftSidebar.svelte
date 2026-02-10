@@ -70,6 +70,14 @@
 	}
 
 	const activeCategory = $derived(store.filters.activeCategory);
+
+	const sortedWorkspaces = $derived(
+		[...store.workspaces.workspaces].sort((a, b) => {
+			if (a.id === store.workspaces.activeId) return -1;
+			if (b.id === store.workspaces.activeId) return 1;
+			return 0;
+		})
+	);
 </script>
 
 <aside class={theme.sidebar}>
@@ -77,7 +85,7 @@
 	<LazyPanel title="Workspaces" titleClass={theme.titleStatus} class="flex-[0.8] min-h-[120px]">
 		<ScrollArea type="hover" class="h-full w-full">
 			<div class="flex flex-col gap-0.5">
-				{#each store.workspaces.workspaces as ws (ws.id)}
+				{#each sortedWorkspaces as ws, i (ws.id)}
 					{@const isActive = ws.id === store.workspaces.activeId}
 					<button
 						onclick={() => handleWorkspaceSelect(ws.id)}
@@ -95,10 +103,14 @@
 						<span class="flex-1 text-left truncate">{ws.name}</span>
 						<span class="text-[10px] opacity-50">@{ws.slug}</span>
 					</button>
+
+					{#if isActive && sortedWorkspaces.length > 1}
+						<div class="my-1 border-b border-border/30 border-dashed mx-2"></div>
+					{/if}
 				{/each}
 				<button
 					onclick={() => (isCreateWorkspaceOpen = true)}
-					class={cn(theme.item, theme.itemDefault, 'px-2 py-1 text-muted-foreground italic')}
+					class={cn(theme.item, theme.itemDefault, 'mt-1 px-2 py-1 text-muted-foreground italic')}
 				>
 					<span class="w-3">{TUI.bullet}</span>
 					<span>New workspace...</span>

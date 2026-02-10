@@ -22,6 +22,14 @@
 
 	const store = getContext<AppStore>('store');
 
+	const sortedWorkspaces = $derived(
+		[...store.workspaces.workspaces].sort((a, b) => {
+			if (a.id === store.workspaces.activeId) return -1;
+			if (b.id === store.workspaces.activeId) return 1;
+			return 0;
+		})
+	);
+
 	let workspaceToDelete = $state<{ id: string; name: string } | null>(null);
 	let isDeleteDialogOpen = $state(false);
 	let newWorkspaceName = $state('');
@@ -144,7 +152,7 @@
 									{/if}
 
 									<div class="grid gap-1">
-										{#each store.workspaces.workspaces as ws (ws.id)}
+										{#each sortedWorkspaces as ws (ws.id)}
 											<div
 												class={cn(
 													theme.item,
