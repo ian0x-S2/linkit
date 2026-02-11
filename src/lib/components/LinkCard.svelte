@@ -128,7 +128,7 @@
 				</span>
 
 				<div class="hidden gap-2 truncate text-[10px] text-chart-3 sm:flex">
-					{#each link.tags.slice(0, 2) as tag}
+					{#each link.tags.slice(0, 2) as tag (tag)}
 						<span>#{tag}</span>
 					{/each}
 					{#if link.tags.length > 2}
@@ -217,15 +217,13 @@
 				<TagInput selected={link.tags} onchange={updateTags} />
 			</div>
 
-			<!-- Hover Actions for Card -->
-			<div
-				class="mt-2 flex items-center gap-4 opacity-0 transition-opacity group-hover:opacity-100"
-			>
+			<!-- Actions for Card -->
+			<div class="mt-4 flex items-center gap-2 py-2">
 				<Button
 					variant="ghost"
 					size="sm"
 					class={cn(
-						'h-auto p-0 text-[10px] font-bold uppercase transition-none hover:bg-transparent hover:underline',
+						'h-auto px-1 text-[9px] font-bold uppercase transition-none',
 						link.isFavorite ? 'text-chart-3' : 'text-primary'
 					)}
 					onclick={(e) => {
@@ -238,7 +236,7 @@
 				<Button
 					variant="ghost"
 					size="sm"
-					class="h-auto p-0 text-[10px] font-bold text-primary uppercase transition-none hover:bg-transparent hover:underline"
+					class="h-auto px-1 text-[9px] font-bold text-primary uppercase transition-none"
 					onclick={(e) => {
 						e.preventDefault();
 						onedit(link);
@@ -249,7 +247,7 @@
 				<Button
 					variant="ghost"
 					size="sm"
-					class="h-auto p-0 text-[10px] font-bold text-destructive uppercase transition-none hover:bg-transparent hover:underline"
+					class="h-auto px-1 text-[9px] font-bold text-destructive uppercase transition-none "
 					onclick={(e) => {
 						e.preventDefault();
 						store.links.toggleDeleted(link.id);
@@ -303,4 +301,3 @@
 		</div>
 	</Dialog.Content>
 </Dialog.Root>
-
