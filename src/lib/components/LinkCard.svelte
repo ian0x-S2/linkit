@@ -144,15 +144,17 @@
 			<!-- Actions Dropdown -->
 			<div class="ml-4 shrink-0">
 				<DropdownMenu.Root>
-					<DropdownMenu.Trigger asChild let:builder>
-						<Button
-							builders={[builder]}
-							variant="ghost"
-							size="icon"
-							class="h-7 w-7 rounded-none border border-transparent hover:border-border "
-						>
-							<Ellipsis class="h-4 w-4 text-muted-foreground/60" />
-						</Button>
+					<DropdownMenu.Trigger>
+						{#snippet child({ props })}
+							<Button
+								{...props}
+								variant="ghost"
+								size="icon"
+								class="h-7 w-7 rounded-none border border-transparent hover:border-border "
+							>
+								<Ellipsis class="h-4 w-4 text-muted-foreground/60" />
+							</Button>
+						{/snippet}
 					</DropdownMenu.Trigger>
 					{@render ActionMenuContent()}
 				</DropdownMenu.Root>

@@ -1,6 +1,6 @@
 # Project Context: Local-First Desktop MVP
 
-- Is a Book Mark web link maganer like a twitter feed of links
+- Is a Book Mark web link maganer like a TUI
 
 ## You are building an MVP for a local-first desktop application with the following architecture:
 
@@ -86,4 +86,3 @@ stores/
 - Use Result type, not exceptions
 - Log at boundary layers (repository, store actions)
 - Rollback optimistic updates on failure
-
