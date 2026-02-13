@@ -3,7 +3,7 @@ import type { Link, Workspace, WorkspaceId } from '$lib/types';
 import { STORAGE_KEYS } from '$lib/constants';
 import { ConsoleLogger, Repository, type Logger } from './infra';
 import { createLinkStore, createWorkspaceStore } from './domain';
-import { createFilterStore, createSettingsStore } from './ui';
+import { createFilterStore, createSettingsStore, createThemeStore } from './ui';
 
 export interface CreateAppStoreOptions {
 	initialData?: {
@@ -11,6 +11,7 @@ export interface CreateAppStoreOptions {
 		links: Link[];
 		activeWorkspaceId: WorkspaceId;
 		viewMode?: 'list' | 'grid';
+		theme?: ThemeId;
 	};
 	// Injeção para testes
 	repository?: Repository;
@@ -25,6 +26,7 @@ export interface AppStore {
 	// UI stores
 	readonly filters: ReturnType<typeof createFilterStore>;
 	readonly settings: ReturnType<typeof createSettingsStore>;
+	readonly theme: ReturnType<typeof createThemeStore>;
 
 	// Orchestration actions
 	setActiveWorkspace(id: WorkspaceId): Promise<void>;
@@ -56,6 +58,7 @@ export function createAppStore(options: CreateAppStoreOptions = {}): AppStore {
 	});
 
 	const settings = createSettingsStore(options.initialData?.viewMode);
+	const theme = createThemeStore(options.initialData?.theme);
 
 	// Orchestrated action: Switch workspace with side effects
 	async function setActiveWorkspace(id: WorkspaceId): Promise<void> {
@@ -74,8 +77,11 @@ export function createAppStore(options: CreateAppStoreOptions = {}): AppStore {
 		if (!data) return;
 		workspaces.hydrate(data.workspaces, data.activeWorkspaceId);
 		links.hydrate(data.links);
-		if (data.viewMode) {
+		if (data.viewMode && settings.viewMode !== data.viewMode) {
 			settings.setViewMode(data.viewMode);
+		}
+		if (data.theme && theme.current !== data.theme) {
+			theme.setTheme(data.theme);
 		}
 	}
 
@@ -109,6 +115,7 @@ export function createAppStore(options: CreateAppStoreOptions = {}): AppStore {
 		workspaces,
 		filters,
 		settings,
+		theme,
 		setActiveWorkspace,
 		hydrate,
 		migrateFromLocalStorageIfNeeded

@@ -6,6 +6,8 @@
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { pwaInfo } from 'virtual:pwa-info';
 
+	import { STORAGE_KEYS } from '$lib/constants';
+
 	interface Props {
 		children?: Snippet;
 		data: any;
@@ -26,7 +28,7 @@
 					meta.name = name;
 					document.head.appendChild(meta);
 				}
-				meta.setAttribute('content', value);
+				meta.content = value;
 			};
 			updateMeta('theme-color', themeColor);
 			updateMeta('color-scheme', colorScheme);
@@ -54,7 +56,8 @@
 			workspaces: data.workspaces,
 			links: data.links,
 			activeWorkspaceId: data.activeWorkspaceId,
-			viewMode: data.viewMode
+			viewMode: data.viewMode,
+			theme: data.theme
 		}))
 	});
 	setContext<AppStore>('store', store);
@@ -62,11 +65,14 @@
 	$effect(() => {
 		// Only run hydration logic if data actually changes after initial mount
 		if (mounted) {
-			store.hydrate({
-				workspaces: data.workspaces,
-				links: data.links,
-				activeWorkspaceId: data.activeWorkspaceId,
-				viewMode: data.viewMode
+			untrack(() => {
+				store.hydrate({
+					workspaces: data.workspaces,
+					links: data.links,
+					activeWorkspaceId: data.activeWorkspaceId,
+					viewMode: data.viewMode,
+					theme: data.theme
+				});
 			});
 		}
 	});
@@ -82,7 +88,7 @@
 	{/if}
 </svelte:head>
 
-<ModeWatcher />
+<ModeWatcher themeStorageKey={STORAGE_KEYS.THEME} />
 
 <Tooltip.Provider delayDuration={400}>
 	<div class="flex h-screen w-full overflow-hidden bg-background">

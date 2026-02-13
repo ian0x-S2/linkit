@@ -35,10 +35,20 @@
 
 			const rgbMatch = computedColor.match(/[\d.]+/g);
 			if (rgbMatch && rgbMatch.length >= 3) {
-				const r = Math.round(parseFloat(rgbMatch[0]));
-				const g = Math.round(parseFloat(rgbMatch[1]));
-				const b = Math.round(parseFloat(rgbMatch[2]));
-				themeColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+				const r = Math.min(255, Math.max(0, Math.round(parseFloat(rgbMatch[0]))));
+				const g = Math.min(255, Math.max(0, Math.round(parseFloat(rgbMatch[1]))));
+				const b = Math.min(255, Math.max(0, Math.round(parseFloat(rgbMatch[2]))));
+				
+				const toHex = (n: number) => n.toString(16).padStart(2, '0');
+				const hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+				
+				// Basic validation: must be #RRGGBB
+				if (/^#[0-9a-f]{6}$/i.test(hex)) {
+					themeColor = hex;
+				} else {
+					console.warn('Invalid hex generated:', hex, 'from', computedColor);
+					themeColor = '#8b5cf6'; // Safe fallback
+				}
 			}
 
 			// Resolve Sphere Color (based on background or hardcoded for better contrast)

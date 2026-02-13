@@ -1,9 +1,17 @@
+import type { ThemeId } from './types';
+
 export const STORAGE_KEYS = {
 	ACTIVE_WORKSPACE: 'active_workspace_id',
 	VIEW_MODE: 'view_mode',
 	MIGRATED_SQLITE: 'sqlite_migrated',
 	LEGACY_LINKS: 'links_data',
-	LEGACY_WORKSPACES: 'workspaces_data'
+	LEGACY_WORKSPACES: 'workspaces_data',
+	THEME: 'selected_theme'
+} as const;
+
+export const THEMES = {
+	DEFAULT: 'default' as ThemeId,
+	EVERFOREST: 'everforest' as ThemeId
 } as const;
 
 export const API_ENDPOINTS = {

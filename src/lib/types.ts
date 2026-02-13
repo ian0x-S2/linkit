@@ -8,6 +8,11 @@ export type LinkId = string & { readonly __brand: 'LinkId' };
  */
 export type WorkspaceId = string & { readonly __brand: 'WorkspaceId' };
 
+/**
+ * Branded type for Theme IDs
+ */
+export type ThemeId = string & { readonly __brand: 'ThemeId' };
+
 export interface Workspace {
 	id: WorkspaceId;
 	name: string;
