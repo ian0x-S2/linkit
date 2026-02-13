@@ -8,7 +8,7 @@
 	import { cn } from '$lib/utils.js';
 	import { TUI, formatRelativeTime } from '$lib/tui';
 	import TagInput from '$lib/components/TagInput.svelte';
-	import { Ellipsis, Star, Pencil, Trash2, RotateCcw } from '@lucide/svelte';
+	import { Ellipsis, Star, Pencil, Trash2, RotateCcw, Globe } from '@lucide/svelte';
 
 	interface Props {
 		link: Link;
@@ -21,6 +21,17 @@
 	const store = getContext<AppStore>('store');
 
 	let isDeleteDialogOpen = $state(false);
+	let logoError = $state(false);
+	let logoLoaded = $state(false);
+	let imageError = $state(false);
+
+	$effect(() => {
+		// Reset error states when link changes
+		link.id;
+		logoError = false;
+		logoLoaded = false;
+		imageError = false;
+	});
 
 	async function updateTags(tags: string[]) {
 		await store.links.update(link.id, { tags });
@@ -112,16 +123,29 @@
 				class="grid min-w-0 flex-1 grid-cols-[20px_1fr_200px_150px_40px] items-center gap-2 font-mono text-[12px]"
 			>
 				<button
-					onclick={(e) => {
-						e.preventDefault();
-						store.links.toggleFavorite(link.id);
-					}}
 					class={cn(
-						'flex shrink-0 justify-center transition-transform hover:scale-125',
-						link.isFavorite ? 'text-chart-3' : 'text-muted-foreground/30 hover:text-chart-3'
+						'flex h-4 w-4 shrink-0 items-center justify-center transition-transform hover:scale-110'
 					)}
 				>
-					{TUI.bullet}
+					{#if link.logo && !logoError}
+						<div class="relative flex h-3.5 w-3.5 items-center justify-center">
+							{#if !logoLoaded}
+								<Globe class="absolute inset-0 h-3.5 w-3.5 text-muted-foreground/50 opacity-50" />
+							{/if}
+							<img
+								src={link.logo}
+								alt=""
+								class={cn(
+									'h-3.5 w-3.5 object-contain transition-opacity duration-200',
+									logoLoaded ? 'opacity-100' : 'opacity-0'
+								)}
+								onerror={() => (logoError = true)}
+								onload={() => (logoLoaded = true)}
+							/>
+						</div>
+					{:else}
+						<Globe class="h-3.5 w-3.5 text-muted-foreground/50" />
+					{/if}
 				</button>
 
 				<a
@@ -185,11 +209,29 @@
 				<button
 					onclick={() => store.links.toggleFavorite(link.id)}
 					class={cn(
-						'text-[10px]',
-						link.isFavorite ? 'text-chart-3' : 'text-muted-foreground/30 hover:text-chart-3'
+						'flex h-4 w-4 shrink-0 items-center justify-center transition-transform hover:scale-110',
+						link.isFavorite ? 'text-chart-3' : 'text-muted-foreground/30 hover:text-primary'
 					)}
 				>
-					{TUI.bullet}
+					{#if link.logo && !logoError}
+						<div class="relative flex h-3 w-3 items-center justify-center">
+							{#if !logoLoaded}
+								<Globe class="absolute inset-0 h-3 w-3 opacity-50" />
+							{/if}
+							<img
+								src={link.logo}
+								alt=""
+								class={cn(
+									'h-3 w-3 object-contain transition-opacity duration-200',
+									logoLoaded ? 'opacity-100' : 'opacity-0'
+								)}
+								onerror={() => (logoError = true)}
+								onload={() => (logoLoaded = true)}
+							/>
+						</div>
+					{:else}
+						<Globe class="h-3 w-3" />
+					{/if}
 				</button>
 				<span class="truncate font-mono text-[10px] text-primary">{getDomain(link.url)}</span>
 			</div>
@@ -198,11 +240,16 @@
 
 		<!-- Image / Content -->
 		<div class="relative aspect-video w-full overflow-hidden bg-muted/10">
-			{#if link.image}
-				<img src={link.image} alt={link.title} class="h-full w-full object-cover" />
+			{#if link.image && !imageError}
+				<img
+					src={link.image}
+					alt={link.title}
+					class="h-full w-full object-cover"
+					onerror={() => (imageError = true)}
+				/>
 			{:else}
 				<div class="flex h-full w-full items-center justify-center text-muted-foreground/20">
-					<span class="font-mono text-4xl">{TUI.bullet}</span>
+					<Globe class="h-10 w-10 stroke-[1.5px] opacity-20" />
 				</div>
 			{/if}
 

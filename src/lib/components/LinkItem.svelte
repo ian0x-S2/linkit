@@ -9,7 +9,8 @@
 		RotateCcw,
 		Pencil,
 		Ellipsis,
-		ExternalLink
+		ExternalLink,
+		Globe
 	} from '@lucide/svelte';
 	import { formatDistanceToNow } from 'date-fns';
 	import * as Popover from '$lib/components/ui/popover';
@@ -27,7 +28,15 @@
 	const store = getContext<AppStore>('store');
 
 	let logoError = $state(false);
+	let logoLoaded = $state(false);
 	let actionsOpen = $state(false);
+
+	$effect(() => {
+		// Reset error states when link changes
+		link.id;
+		logoError = false;
+		logoLoaded = false;
+	});
 
 	function getDomain(url: string) {
 		try {
@@ -46,14 +55,23 @@
 				class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-sm border bg-muted/20 text-muted-foreground transition-colors group-hover:border-border"
 			>
 				{#if link.logo && !logoError}
-					<img
-						src={link.logo}
-						alt=""
-						class="h-6 w-6 object-contain"
-						onerror={() => (logoError = true)}
-					/>
+					<div class="relative flex h-6 w-6 items-center justify-center">
+						{#if !logoLoaded}
+							<Globe class="absolute inset-0 h-6 w-6 opacity-30" />
+						{/if}
+						<img
+							src={link.logo}
+							alt=""
+							class={cn(
+								'h-6 w-6 object-contain transition-opacity duration-200',
+								logoLoaded ? 'opacity-100' : 'opacity-0'
+							)}
+							onerror={() => (logoError = true)}
+							onload={() => (logoLoaded = true)}
+						/>
+					</div>
 				{:else}
-					<FileText class="h-4.5 w-4.5 opacity-30" />
+					<Globe class="h-4.5 w-4.5 opacity-30" />
 				{/if}
 			</div>
 		</div>

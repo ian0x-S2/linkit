@@ -51,27 +51,7 @@ export async function fetchOpenGraph(url: string): Promise<OpenGraphData> {
 
 		let logo = metadata.logo || null;
 
-		// Fallback: Manual favicon extraction from HTML
-		if (!logo) {
-			const iconRegex = /<link[^>]+rel=["'](?:shortcut icon|icon|apple-touch-icon)["'][^>]+href=["']([^"']+)["']/gi;
-			let match;
-			const icons: string[] = [];
-			while ((match = iconRegex.exec(html)) !== null) {
-				icons.push(match[1]);
-			}
-
-			if (icons.length > 0) {
-				// Prefer apple-touch-icon or larger icons if possible (heuristic)
-				const bestIcon = icons.find(i => i.includes('apple-touch-icon') || i.includes('180') || i.includes('192')) || icons[0];
-				try {
-					logo = new URL(bestIcon, url).toString();
-				} catch {
-					logo = bestIcon;
-				}
-			}
-		}
-
-		// Second Fallback: Google Favicon Service
+		// Fallback: Google Favicon Service (Highly reliable, handles 404s and provides defaults)
 		if (!logo) {
 			try {
 				const domain = new URL(url).hostname;
