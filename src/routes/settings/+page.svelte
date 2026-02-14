@@ -83,6 +83,21 @@
 			console.error('Failed to delete workspace:', e);
 		}
 	}
+
+	// Reactive link counts per workspace
+	const workspaceStats = $derived.by(() => {
+		const stats: Record<string, number> = {};
+		store.workspaces.workspaces.forEach(ws => {
+			// If it's the active workspace, use the current links store
+			if (ws.id === store.workspaces.activeId) {
+				stats[ws.id] = store.links.links.filter(l => !l.isDeleted).length;
+			} else {
+				// Fallback to server-provided count for background workspaces
+				stats[ws.id] = ws.linkCount || 0;
+			}
+		});
+		return stats;
+	});
 </script>
 
 <!-- Layout Container - Lazygit Style -->
@@ -178,7 +193,7 @@
 														<span class="text-[10px] font-bold text-primary uppercase">[active]</span>
 													{/if}
 													<span class="ml-auto text-[11px] text-muted-foreground whitespace-nowrap">
-														{ws.linkCount || 0} {(ws.linkCount || 0) === 1 ? 'link' : 'links'}
+														{workspaceStats[ws.id] || 0} {(workspaceStats[ws.id] || 0) === 1 ? 'link' : 'links'}
 													</span>
 												</div>
 
