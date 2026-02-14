@@ -5,60 +5,8 @@
 	import { TUI, theme } from '$lib/tui';
 	import LazyPanel from './tui/LazyPanel.svelte';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
-	import Globe from '$lib/motion-core/globe/Globe.svelte';
-	import { mode } from 'mode-watcher';
-	import * as THREE from 'three';
 
 	const store = getContext<AppStore>('store');
-
-	let themeColor = $state('#00ffff');
-	let sphereColor = $state('#050505');
-
-	$effect(() => {
-		// This will re-run whenever mode.current changes
-		const currentMode = mode.current;
-
-		if (typeof window !== 'undefined') {
-			const root = document.documentElement;
-			const primary = getComputedStyle(root).getPropertyValue('--primary').trim();
-			const background = getComputedStyle(root).getPropertyValue('--background').trim();
-
-			// Resolve Primary Color
-			const tempP = document.createElement('div');
-			tempP.style.color = primary.includes('oklch') ? primary : `oklch(${primary})`;
-			if (!primary.includes('oklch') && !primary.includes('rgb') && !primary.includes('#')) {
-				tempP.style.color = `var(--primary)`;
-			}
-			document.body.appendChild(tempP);
-			const computedColor = getComputedStyle(tempP).color;
-			document.body.removeChild(tempP);
-
-			const rgbMatch = computedColor.match(/[\d.]+/g);
-			if (rgbMatch && rgbMatch.length >= 3) {
-				const r = Math.min(255, Math.max(0, Math.round(parseFloat(rgbMatch[0]))));
-				const g = Math.min(255, Math.max(0, Math.round(parseFloat(rgbMatch[1]))));
-				const b = Math.min(255, Math.max(0, Math.round(parseFloat(rgbMatch[2]))));
-				
-				const toHex = (n: number) => n.toString(16).padStart(2, '0');
-				const hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-				
-				// Basic validation: must be #RRGGBB
-				if (/^#[0-9a-f]{6}$/i.test(hex)) {
-					themeColor = hex;
-				} else {
-					console.warn('Invalid hex generated:', hex, 'from', computedColor);
-					themeColor = '#8b5cf6'; // Safe fallback
-				}
-			}
-
-			// Resolve Sphere Color (based on background or hardcoded for better contrast)
-			if (currentMode === 'dark') {
-				sphereColor = '#050505';
-			} else {
-				sphereColor = '#f0f0f0';
-			}
-		}
-	});
 
 	const trendingTags = $derived.by(() => {
 		const tagCounts: Record<string, number> = {};
@@ -79,6 +27,15 @@
 		const favorites = activeLinks.filter((l) => l.isFavorite).length;
 		return { total, favorites };
 	});
+
+	const asciiLogo = `
+ _      _       _    _____ _   
+| |    (_)     | |  |_   _| |  
+| |     _ _ __ | | __ | | | |_ 
+| |    | | '_ \\| |/ / | | | __|
+| |____| | | | |   < _| |_| |_ 
+|______|_|_| |_|_|\\_\\_____|\\__|
+`;
 </script>
 
 <aside class="ml-2 hidden w-75 shrink-0 flex-col gap-4 border-border lg:flex">
@@ -130,28 +87,12 @@
 	</LazyPanel>
 
 	<!-- App Info Panel -->
-	<LazyPanel title="LinkFeed" titleClass={theme.titleStash} class="flex-[1.2]">
+	<LazyPanel title="LinkIt" titleClass={theme.titleStash} class="flex-[1.2]">
 		<div class="flex h-full flex-col">
-			<div class="relative min-h-[180px] flex-1">
-				<Globe
-					radius={1.8}
-					pointCount={8000}
-					autoRotate={true}
-					class="opacity-90"
-					landPointColor={mode.current === 'dark' ? '#ffffff' : '#444444'}
-					pointsBlending={mode.current === 'dark' ? THREE.AdditiveBlending : THREE.NormalBlending}
-					fresnelConfig={{
-						rimColor: themeColor,
-						color: mode.current === 'dark' ? '#050505' : '#cccccc',
-						rimIntensity: mode.current === 'dark' ? 1.5 : 0.4
-					}}
-					atmosphereConfig={{
-						color: themeColor,
-						intensity: mode.current === 'dark' ? 1.2 : 0.3,
-						power: mode.current === 'dark' ? 12 : 6,
-						blending: mode.current === 'dark' ? THREE.AdditiveBlending : THREE.NormalBlending
-					}}
-				/>
+			<div class="relative flex min-h-[140px] flex-1 items-center justify-center overflow-hidden">
+				<pre class="font-mono text-[10px] leading-[1.1] text-primary/80">
+					{asciiLogo}
+				</pre>
 			</div>
 			<div
 				class="flex flex-col gap-2 border-t border-border/20 bg-background/50 p-1 backdrop-blur-sm"
