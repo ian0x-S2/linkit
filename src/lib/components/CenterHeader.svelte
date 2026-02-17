@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { X } from '@lucide/svelte';
+	import { Button } from '$lib/components/ui/button';
 	import { getContext } from 'svelte';
 	import type { AppStore } from '$lib/stores';
 	import TagInput from '$lib/components/TagInput.svelte';
@@ -129,27 +130,6 @@
 			isLoading = false;
 		}
 	}
-
-	async function handleSubmit(e: KeyboardEvent | MouseEvent) {
-		if (e instanceof KeyboardEvent && e.key !== 'Enter') return;
-
-		if (inlinePreview) {
-			await handleSave();
-			return;
-		}
-
-		const url = extractUrl(urlInput.trim());
-		if (!url) {
-			error = 'Please enter a valid URL';
-			return;
-		}
-		if (!isValidUrl(url)) {
-			error = 'Invalid URL format';
-			return;
-		}
-
-		await fetchPreview(url);
-	}
 </script>
 
 <div class="border-b border-border px-2 py-3 pt-0">
@@ -251,12 +231,25 @@
 				<div
 					class="flex items-center justify-end gap-3 border-t border-border/30 bg-muted/30 px-2 py-1"
 				>
-					<span class="text-[10px] text-muted-foreground">
-						<span class="font-bold text-primary">[enter]</span> confirm & save
-					</span>
-					<span class="text-[10px] text-muted-foreground">
-						<span class="font-bold text-destructive">[esc]</span> cancel
-					</span>
+					<Button
+						variant="ghost"
+						onclick={handleSave}
+						disabled={isLoading}
+						class="h-auto p-0 font-normal text-muted-foreground hover:bg-transparent hover:text-foreground"
+					>
+						<span class="text-[10px]"><span class="font-bold text-primary">[enter]</span> confirm & save</span>
+					</Button>
+					<Button
+						variant="ghost"
+						onclick={() => {
+							inlinePreview = null;
+							urlInput = '';
+							lastFetchedUrl = '';
+						}}
+						class="h-auto p-0 font-normal text-muted-foreground hover:bg-transparent hover:text-foreground"
+					>
+						<span class="text-[10px]"><span class="font-bold text-destructive">[esc]</span> cancel</span>
+					</Button>
 				</div>
 			</div>
 		{/if}
