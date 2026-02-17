@@ -1,7 +1,8 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { links, workspaces, tags, linkTags } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
+import { cacheManager } from '$lib/server/cache';
 import type { RequestHandler } from './$types';
 import type { Link, Workspace } from '$lib/types';
 
@@ -9,6 +10,9 @@ export const POST: RequestHandler = async ({ request }) => {
 	const { links: localLinks, workspaces: localWorkspaces } = await request.json();
 
 	try {
+		let importedCount = 0;
+		let skippedCount = 0;
+
 		db.transaction((tx) => {
 			// Ensure at least one workspace exists
 			const existingWorkspaces = tx.select().from(workspaces).all();
@@ -57,6 +61,18 @@ export const POST: RequestHandler = async ({ request }) => {
 			// Migrate Links and Tags
 			if (localLinks?.length) {
 				for (const l of localLinks as Link[]) {
+					// Duplication check: Check if a link with same URL already exists in this workspace
+					const existingLink = tx
+						.select()
+						.from(links)
+						.where(and(eq(links.workspaceId, l.workspaceId), eq(links.url, l.url)))
+						.get();
+
+					if (existingLink) {
+						skippedCount++;
+						continue; // Skip duplication
+					}
+
 					tx.insert(links)
 						.values({
 							id: l.id,
@@ -75,6 +91,8 @@ export const POST: RequestHandler = async ({ request }) => {
 						})
 						.onConflictDoNothing()
 						.run();
+
+					importedCount++;
 
 					if (l.tags?.length) {
 						for (const tagName of l.tags) {
@@ -110,10 +128,19 @@ export const POST: RequestHandler = async ({ request }) => {
 			}
 		});
 
-		return json({ success: true });
+		// Invalidate cache after successful migration
+		cacheManager.clear();
+
+		return json({
+			success: true,
+			stats: {
+				imported: importedCount,
+				skipped: skippedCount,
+				workspaces: localWorkspaces?.length || 0
+			}
+		});
 	} catch (error) {
 		console.error('Migration failed:', error);
 		return json({ success: false, error: String(error) }, { status: 500 });
 	}
 };
-

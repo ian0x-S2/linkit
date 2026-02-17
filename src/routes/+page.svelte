@@ -6,6 +6,7 @@
 	import EmptyState from '$lib/components/EmptyState.svelte';
 	import LinkForm from '$lib/components/LinkForm.svelte';
 	import ExportDialog from '$lib/components/ExportDialog.svelte';
+	import ImportDialog from '$lib/components/ImportDialog.svelte';
 	import LazyStatusBar from '$lib/components/tui/LazyStatusBar.svelte';
 	import LazyPanel from '$lib/components/tui/LazyPanel.svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -21,6 +22,7 @@
 
 	let isAddDialogOpen = $state(false);
 	let isExportDialogOpen = $state(false);
+	let isImportDialogOpen = $state(false);
 	let editingLink = $state<Link | null>(null);
 
 	let previewData = $state<{
@@ -55,7 +57,11 @@
 		<!-- Main Content Area -->
 		<div class={theme.layoutMain}>
 			<!-- Left Sidebar (Workspace/Categories) -->
-			<LeftSidebar onAddLink={handleAddLink} onExport={() => (isExportDialogOpen = true)} />
+			<LeftSidebar
+				onAddLink={handleAddLink}
+				onExport={() => (isExportDialogOpen = true)}
+				onImport={() => (isImportDialogOpen = true)}
+			/>
 
 			<!-- Center Feed (Links) -->
 			<div class={theme.layoutContent}>
@@ -175,6 +181,15 @@
 		class="overflow-hidden rounded-none border-2 border-border bg-background p-0 sm:max-w-md"
 	>
 		<ExportDialog bind:open={isExportDialogOpen} links={store.filters.filteredLinks} />
+	</Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root bind:open={isImportDialogOpen}>
+	<Dialog.Content
+		showCloseButton={false}
+		class="overflow-hidden rounded-none border-2 border-border bg-background p-0 sm:max-w-xl"
+	>
+		<ImportDialog bind:open={isImportDialogOpen} />
 	</Dialog.Content>
 </Dialog.Root>
 

@@ -1,13 +1,6 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input';
-	import {
-		Layers,
-		Plus,
-		Database,
-		Info,
-		Loader2,
-		X
-	} from '@lucide/svelte';
+	import { Layers, Plus, Database, Info, Loader2, X } from '@lucide/svelte';
 	import { getContext } from 'svelte';
 	import type { AppStore } from '$lib/stores';
 	import type { WorkspaceId, ThemeId } from '$lib/types';
@@ -16,6 +9,7 @@
 	import RightSidebar from '$lib/components/RightSidebar.svelte';
 	import LinkForm from '$lib/components/LinkForm.svelte';
 	import ExportDialog from '$lib/components/ExportDialog.svelte';
+	import ImportDialog from '$lib/components/ImportDialog.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import LazyStatusBar from '$lib/components/tui/LazyStatusBar.svelte';
@@ -43,6 +37,7 @@
 	// Add/Export Link State
 	let isAddDialogOpen = $state(false);
 	let isExportDialogOpen = $state(false);
+	let isImportDialogOpen = $state(false);
 	let editingLink = $state<Link | null>(null);
 	let previewData = $state<{
 		url: string;
@@ -114,10 +109,10 @@
 	// Reactive link counts per workspace
 	const workspaceStats = $derived.by(() => {
 		const stats: Record<string, number> = {};
-		store.workspaces.workspaces.forEach(ws => {
+		store.workspaces.workspaces.forEach((ws) => {
 			// If it's the active workspace, use the current links store
 			if (ws.id === store.workspaces.activeId) {
-				stats[ws.id] = store.links.links.filter(l => !l.isDeleted).length;
+				stats[ws.id] = store.links.links.filter((l) => !l.isDeleted).length;
 			} else {
 				// Fallback to server-provided count for background workspaces
 				stats[ws.id] = ws.linkCount || 0;
@@ -128,12 +123,16 @@
 </script>
 
 <!-- Layout Container - Lazygit Style -->
-<div class="h-screen w-screen overflow-hidden bg-background p-2 sm:p-4">
-	<div class={cn(theme.app, "relative border-2 border-border shadow-2xl")}>
+<div class="h-screen w-screen overflow-hidden bg-background p-2 sm:p-2">
+	<div class={cn(theme.app, 'relative border-2 border-border shadow-2xl')}>
 		<!-- Main Content Area -->
 		<div class={theme.layoutMain}>
 			<!-- Left Sidebar -->
-			<LeftSidebar onAddLink={handleAddLink} onExport={() => (isExportDialogOpen = true)} />
+			<LeftSidebar
+				onAddLink={handleAddLink}
+				onExport={() => (isExportDialogOpen = true)}
+				onImport={() => (isImportDialogOpen = true)}
+			/>
 
 			<!-- Center Content (Settings) -->
 			<div class={theme.layoutContent}>
@@ -146,7 +145,10 @@
 				>
 					{#snippet subtitle()}
 						<div class="ml-2 flex items-center gap-2">
-							<a href="/" class="text-[10px] font-bold text-muted-foreground uppercase hover:text-foreground">
+							<a
+								href="/"
+								class="text-[10px] font-bold text-muted-foreground uppercase hover:text-foreground"
+							>
 								[b]ack to home
 							</a>
 						</div>
@@ -159,7 +161,9 @@
 								<!-- Section: Workspaces -->
 								<section class="space-y-4">
 									<div>
-										<h2 class="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
+										<h2
+											class="text-[11px] font-bold tracking-wider text-muted-foreground uppercase"
+										>
 											Workspaces
 										</h2>
 									</div>
@@ -184,7 +188,7 @@
 										{#if newWorkspaceName.trim() && !isAddingWorkspace}
 											<button
 												onclick={handleAddWorkspaceClick}
-												class="absolute top-1/2 right-1 h-6 -translate-y-1/2 rounded-none bg-primary px-2 text-[10px] font-bold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95 uppercase"
+												class="absolute top-1/2 right-1 h-6 -translate-y-1/2 rounded-none bg-primary px-2 text-[10px] font-bold text-primary-foreground uppercase transition-all hover:bg-primary/90 active:scale-95"
 											>
 												Create
 											</button>
@@ -200,27 +204,36 @@
 												class={cn(
 													theme.item,
 													'group px-2 py-1',
-													ws.id === store.workspaces.activeId ? 'bg-primary/10' : 'hover:bg-muted/50'
+													ws.id === store.workspaces.activeId
+														? 'bg-primary/10'
+														: 'hover:bg-muted/50'
 												)}
 											>
-												<div class="flex flex-1 items-center gap-2 min-w-0">
+												<div class="flex min-w-0 flex-1 items-center gap-2">
 													<Layers
 														class={cn(
-															"h-3.5 w-3.5 shrink-0",
-															ws.id === store.workspaces.activeId ? 'text-primary' : 'text-muted-foreground'
+															'h-3.5 w-3.5 shrink-0',
+															ws.id === store.workspaces.activeId
+																? 'text-primary'
+																: 'text-muted-foreground'
 														)}
 													/>
-													<span class={cn(
-														"truncate font-bold",
-														ws.id === store.workspaces.activeId ? 'text-primary' : ''
-													)}>
+													<span
+														class={cn(
+															'truncate font-bold',
+															ws.id === store.workspaces.activeId ? 'text-primary' : ''
+														)}
+													>
 														{ws.name}
 													</span>
 													{#if ws.id === store.workspaces.activeId}
-														<span class="text-[10px] font-bold text-primary uppercase">[active]</span>
+														<span class="text-[10px] font-bold text-primary uppercase"
+															>[active]</span
+														>
 													{/if}
-													<span class="ml-auto text-[11px] text-muted-foreground whitespace-nowrap">
-														{workspaceStats[ws.id] || 0} {(workspaceStats[ws.id] || 0) === 1 ? 'link' : 'links'}
+													<span class="ml-auto text-[11px] whitespace-nowrap text-muted-foreground">
+														{workspaceStats[ws.id] || 0}
+														{(workspaceStats[ws.id] || 0) === 1 ? 'link' : 'links'}
 													</span>
 												</div>
 
@@ -251,7 +264,9 @@
 								<!-- Section: Appearance -->
 								<section class="space-y-4">
 									<div class="border-t border-border/20 pt-4">
-										<h2 class="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
+										<h2
+											class="text-[11px] font-bold tracking-wider text-muted-foreground uppercase"
+										>
 											Appearance
 										</h2>
 									</div>
@@ -262,25 +277,29 @@
 												onclick={() => store.theme.setTheme(value as unknown as ThemeId)}
 												class={cn(
 													theme.item,
-													'group px-2 py-1 text-left w-full',
+													'group w-full px-2 py-1 text-left',
 													store.theme.current === value ? 'bg-primary/10' : 'hover:bg-muted/50'
 												)}
 											>
 												<div class="flex flex-1 items-center gap-2">
-													<div 
+													<div
 														class={cn(
-															"h-3 w-3 rounded-full border border-border",
-															value === 'default' ? "bg-[#8b5cf6]" : "bg-[#83c092]"
+															'h-3 w-3 rounded-full border border-border',
+															value === 'default' ? 'bg-[#8b5cf6]' : 'bg-[#83c092]'
 														)}
 													></div>
-													<span class={cn(
-														"font-bold capitalize",
-														store.theme.current === value ? 'text-primary' : ''
-													)}>
+													<span
+														class={cn(
+															'font-bold capitalize',
+															store.theme.current === value ? 'text-primary' : ''
+														)}
+													>
 														{value}
 													</span>
 													{#if store.theme.current === value}
-														<span class="ml-auto text-[10px] font-bold text-primary uppercase">[selected]</span>
+														<span class="ml-auto text-[10px] font-bold text-primary uppercase"
+															>[selected]</span
+														>
 													{/if}
 												</div>
 											</button>
@@ -291,7 +310,9 @@
 								<!-- Section: System Info -->
 								<section class="space-y-4">
 									<div class="border-t border-border/20 pt-4">
-										<h3 class="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
+										<h3
+											class="text-[11px] font-bold tracking-wider text-muted-foreground uppercase"
+										>
 											System
 										</h3>
 									</div>
@@ -304,7 +325,9 @@
 											</div>
 											<div class="flex items-center gap-2">
 												<span class="text-[11px] text-muted-foreground">SQLite</span>
-												<span class="flex items-center gap-1 text-[10px] font-bold text-green-500 uppercase">
+												<span
+													class="flex items-center gap-1 text-[10px] font-bold text-green-500 uppercase"
+												>
 													<span class="h-1.5 w-1.5 animate-pulse rounded-full bg-current"></span>
 													Connected
 												</span>
@@ -316,7 +339,7 @@
 												<Info class="h-3.5 w-3.5 text-muted-foreground" />
 												<span class="text-[13px]">App Version</span>
 											</div>
-											<span class="text-[11px] font-mono text-primary">v1.0.0-mvp</span>
+											<span class="font-mono text-[11px] text-primary">v1.0.0-mvp</span>
 										</div>
 									</div>
 								</section>
@@ -344,14 +367,16 @@
 
 <!-- Deletion Dialog - Styled to match Lazygit -->
 <Dialog.Root bind:open={isDeleteDialogOpen}>
-	<Dialog.Content 
-		showCloseButton={false} 
-		class="max-w-md overflow-hidden rounded-none border-2 border-white bg-black p-0 shadow-2xl font-mono"
+	<Dialog.Content
+		showCloseButton={false}
+		class="max-w-md overflow-hidden rounded-none border-2 border-white bg-black p-0 font-mono shadow-2xl"
 	>
 		<div class="flex flex-col">
 			<!-- Header -->
-			<div class="flex h-8 items-center justify-between border-b-2 border-white bg-destructive px-3">
-				<h2 class="text-[11px] font-bold uppercase tracking-tight text-destructive-foreground">
+			<div
+				class="flex h-8 items-center justify-between border-b-2 border-white bg-destructive px-3"
+			>
+				<h2 class="text-[11px] font-bold tracking-tight text-destructive-foreground uppercase">
 					Delete Workspace
 				</h2>
 				<button
@@ -365,8 +390,9 @@
 			<!-- Body -->
 			<div class="space-y-4 p-4 text-white">
 				<p class="text-[13px] leading-relaxed">
-					Are you sure you want to delete <span class="text-destructive font-bold">{workspaceToDelete?.name}</span>?
-					This will permanently remove all links in this workspace.
+					Are you sure you want to delete <span class="font-bold text-destructive"
+						>{workspaceToDelete?.name}</span
+					>? This will permanently remove all links in this workspace.
 				</p>
 			</div>
 
@@ -374,13 +400,13 @@
 			<div class="flex items-center justify-end gap-2 border-t border-white/20 p-2">
 				<button
 					onclick={() => (isDeleteDialogOpen = false)}
-					class="px-3 py-1 text-[11px] font-bold uppercase text-white hover:bg-white/10"
+					class="px-3 py-1 text-[11px] font-bold text-white uppercase hover:bg-white/10"
 				>
 					[c]ancel
 				</button>
 				<button
 					onclick={confirmDeleteWorkspace}
-					class="bg-destructive px-3 py-1 text-[11px] font-bold uppercase text-destructive-foreground hover:bg-destructive/90"
+					class="bg-destructive px-3 py-1 text-[11px] font-bold text-destructive-foreground uppercase hover:bg-destructive/90"
 				>
 					[d]elete
 				</button>
@@ -410,7 +436,19 @@
 		showCloseButton={false}
 		class="overflow-hidden rounded-none border-2 border-border bg-background p-0 sm:max-w-md"
 	>
-		<ExportDialog bind:open={isExportDialogOpen} links={store.links.links.filter(l => !l.isDeleted)} />
+		<ExportDialog
+			bind:open={isExportDialogOpen}
+			links={store.links.links.filter((l) => !l.isDeleted)}
+		/>
+	</Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root bind:open={isImportDialogOpen}>
+	<Dialog.Content
+		showCloseButton={false}
+		class="overflow-hidden rounded-none border-2 border-border bg-background p-0 sm:max-w-xl"
+	>
+		<ImportDialog bind:open={isImportDialogOpen} />
 	</Dialog.Content>
 </Dialog.Root>
 
@@ -421,3 +459,4 @@
 		padding: 0;
 	}
 </style>
+

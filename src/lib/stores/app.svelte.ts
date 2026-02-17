@@ -23,6 +23,9 @@ export interface AppStore {
 	readonly links: ReturnType<typeof createLinkStore>;
 	readonly workspaces: ReturnType<typeof createWorkspaceStore>;
 
+	// Infra
+	readonly repository: Repository;
+
 	// UI stores
 	readonly filters: ReturnType<typeof createFilterStore>;
 	readonly settings: ReturnType<typeof createSettingsStore>;
@@ -113,6 +116,7 @@ export function createAppStore(options: CreateAppStoreOptions = {}): AppStore {
 	return {
 		links,
 		workspaces,
+		repository,
 		filters,
 		settings,
 		theme,

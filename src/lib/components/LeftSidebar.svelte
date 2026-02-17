@@ -20,10 +20,12 @@
 
 	let {
 		onAddLink,
-		onExport
+		onExport,
+		onImport
 	}: {
 		onAddLink: () => void;
 		onExport: () => void;
+		onImport: () => void;
 	} = $props();
 
 	let isCreateWorkspaceOpen = $state(false);
@@ -156,6 +158,10 @@
 			<button onclick={onExport} class={cn(theme.item, theme.itemDefault, 'px-2 py-1')}>
 				<span class="w-4 text-[10px] opacity-50">e</span>
 				<span>Export Links</span>
+			</button>
+			<button onclick={onImport} class={cn(theme.item, theme.itemDefault, 'px-2 py-1')}>
+				<span class="w-4 text-[10px] opacity-50">i</span>
+				<span>Import Links</span>
 			</button>
 			<a
 				href="/settings"
