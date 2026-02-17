@@ -50,8 +50,8 @@
 </script>
 
 <!-- Layout Container - Lazygit Style -->
-<div class="h-screen w-screen overflow-hidden bg-background p-2 sm:p-4">
-	<div class={cn(theme.app, "relative border-2 border-border shadow-2xl")}>
+<div class="h-screen w-screen overflow-hidden bg-background p-1 sm:p-2">
+	<div class={cn(theme.app, 'relative border-2 border-border ')}>
 		<!-- Main Content Area -->
 		<div class={theme.layoutMain}>
 			<!-- Left Sidebar (Workspace/Categories) -->
@@ -185,3 +185,4 @@
 		padding: 0;
 	}
 </style>
+

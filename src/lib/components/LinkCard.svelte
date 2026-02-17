@@ -243,7 +243,7 @@
 		</div>
 
 		<!-- Image / Content -->
-		<div class="relative aspect-video w-full overflow-hidden bg-muted/10">
+		<div class="aspect-video w-full overflow-hidden bg-muted/10">
 			{#if link.image && !imageError}
 				<img
 					src={link.image}
@@ -256,11 +256,6 @@
 					<Globe class="h-10 w-10 stroke-[1.5px] opacity-20" />
 				</div>
 			{/if}
-
-			<!-- Selection indicator overlay -->
-			<div
-				class="pointer-events-none absolute inset-0 border-2 border-primary opacity-0 transition-opacity group-hover:opacity-100"
-			></div>
 		</div>
 
 		<!-- Footer Info -->
