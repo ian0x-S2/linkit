@@ -63,7 +63,7 @@
 		{#if link.isDeleted}
 			<DropdownMenu.Item
 				onclick={() => onToggleDeleted(link.id)}
-				class="flex cursor-pointer items-center gap-2 px-2 py-1.5 text-[11px] font-bold uppercase data-highlighted:bg-muted data-highlighted:text-accent"
+				class="flex cursor-pointer items-center gap-2 px-2 py-1.5 text-[11px] font-bold uppercase data-highlighted:bg-muted data-highlighted:text-primary"
 			>
 				<RotateCcw class="h-3.5 w-3.5 text-primary" />
 				<span>Restore</span>
@@ -72,7 +72,7 @@
 		{/if}
 		<DropdownMenu.Item
 			onclick={() => onToggleFavorite(link.id)}
-			class="flex cursor-pointer items-center gap-2 px-2 py-1.5 text-[11px] font-bold uppercase data-highlighted:bg-muted data-highlighted:text-accent"
+			class="flex cursor-pointer items-center gap-2 px-2 py-1.5 text-[11px] font-bold uppercase data-highlighted:bg-muted data-highlighted:text-primary"
 		>
 			<Star
 				class={cn(
@@ -85,7 +85,7 @@
 		</DropdownMenu.Item>
 		<DropdownMenu.Item
 			onclick={() => onedit(link)}
-			class="flex cursor-pointer items-center gap-2 px-2 py-1.5 text-[11px] font-bold uppercase data-highlighted:bg-muted data-highlighted:text-accent"
+			class="flex cursor-pointer items-center gap-2 px-2 py-1.5 text-[11px] font-bold uppercase data-highlighted:bg-muted data-highlighted:text-primary"
 		>
 			<Pencil class="h-3.5 w-3.5 text-primary" />
 			<span>Edit Link</span>
