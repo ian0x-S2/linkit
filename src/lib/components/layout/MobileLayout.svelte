@@ -20,7 +20,7 @@
 </script>
 
 <AppShell showStatusBar={false}>
-	<div class="flex h-full w-full gap-0 overflow-hidden p-2 pt-3">
+	<div class="flex h-full w-full gap-0 overflow-hidden px-1.5 pt-3">
 		{#if singlePanel && main}
 			<main class={cn(theme.layoutContent, 'flex h-full w-full min-w-0 flex-1 flex-col')}>
 				{@render main()}

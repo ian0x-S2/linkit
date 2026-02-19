@@ -16,7 +16,7 @@
 </script>
 
 <AppShell>
-	<div class="flex h-full w-full gap-2 overflow-hidden p-1 pb-6 lg:gap-4 lg:p-4 lg:pb-8">
+	<div class="flex h-full w-full gap-2 overflow-hidden p-1 pb-6 lg:gap-4 lg:p-1.5 lg:pb-7">
 		{#if left}
 			<aside
 				class="flex h-full w-[240px] min-w-0 shrink-0 flex-col overflow-y-auto p-2 lg:w-[300px]"

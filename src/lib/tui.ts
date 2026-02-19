@@ -71,7 +71,7 @@ export const theme = {
 
 	// Layout parts
 	layoutMain: 'flex flex-1 overflow-hidden gap-4 p-4',
-	layoutContent: 'flex flex-col flex-1 min-h-0',
+	layoutContent: 'flex flex-col flex-1 min-h-0 py-2',
 
 	// Left sidebar with panels
 	sidebar: 'w-[300px] shrink-0 flex flex-col gap-4',
@@ -126,7 +126,7 @@ export const theme = {
 
 	// Status bar
 	statusBar:
-		'bg-background border-t border-border px-3 py-1 flex items-center justify-between text-[11px] shrink-0',
+		'bg-background border-t border-border px-3 py-1 flex items-center justify-between text-[11px] shrink-0 w-full',
 	statusItem: 'text-muted-foreground flex items-center gap-4',
 	statusKey: 'text-primary',
 	statusDonate: 'text-secondary ml-4',

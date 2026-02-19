@@ -28,7 +28,7 @@
 <div
 	class={cn(
 		theme.app,
-		'relative h-[99dvh] w-screen overflow-hidden bg-background p-1 md:p-2',
+		'relative h-[100dvh] w-screen overflow-hidden bg-background p-2 py-0  md:p-3 lg:py-2',
 		isMobile.matches && 'pb-[60px]'
 	)}
 >

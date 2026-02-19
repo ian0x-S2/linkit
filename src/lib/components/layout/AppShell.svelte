@@ -14,11 +14,16 @@
 	} = $props();
 </script>
 
-<div class={cn('relative flex h-full overflow-hidden border-2 border-border shadow-xs', className)}>
+<div
+	class={cn(
+		'relative my-2 flex flex-1 overflow-hidden border-2 border-border shadow-xs',
+		className
+	)}
+>
 	{@render children?.()}
 
 	{#if showStatusBar}
-		<div class="absolute right-0 bottom-0 left-0 z-40 hidden md:flex">
+		<div class="absolute bottom-0 left-0 z-40 hidden w-full md:flex">
 			<LazyStatusBar />
 		</div>
 	{/if}

@@ -26,7 +26,7 @@
 	}: Props = $props();
 </script>
 
-<div class="{theme.panel} {focused ? theme.panelFocus : ''} {className}">
+<div class="relative flex flex-col bg-background min-h-0 {focused ? theme.panelFocus : ''} {className}">
 	<!-- Title / Header -->
 	<div class={theme.panelHeader}>
 		<span class={titleClass}>{title}</span>
@@ -37,7 +37,7 @@
 	</div>
 
 	<!-- Content -->
-	<div class={cn(theme.panelContent, contentClass)}>
+	<div class={cn(theme.panelContent, 'overflow-hidden', contentClass)}>
 		{@render children()}
 	</div>
 
