@@ -77,8 +77,9 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 		cacheManager.invalidateLink(id, workspaceId);
 		return json({ success: true });
 	} catch (error) {
-		defaultLogger.error('Failed to update link', { error, id });
-		return json({ error: 'Internal server error' }, { status: 500 });
+		const message = error instanceof Error ? error.message : 'Unknown error';
+		defaultLogger.error('Failed to update link', { error: message, id });
+		return json({ error: 'Internal server error', details: message }, { status: 500 });
 	}
 };
 

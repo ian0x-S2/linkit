@@ -1,5 +1,5 @@
 import type { Link } from '$lib/types';
-import { CATEGORIES, type Category } from '$lib/constants';
+import { CATEGORIES, type Category, APP_CONFIG } from '$lib/constants';
 import { FilterService } from '../infra';
 
 export interface CreateFilterStoreOptions {
@@ -27,8 +27,17 @@ export function createFilterStore(options: CreateFilterStoreOptions): FilterStor
 
 	// Estado privado
 	let _searchQuery = $state('');
+	let _debouncedSearchQuery = $state('');
 	let _selectedTags = $state<string[]>([]);
 	let _activeCategory = $state<Category>(CATEGORIES.INBOX);
+
+	// Debounce effect
+	$effect(() => {
+		const timeout = setTimeout(() => {
+			_debouncedSearchQuery = _searchQuery;
+		}, APP_CONFIG.SEARCH_DEBOUNCE_MS);
+		return () => clearTimeout(timeout);
+	});
 
 	// Estado derivado
 	const searchQuery = $derived(_searchQuery);
@@ -36,7 +45,10 @@ export function createFilterStore(options: CreateFilterStoreOptions): FilterStor
 	const activeCategory = $derived(_activeCategory);
 
 	const filteredLinks = $derived.by(() => {
-		return FilterService.filter(getLinks(), _activeCategory, _searchQuery, _selectedTags);
+		// Use debounced query for heavy filtering if it's not empty, 
+		// otherwise use direct query for immediate feedback on clear
+		const query = _searchQuery === '' ? '' : _debouncedSearchQuery;
+		return FilterService.filter(getLinks(), _activeCategory, query, _selectedTags);
 	});
 
 	const allTags = $derived.by(() => {

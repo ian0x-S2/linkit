@@ -8,41 +8,17 @@
 	import { BarChart } from 'layerchart';
 	import { scaleBand } from 'd3-scale';
 	import * as ChartUI from '$lib/components/ui/chart';
-	import { subDays, format, startOfDay, isSameDay } from 'date-fns';
 	import { browser } from '$app/environment';
+	import { StatsService } from '$lib/stores/infra/services/stats';
 
 	const store = getContext<AppStore>('store');
 
 	const trendingTags = $derived.by(() => {
-		const tagCounts: Record<string, number> = {};
-		store.links.links.forEach((link) => {
-			if (link.isDeleted) return;
-			link.tags.forEach((tag) => {
-				tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-			});
-		});
-		return Object.entries(tagCounts)
-			.sort((a, b) => b[1] - a[1])
-			.slice(0, 8);
+		return StatsService.getTrendingTags(store.links.links);
 	});
 
 	const stats = $derived.by(() => {
-		const activeLinks = store.links.links.filter((l) => !l.isDeleted);
-		const total = activeLinks.length;
-		const favorites = activeLinks.filter((l) => l.isFavorite).length;
-
-		// Activity data for chart (last 7 days)
-		const last7Days = Array.from({ length: 7 }, (_, i) => {
-			const date = subDays(startOfDay(new Date()), 6 - i);
-			const count = activeLinks.filter((l) => isSameDay(new Date(l.createdAt), date)).length;
-			return {
-				date: format(date, 'EEE'),
-				fullDate: format(date, 'MMM d'),
-				count
-			};
-		});
-
-		return { total, favorites, activity: last7Days };
+		return StatsService.getStats(store.links.links);
 	});
 
 	const chartConfig = {
@@ -64,7 +40,7 @@
 
 <aside class="flex h-full w-full shrink-0 flex-col gap-4 border-border">
 	<!-- Stats Panel -->
-	<LazyPanel title="Statistics" titleClass={theme.titleCommits} class="min-h-[200px] flex-1">
+	<LazyPanel title="Statistics" titleClass={theme.titleCommits} class="min-h-50 flex-1">
 		<div class="flex h-full flex-col font-mono text-[12px]">
 			<!-- Activity Chart -->
 			<div class="flex h-full flex-col gap-2">
@@ -107,7 +83,7 @@
 	</LazyPanel>
 
 	<!-- Tags Panel -->
-	<LazyPanel title="Top Tags" titleClass={theme.titleBranches} class="min-h-[180px] flex-1">
+	<LazyPanel title="Top Tags" titleClass={theme.titleBranches} class="min-h-45 flex-1">
 		<ScrollArea type="hover" class="h-full w-full">
 			<div class="flex flex-col gap-0.5">
 				{#each trendingTags as [tag, count] (tag)}
@@ -139,7 +115,7 @@
 	</LazyPanel>
 
 	<!-- App Info Panel -->
-	<LazyPanel title="LinkIt" titleClass={theme.titleStash} class="min-h-[120px] flex-1">
+	<LazyPanel title="LinkIt" titleClass={theme.titleStash} class="min-h-30 flex-1">
 		<div class="flex h-full flex-col">
 			<div
 				class="relative hidden min-h-35 flex-1 items-center justify-center overflow-hidden lg:flex"

@@ -6,6 +6,7 @@
 	import { TUI, formatRelativeTime } from '$lib/tui';
 	import { Ellipsis, Globe } from '@lucide/svelte';
 	import LinkActionMenu from './LinkActionMenu.svelte';
+	import { getDomain } from '$lib/utils/url';
 
 	interface Props {
 		link: Link;
@@ -25,14 +26,6 @@
 		logoError = false;
 		logoLoaded = false;
 	});
-
-	function getDomain(url: string) {
-		try {
-			return new URL(url).hostname.replace('www.', '');
-		} catch {
-			return url;
-		}
-	}
 </script>
 
 <div

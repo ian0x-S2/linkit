@@ -5,6 +5,7 @@
 	import { formatRelativeTime } from '$lib/tui';
 	import TagInput from '$lib/components/TagInput.svelte';
 	import { Globe } from '@lucide/svelte';
+	import { getDomain } from '$lib/utils/url';
 
 	interface Props {
 		link: Link;
@@ -34,14 +35,6 @@
 		logoLoaded = false;
 		imageError = false;
 	});
-
-	function getDomain(url: string) {
-		try {
-			return new URL(url).hostname.replace('www.', '');
-		} catch {
-			return url;
-		}
-	}
 </script>
 
 <div

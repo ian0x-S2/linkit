@@ -6,6 +6,7 @@
 	import { cn } from '$lib/utils';
 	import { Combobox } from 'bits-ui';
 	import { TUI } from '$lib/tui';
+	import { APP_CONFIG } from '$lib/constants';
 
 	interface Props {
 		selected: string[];
@@ -45,7 +46,7 @@
 		return filtered.filter((t: string) => t.toLowerCase().includes(value.toLowerCase()));
 	});
 
-	const hasReachedLimit = $derived(selected.length >= 10);
+	const hasReachedLimit = $derived(selected.length >= APP_CONFIG.TAG_LIMIT);
 
 	const isSearchingSelectedTag = $derived(
 		value.trim() !== '' &&
@@ -66,7 +67,7 @@
 			return;
 		}
 
-		if (selected.length >= 10) {
+		if (selected.length >= APP_CONFIG.TAG_LIMIT) {
 			return;
 		}
 

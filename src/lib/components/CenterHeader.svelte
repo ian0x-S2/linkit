@@ -6,6 +6,9 @@
 	import TagInput from '$lib/components/TagInput.svelte';
 	import { TUI } from '$lib/tui';
 	import { defaultLogger } from '$lib/stores/infra/logger';
+	import { isValidUrl, extractUrl } from '$lib/utils/url';
+	import { PreviewService, type LinkPreview } from '$lib/stores/infra/services/preview';
+	import { APP_CONFIG } from '$lib/constants';
 
 	const store = getContext<AppStore>('store');
 
@@ -14,24 +17,18 @@
 	let previewTags = $state<string[]>([]);
 
 	let error = $state('');
-	let inlinePreview = $state<{
-		url: string;
-		title: string | null;
-		description: string | null;
-		image: string | null;
-		logo: string | null;
-	} | null>(null);
+	let inlinePreview = $state<LinkPreview | null>(null);
 
 	// TUI Spinner logic
 	const spinnerFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
-	let frameIndex = $state(0);
+	let spinnerFrameIndex = $state(0);
 	let lastFetchedUrl = $state('');
 
 	$effect(() => {
 		let interval: any;
 		if (isLoading) {
 			interval = setInterval(() => {
-				frameIndex = (frameIndex + 1) % spinnerFrames.length;
+				spinnerFrameIndex = (spinnerFrameIndex + 1) % spinnerFrames.length;
 			}, 80);
 		}
 		return () => clearInterval(interval);
@@ -58,54 +55,16 @@
 			const timeout = setTimeout(() => {
 				lastFetchedUrl = url;
 				fetchPreview(url);
-			}, 500); // Debounce
+			}, APP_CONFIG.SEARCH_DEBOUNCE_MS);
 			return () => clearTimeout(timeout);
 		}
 	});
 
-	function isValidUrl(string: string): boolean {
-		try {
-			new URL(string);
-			return true;
-		} catch {
-			return false;
-		}
-	}
-
-	function extractUrl(text: string): string | null {
-		const urlRegex = /(https?:\/\/[^\s]+)/;
-		const match = text.match(urlRegex);
-		if (match) return match[0];
-		if (text.includes('.') && !text.includes(' ')) {
-			return `https://${text}`;
-		}
-		return null;
-	}
-
 	async function fetchPreview(url: string) {
 		isLoading = true;
 		error = '';
-		try {
-			const response = await fetch('/api/opengraph', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ url })
-			});
-			if (!response.ok) throw new Error('Failed to fetch preview');
-			const data = await response.json();
-			inlinePreview = {
-				url,
-				title: data.title || null,
-				description: data.description || null,
-				image: data.image || null,
-				logo: data.logo || null
-			};
-		} catch (err) {
-			defaultLogger.error('Failed to fetch link preview', { error: err, url });
-			inlinePreview = { url, title: null, description: null, image: null, logo: null };
-		} finally {
-			isLoading = false;
-		}
+		inlinePreview = await PreviewService.fetch(url);
+		isLoading = false;
 	}
 
 	async function handleSave() {
@@ -125,6 +84,7 @@
 			urlInput = '';
 			previewTags = [];
 		} catch (err) {
+			defaultLogger.error('Failed to save link from header', { error: err });
 			error = 'Failed to save link';
 		} finally {
 			isLoading = false;
@@ -162,7 +122,7 @@
 				/>
 				{#if isLoading}
 					<span class="w-4 text-center font-mono text-[14px] text-primary">
-						{spinnerFrames[frameIndex]}
+						{spinnerFrames[spinnerFrameIndex]}
 					</span>
 				{:else if urlInput}
 					<button

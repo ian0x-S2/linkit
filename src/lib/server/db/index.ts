@@ -4,10 +4,11 @@ import { migrate } from 'drizzle-orm/bun-sqlite/migrator';
 import * as schema from './schema';
 import path from 'node:path';
 import { building } from '$app/environment';
+import { APP_CONFIG } from '$lib/constants';
 
 const sqlite = new Database('sqlite.db');
-sqlite.run('PRAGMA journal_mode = WAL');
-sqlite.run('PRAGMA synchronous = NORMAL');
+sqlite.run(`PRAGMA journal_mode = ${APP_CONFIG.DB.JOURNAL_MODE}`);
+sqlite.run(`PRAGMA synchronous = ${APP_CONFIG.DB.SYNCHRONOUS}`);
 sqlite.run('PRAGMA foreign_keys = ON');
 
 export const db = drizzle(sqlite, { schema });

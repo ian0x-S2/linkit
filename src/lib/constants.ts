@@ -1,4 +1,4 @@
-import type { ThemeId } from './types';
+import type { ThemeId, Workspace, WorkspaceId } from './types';
 
 export const STORAGE_KEYS = {
 	ACTIVE_WORKSPACE: 'active_workspace_id',
@@ -31,5 +31,18 @@ export type Category = (typeof CATEGORIES)[keyof typeof CATEGORIES];
 export const APP_CONFIG = {
 	DEFAULT_WORKSPACE_ID: 'default' as const,
 	RETRY_ATTEMPTS: 3,
-	RETRY_DELAY_MS: 1000
+	RETRY_DELAY_MS: 1000,
+	TAG_LIMIT: 10,
+	SEARCH_DEBOUNCE_MS: 500,
+	DB: {
+		JOURNAL_MODE: 'WAL',
+		SYNCHRONOUS: 'NORMAL'
+	}
+};
+
+export const DEFAULT_WORKSPACE: Workspace = {
+	id: APP_CONFIG.DEFAULT_WORKSPACE_ID as WorkspaceId,
+	name: 'My Workspace',
+	slug: 'my-workspace',
+	createdAt: 1708512000000 // Stable timestamp
 };

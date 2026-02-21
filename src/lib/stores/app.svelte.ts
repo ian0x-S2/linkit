@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import type { Link, Workspace, WorkspaceId } from '$lib/types';
+import type { Link, Workspace, WorkspaceId, ThemeId } from '$lib/types';
 import { STORAGE_KEYS } from '$lib/constants';
 import { ConsoleLogger, Repository, type Logger } from './infra';
 import { createLinkStore, createWorkspaceStore } from './domain';

@@ -1,13 +1,6 @@
 import type { Workspace, WorkspaceId, Result, ApiError } from '$lib/types';
-import { APP_CONFIG } from '$lib/constants';
+import { APP_CONFIG, DEFAULT_WORKSPACE } from '$lib/constants';
 import type { Repository, Logger } from '../infra';
-
-const DEFAULT_WORKSPACE: Workspace = {
-	id: APP_CONFIG.DEFAULT_WORKSPACE_ID as WorkspaceId,
-	name: 'My Workspace',
-	slug: 'my-workspace',
-	createdAt: Date.now()
-};
 
 export interface CreateWorkspaceStoreOptions {
 	repository: Repository;
@@ -17,13 +10,11 @@ export interface CreateWorkspaceStoreOptions {
 }
 
 export interface WorkspaceStore {
-	// Estado
 	readonly workspaces: Workspace[];
 	readonly activeId: WorkspaceId;
 	readonly active: Workspace;
 	readonly count: number;
 
-	// Ações
 	setActive(id: WorkspaceId): void;
 	add(name: string): Promise<Result<Workspace, ApiError>>;
 	remove(id: WorkspaceId): Promise<void>;
@@ -33,13 +24,11 @@ export interface WorkspaceStore {
 export function createWorkspaceStore(options: CreateWorkspaceStoreOptions): WorkspaceStore {
 	const { repository, logger, initialWorkspaces = [], initialActiveId } = options;
 
-	// Estado privado
 	let _workspaces = $state<Workspace[]>(initialWorkspaces);
 	let _activeId = $state<WorkspaceId>(
 		initialActiveId ?? (APP_CONFIG.DEFAULT_WORKSPACE_ID as WorkspaceId)
 	);
 
-	// Estado derivado público
 	const workspaces = $derived(_workspaces);
 	const activeId = $derived.by(() => {
 		const found = _workspaces.find((w) => w.id === _activeId);
