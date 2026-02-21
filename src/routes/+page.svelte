@@ -61,6 +61,20 @@
 	{/snippet}
 
 	{#snippet main()}
+		{#snippet LinkList(viewMode: 'list' | 'grid')}
+			{#each store.filters.filteredLinks as link (link.id)}
+				<LinkCard
+					{link}
+					{viewMode}
+					onedit={handleEditLink}
+					onToggleFavorite={(id) => store.links.toggleFavorite(id as LinkId)}
+					onToggleDeleted={(id) => store.links.toggleDeleted(id as LinkId)}
+					onPermanentDelete={(id) => store.links.removePermanently(id as LinkId)}
+					onUpdateTags={(id, tags) => store.links.update(id as LinkId, { tags })}
+				/>
+			{/each}
+		{/snippet}
+
 		<LazyPanel
 			title="Links"
 			titleClass={theme.titleBranches}
@@ -101,20 +115,6 @@
 			{/snippet}
 
 			<CenterHeader />
-
-			{#snippet LinkList(viewMode: 'list' | 'grid')}
-				{#each store.filters.filteredLinks as link (link.id)}
-					<LinkCard
-						{link}
-						{viewMode}
-						onedit={handleEditLink}
-						onToggleFavorite={(id) => store.links.toggleFavorite(id as LinkId)}
-						onToggleDeleted={(id) => store.links.toggleDeleted(id as LinkId)}
-						onPermanentDelete={(id) => store.links.removePermanently(id as LinkId)}
-						onUpdateTags={(id, tags) => store.links.update(id as LinkId, { tags })}
-					/>
-				{/each}
-			{/snippet}
 
 			<div class="mt-1 min-h-0 flex-1 overflow-hidden">
 				<ScrollArea type="hover" class="h-full w-full">

@@ -49,10 +49,11 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 			const { tags: tagsToUpdate, ...linkUpdate } = updates;
 
 			if (Object.keys(linkUpdate).length > 0) {
-				tx.update(links)
-					.set({ ...linkUpdate, updatedAt: now } as any)
-					.where(eq(links.id, id))
-					.run();
+				const values: Partial<typeof links.$inferInsert> = {
+					...linkUpdate,
+					updatedAt: now
+				};
+				tx.update(links).set(values).where(eq(links.id, id)).run();
 			}
 
 			if (tagsToUpdate !== undefined) {

@@ -46,7 +46,7 @@
 	}
 
 	async function handleWorkspaceSelect(id: string) {
-		await store.setActiveWorkspace(id as any);
+		await store.setActiveWorkspace(id as WorkspaceId);
 	}
 
 	async function handleCreateWorkspace() {
@@ -59,7 +59,7 @@
 			if (result.ok) {
 				newWorkspaceName = '';
 				isCreateWorkspaceOpen = false;
-				await store.setActiveWorkspace(result.value.id);
+				await store.setActiveWorkspace(result.value.id as WorkspaceId);
 			}
 		} finally {
 			isCreating = false;

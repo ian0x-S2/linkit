@@ -8,6 +8,7 @@
 
 	import { STORAGE_KEYS } from '$lib/constants';
 	import type { LayoutData } from './$types';
+	import type { Link, Workspace, WorkspaceId, ThemeId } from '$lib/types';
 
 	interface Props {
 		children?: Snippet;
@@ -54,11 +55,11 @@
 
 	const store = createAppStore({
 		initialData: untrack(() => ({
-			workspaces: data.workspaces,
-			links: data.links,
-			activeWorkspaceId: data.activeWorkspaceId,
+			workspaces: data.workspaces as Workspace[],
+			links: data.links as Link[],
+			activeWorkspaceId: data.activeWorkspaceId as WorkspaceId,
 			viewMode: data.viewMode,
-			theme: data.theme
+			theme: data.theme as ThemeId
 		}))
 	});
 	setContext<AppStore>('store', store);
@@ -68,11 +69,11 @@
 		if (mounted) {
 			untrack(() => {
 				store.hydrate({
-					workspaces: data.workspaces,
-					links: data.links,
-					activeWorkspaceId: data.activeWorkspaceId,
+					workspaces: data.workspaces as Workspace[],
+					links: data.links as Link[],
+					activeWorkspaceId: data.activeWorkspaceId as WorkspaceId,
 					viewMode: data.viewMode,
-					theme: data.theme
+					theme: data.theme as ThemeId
 				});
 			});
 		}
