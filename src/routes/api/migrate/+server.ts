@@ -61,11 +61,14 @@ export const POST: RequestHandler = async ({ request }) => {
 			// Migrate Links and Tags
 			if (localLinks?.length) {
 				for (const l of localLinks as Link[]) {
+					const targetWorkspaceId = (l.workspaceId || 'default') as any;
+					const targetLinkId = (l.id || crypto.randomUUID()) as any;
+
 					// Duplication check: Check if a link with same URL already exists in this workspace
 					const existingLink = tx
 						.select()
 						.from(links)
-						.where(and(eq(links.workspaceId, l.workspaceId), eq(links.url, l.url)))
+						.where(and(eq(links.workspaceId, targetWorkspaceId), eq(links.url, l.url)))
 						.get();
 
 					if (existingLink) {
@@ -75,8 +78,8 @@ export const POST: RequestHandler = async ({ request }) => {
 
 					tx.insert(links)
 						.values({
-							id: l.id,
-							workspaceId: l.workspaceId,
+							id: targetLinkId,
+							workspaceId: targetWorkspaceId,
 							url: l.url,
 							title: l.title,
 							description: l.description,
@@ -84,10 +87,10 @@ export const POST: RequestHandler = async ({ request }) => {
 							author: l.author,
 							publisher: l.publisher,
 							logo: l.logo,
-							createdAt: l.createdAt,
-							updatedAt: l.updatedAt,
-							isFavorite: l.isFavorite,
-							isDeleted: l.isDeleted
+							createdAt: l.createdAt || Date.now(),
+							updatedAt: l.updatedAt || Date.now(),
+							isFavorite: l.isFavorite || false,
+							isDeleted: l.isDeleted || false
 						})
 						.onConflictDoNothing()
 						.run();
@@ -117,7 +120,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 							tx.insert(linkTags)
 								.values({
-									linkId: l.id,
+									linkId: targetLinkId,
 									tagId: finalTagId
 								})
 								.onConflictDoNothing()

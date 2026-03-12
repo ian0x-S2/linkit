@@ -20,12 +20,11 @@ CREATE TABLE `links` (
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
 	`is_favorite` integer DEFAULT false,
-	`is_archived` integer DEFAULT false,
 	`is_deleted` integer DEFAULT false,
 	FOREIGN KEY (`workspace_id`) REFERENCES `workspaces`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE INDEX `idx_links_workspace_category` ON `links` (`workspace_id`,`is_deleted`,`is_archived`,`created_at`);--> statement-breakpoint
+CREATE INDEX `idx_links_workspace_category` ON `links` (`workspace_id`,`is_deleted`,`created_at`);--> statement-breakpoint
 CREATE INDEX `idx_links_fav` ON `links` (`workspace_id`,`created_at`) WHERE is_favorite = 1 AND is_deleted = 0;--> statement-breakpoint
 CREATE TABLE `tags` (
 	`id` text PRIMARY KEY NOT NULL,
